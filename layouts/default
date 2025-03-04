@@ -1,0 +1,35 @@
+<template>
+  <div>
+    <nav>
+      <NuxtLink to="/">Home</NuxtLink>
+      <NuxtLink to="/about">About</NuxtLink>
+      <NuxtLink to="/gallery">Gallery</NuxtLink>
+      <NuxtLink to="/contact">Contact</NuxtLink>
+      <NuxtLink to="/appointments">Appointments</NuxtLink>
+      <NuxtLink to="/admin" v-if="isAdmin">Admin</NuxtLink>
+    </nav>
+    <slot />
+    <footer>
+      <p>&copy; {{ new Date().getFullYear() }} HVAC Business</p>
+    </footer>
+  </div>
+</template>
+
+<script setup>
+    const isAdmin = useState('isAdmin', () => false); // Example admin state
+</script>
+
+<style scoped>
+    nav {
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+      background-color: #f0f0f0;
+    }
+    
+    footer {
+      text-align: center;
+      padding: 10px;
+      background-color: #f0f0f0;
+    }
+</style>
