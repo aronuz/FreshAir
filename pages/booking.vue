@@ -6,7 +6,12 @@
 </template>
 
 <script lang="ts" setup>
-import BookingCalendar from './BookingCalendar.vue';
+import BookingCalendar from '../components/BookingCalendar.vue';
+
+definePageMeta({
+  middleware: 'errorMiddleware'
+});
+
 useHead({
   title: 'Book HVAC Service - HVAC Fresh Air',
   meta: [

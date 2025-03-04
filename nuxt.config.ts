@@ -23,5 +23,17 @@ export default defineNuxtConfig({
       ]
     }
   },
-  css: ['~/assets/css/main.css']
+  modules: [
+    '@nuxtjs/sitemap' // Install this module
+  ],
+  css: ['~/assets/css/main.css'],
+  router: {
+    extendRoutes(routes, resolve) {
+      routes.push({
+        path: '*',
+        component: resolve(__dirname, 'layouts/error.vue')
+      });
+    },
+    middleware: ['errorMiddleware']
+  }
 })
