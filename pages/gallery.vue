@@ -7,9 +7,9 @@
   </div>
 </template>
 
-<script setup>
+<!-- <script setup>
 // Import images if needed (or use a CMS for dynamic images)
-</script>
+</script> -->
 <script lang="ts" setup>
 const galleryItems = [{src: '/images/image.jpg', alt: 'HVAC service'}]
 

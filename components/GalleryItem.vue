@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="gallery-item">
-      <img src="imageSrc" alt="altText">
+      <img :src="imageSrc" :alt="altText">
     </div>
   </div>
 </template>
@@ -11,6 +11,8 @@ defineProps({
   imageSrc: String,
   altText: String
 })
+const imagePath = 'images/image.jpg';
+const imageUrl = useAssets().getURL(imagePath);
 </script>
 
 <style scoped>

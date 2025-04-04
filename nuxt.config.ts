@@ -23,9 +23,8 @@ export default defineNuxtConfig({
       ]
     }
   },
-  modules: [
-    '@nuxtjs/sitemap' // Install this module
-  ],
+  modules: [// Install this module
+  '@nuxtjs/sitemap', '@nuxtjs/supabase'],
   css: ['~/assets/css/main.css'],
   router: {
     extendRoutes(routes, resolve) {
@@ -35,5 +34,8 @@ export default defineNuxtConfig({
       });
     },
     middleware: ['errorMiddleware']
+  },
+  supabase: {
+    redirect: false
   }
 })
