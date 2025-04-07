@@ -38,15 +38,22 @@
 <script setup>
 import { ref, onMounted, useState } from 'vue';
 
-const pending = ref(true)
+//const pending = ref(true)//ufq
 const isOpen = ref(false)
-const supabase = useSupabaseClient()
-const appointments = ref([]);
+
+const { fetchAppointments,
+        submitAppointment,
+        updateAppointment,
+        deleteAppointment,
+        pending } = useFetchQuerries()
+
+//const supabase = useSupabaseClient()//ufq
+//const appointments = ref([]);//ufq
 const grouped = ref({});
-const appointment = ref({ name: '', email: '', dateTime: '', notes: '' });
+//const appointment = ref({ name: '', email: '', dateTime: '', notes: '' });//ufq
 const selectedAppointment = ref(null);
 
-const error = ref(null);
+// const error = ref(null);//ufq
 
 // const fetchAppointments = async () => {
 //   const { data, error, status } = await useFetch('/api/appointments');
@@ -57,7 +64,7 @@ const error = ref(null);
 //   }
 // };
 
-const fetchAppointments = async () => {
+const fetchAppointments = async () => {//ufq
   const { data, pending } = await useAsyncData('appointments', async () => {
     const {data, error} = await supabase.from(appointments).select().order('created_at', { ascending: true })
   
@@ -82,9 +89,8 @@ const fetchAppointments = async () => {
 };
 
 await fetchAppointments()
-pending.value = false
 
-const submitAppointment = async () => {
+const submitAppointment = async () => {//ufq
   if (selectedAppointment.value) {
     await updateAppointment();
     return;
@@ -102,7 +108,7 @@ const submitAppointment = async () => {
   appointment.value = { name: '', email: '', dateTime: '', notes: '' };
 };
 
-const updateAppointment = async () => {
+const updateAppointment = async () => {//ufq
     if (!selectedAppointment.value) return;
 
     await $fetch(`/api/appointments/${selectedAppointment.value.id}`, {
@@ -129,7 +135,7 @@ const updateAppointment = async () => {
 //   selectedAppointment.value = null;
 // };
 
-const deleteAppointment = async () => {
+const deleteAppointment = async () => {//ufq
   if (!selectedAppointment.value) return;
   pending.value = true
   try {
