@@ -36,6 +36,6 @@ export default defineNuxtConfig({
     middleware: ['errorMiddleware']
   },
   supabase: {
-    redirect: false
+    redirect: true //Redirects to login
   }
 })
