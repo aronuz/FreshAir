@@ -1,6 +1,6 @@
 <template>
   <div>
-    <nav>
+    <nav>      
       <NuxtLink to="/">Home</NuxtLink>
       <NuxtLink to="/about">About</NuxtLink>
       <NuxtLink to="/gallery">Gallery</NuxtLink>
@@ -9,6 +9,12 @@
       <NuxtLink to="/admin" v-if="isAdmin">Admin</NuxtLink>
       <UButton @click="handleSignout v-if="user">Logout</UButton>
     </nav>
+    <div class="grid drid-cols-6 gap-8">
+      <UVerticalNavigation :links="links" class="col-span-2" />
+      <div class="col-span-4" />
+        <NuxtPage />
+      </div>
+    </div>
     <slot />
     <footer>
       <p>&copy; {{ new Date().getFullYear() }} HVAC Business</p>
@@ -29,6 +35,11 @@
       supabase.auth.signOut()
       navigateTo('/login', )
     }
+    const links = [
+      {label: '',
+        to: '/'
+      },
+    ]
 </script>
 
 <style scoped>

@@ -3,7 +3,7 @@
       <UCard>
         <template #header>Add Appointment</template>
 
-        <UForm :state=appointment :schema="schema" ref="appform" @submit="submitAppointment" :validate-on="[submit]">
+        <UForm :state=appointment :schema="schema" ref="appform" @submit="submitAppointment" :validate-on="[submit]" :error="onError">
           <UFormGroup :required="true" label="name" name="name" class="mb=4">
             <UInput placeholder="Name" v-model="appointment.name"/>
           </UFormGroup>
@@ -47,8 +47,8 @@
   const appform = ref()
   const pending = ref(false)
 
-  const submitappointment = async () => {
-    if(appform.value.errors.length) return
+  const submitAppointment = async () => {
+    // if(appform.value.errors.length) return
 
     //update db
     pending.value = true
@@ -84,4 +84,8 @@
       emit('update:modelValue', val)
     }
   })
+
+  const onError = (error) => {
+    useToastBar('Error', 'Form error', error)
+  }
 </script>

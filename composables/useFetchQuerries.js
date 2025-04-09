@@ -38,13 +38,16 @@ const useFetchQuerries = () => {
         }
         pending.value = true
         try {
-            await $fetch('/api/appointments', {
-            method: 'POST',
-            body: appointment.value,
-            });
+            const { error } = await supabase.from('appointmemts'.upsert(...appointment.value))
+            // await $fetch('/api/appointments', {
+            // method: 'POST',
+            // body: appointment.value,
+            // });
+            if(error) throw(error)
+            else useToastBar('Success', 'Appointment removed')
         } catch (e) {
             error.value = e;
-            onError( '500', error.value)
+            onError( 'Error', 'Error 500', `Unable to create a new appoinment record.\n${error.value}`)
         }
         await fetchAppointments();
         appointment.value = { name: '', email: '', dateTime: '', notes: '' };
@@ -73,12 +76,13 @@ const useFetchQuerries = () => {
           useToastBar('Success', 'Appointment removed')
         } catch (e) {
           error.value = e;
-          useToastBar('Error', 'Unable to remove selected appoinment')
-          onError( '500', error.value)
+          onError( 'Error', 'Error 500', `Unable to remove selected appoinment\n${error.value}`)
         } finally {    
           pending.value = false
         }
     };
+
+    const onError = (type, status, message) => {throw createError({ statusCode: status, message: message || 'An unknown error has occured.'});}
 
     return {
         querries: {

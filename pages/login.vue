@@ -46,7 +46,7 @@
                 success.value = true
             }
         } catch (e) {
-            useToastBar('Error', 'Failed to Authienticate. Please try again.')
+            useToastBar('Error', 'Authientication Error', 'Failed to Authienticate. Please try again.')
         } finally {
             pending.value = false
         }
