@@ -70,10 +70,10 @@ const useFetchQuerries = () => {
           await fetchAppointments();
           appointment.value = { name: '', address: '', email: '', phone: '', date: '', time: '', notes: '' };
           selectedAppointment.value = null
-          useToast({title: 'Appointment removed', icon: 'i-heroicons-check-circle', color: 'green'})
+          useToastBar('Success', 'Appointment removed')
         } catch (e) {
           error.value = e;
-          useToast({title: 'Unable to remove selected appoinment', icon: 'i-heroicons-exclamation-circle', color: 'red'})
+          useToastBar('Error', 'Unable to remove selected appoinment')
           onError( '500', error.value)
         } finally {    
           pending.value = false

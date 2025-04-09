@@ -28,7 +28,6 @@
     const success = ref(false)
     const email = ref('')
     const pending = ref(false)
-    const toast = useToast()
 
     const handleLogin = async () => {
         pending.value = true
@@ -47,7 +46,7 @@
                 success.value = true
             }
         } catch (e) {
-            useToast({title: 'Failed to Authienticate. Please try again.', description: e.message, color: 'red'})
+            useToastBar('Error', 'Failed to Authienticate. Please try again.')
         } finally {
             pending.value = false
         }
