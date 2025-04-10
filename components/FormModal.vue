@@ -68,19 +68,26 @@
     }
   }
 
-  const appointment = ref({
+  const blankState = {
     name: undefined,
     email: undefined,
     phone: undefined,
     address: undefined,
     dateTime: undefined, 
-    notes: undefined,
-  })
+    notes: undefined
+  }
+
+  const appointment = ref({...blankState})
+
+  const blankForm = () => {
+    Object.assign(appointment.value, blankState)
+    appform.value.clear()
+  } 
 
   const isOpen = computed({
     get: () => props.modelValue,
     set: (val: Boolean) => {
-      if (!val) resetForm()
+      if (!val) blankForm()
       emit('update:modelValue', val)
     }
   })
