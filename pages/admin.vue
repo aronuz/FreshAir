@@ -1,7 +1,10 @@
 <template>
   <div>
     <h1>Admin Panel</h1>
-    <div id="calendar"></div>
+    <FullCalendar v-if="!!dataSet" :data-set="dataSet" />
+    <!-- Add skeleton on v-else -->
+    <FormModal v-model="isOpen" @saved="handleSave" />
+    <UButton v-if="!isOpen" icon="i-heroicons-plus-circle" color="#FFF" variant="solid" label="Add" @click="isOpen = true"/>
     <form @submit.prevent="sendEmail">
       <input type="email" v-model="emailData.to" placeholder="To" />
       <input type="text" v-model="emailData.subject" placeholder="Subject" />
@@ -12,35 +15,24 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import FullCalendar from '@fullcalendar/vue3';
-import dayGridPlugin from '@fullcalendar/daygrid';
+import { ref } from 'vue';
 
 const appointments = ref([]);
 const emailData = ref({ to: '', subject: '', body: '' });
 
 const error = ref(null);
+const dataSet = ref(null)
 
-const fetchAppointments = async () => {
-  const { data, error, status  } = await useFetch('/api/appointments');
-  if (error.value) {
-    onError(status.value, error.value)
-  } else if (data.value) {
-    appointments.value = data.value.map(appt => ({
-      title: appt.name,
-      start: appt.dateTime,
-    }));
-    initCalendar();
-  }
-};
+const { fetchAppointments,
+        updateAppointment,
+        deleteAppointment,
+        pending } = useFetchQueries()
 
-const initCalendar = () => {
-  new FullCalendar(document.getElementById('calendar'), {
-    plugins: [dayGridPlugin],
-    initialView: 'dayGridMonth',
-    events: appointments.value,
-  }).render();
-};
+const handleSave = async () => {
+  dataSet = await fetchAppointments()
+}
+
+handleSave()
 
 const sendEmail = async () => {
   try {
@@ -54,10 +46,6 @@ const sendEmail = async () => {
   }
   emailData.value = { to: '', subject: '', body: '' };
 };
-
-onMounted(() => {
-  fetchAppointments();
-});
 </script>
 
 <style scoped>

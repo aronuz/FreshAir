@@ -29,6 +29,11 @@
 <script lang="ts" setup>
   import { z } from 'zod'
 
+  const { 
+        submitAppointment,
+        pending 
+      } = useFetchQueries()
+
   const props = defineProps({
     modelValue: Boolean
   })
@@ -43,30 +48,7 @@
     notes: z.string(),
   })
 
-  const supabase = useSupabaseClient()
   const appform = ref()
-  const pending = ref(false)
-
-  const submitAppointment = async () => {
-    // if(appform.value.errors.length) return
-
-    //update db
-    pending.value = true
-    try {
-      const { error } = await supabase.from('appointments').upsert({ ...appointment.value })
-      if(!error) {
-        //toast success
-        isOpen.value = false
-        emit('saved')
-        return error
-      }
-      throw()
-    }catch(e){
-      //toast error
-    }finally{
-      pending.value = false
-    }
-  }
 
   const blankState = {
     name: undefined,
@@ -92,6 +74,7 @@
     }
   })
 
+  //const onError = (status, message) => {throw createError({ statusCode: status, message: message || 'An unknown error has occured.'});}
   const onError = (error) => {
     useToastBar('Error', 'Form error', error)
   }

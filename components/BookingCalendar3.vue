@@ -45,7 +45,7 @@ const { fetchAppointments,
         submitAppointment,
         updateAppointment,
         deleteAppointment,
-        pending } = useFetchQuerries()
+        pending } = useFetchQueries()
 
 //const supabase = useSupabaseClient()//ufq
 //const appointments = ref([]);//ufq
