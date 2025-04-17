@@ -1,16 +1,12 @@
 <template>
-  <div>
-    <nav>      
-      <NuxtLink to="/">Home</NuxtLink>
+  <div class="containr mx-auto max-w-4xl">
+    <Header :user="user" :is-admin="isAdmin" />
+    <nav>
       <NuxtLink to="/about">About</NuxtLink>
       <NuxtLink to="/gallery">Gallery</NuxtLink>
       <NuxtLink to="/contact">Contact</NuxtLink>
       <NuxtLink to="/appointments">Appointments</NuxtLink>
-      <NuxtLink to="/admin" v-if="isAdmin">Admin</NuxtLink>
-      <UButton @click="handleSignout v-if="user">Logout</UButton>
     </nav>
-    <div>{{ user.email }}
-    </div>
     <div class="grid drid-cols-6 gap-8">
       <UVerticalNavigation :links="links" class="col-span-2" />
       <div class="col-span-4" >
@@ -18,33 +14,28 @@
       </div>
     </div>
     <slot />
-    <footer>
-      <p>&copy; {{ new Date().getFullYear() }} HVAC Business</p>
-    </footer>
+    <footer />
   </div>
 </template>
 
-<script setup>
-    import { ref, useState } from 'vue';
-    
-    const user = useSupabaseUser()
-    const isAdmin = ref(false)
-    watch (user, (user) => {
-      if (user) {
-        //isAdmin.value = user.role = "admin"
-        isAdmin.value = useState('isAdmin', (user) => false); // Example admin state
-      }
-    }, { immediate: true })
-
-    const handleSignout = () => {
-      supabase.auth.signOut()
-      navigateTo('/login', )
-    }
+<script setup>    
     const links = [
       {label: '',
         to: '/'
       },
     ]
+
+    useHead({
+      link: [{
+        rel: 'preconnect',
+        href: 'https://fonts.googleapis.com'
+      },
+      {
+        rel: 'stylesheet',
+        href: 'href://fonts.googleapis.com/css2?family=Inter&display=swap',
+        crossorigin: ''
+      }]
+    })
 </script>
 
 <style scoped>
