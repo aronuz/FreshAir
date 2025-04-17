@@ -7,19 +7,29 @@
           <UFormGroup :required="true" label="name" name="name" class="mb=4">
             <UInput placeholder="Name" v-model="appointment.name"/>
           </UFormGroup>
-          <UFormGroup :required="true" label="email" name="email" class="mb=4">
+          <UFormGroup :required="true" label="Email" name="email" class="mb=4">
             <UInput placeholder="Email" v-model="appointment.email"/>
           </UFormGroup>
-          <UFormGroup :required="true" label="phone" name="phone" class="mb=4">
+          <UFormGroup :required="true" label="Phone" name="phone" class="mb=4">
             <UInput placeholder="Phone" v-model="appointment.phone"/>
           </UFormGroup>
-          <UFormGroup :required="true" label="phone" name="phone" class="mb=4">
+          <UFormGroup :required="true" label="Address" name="address" class="mb=4">
             <input type="address" v-model="appointment.address" placeholder="Address" />
           </UFormGroup>
-          <!-- split date and time -->
-          <input type="datetime-local" v-model="appointment.dateTime" />
+          <UFormField label="Start Date" name="start_date">
+            <UInput type="date" v-model="appointment.startDate" />
+          </UFormField>
+          <UFormField label="Start Time" name="start_time">
+            <UInput type="time" v-model="appointment.startTime" />
+          </UFormField>
+          <UFormField label="End Date" name="end_date">
+            <UInput type="date" v-model="appointment.endDate" />
+          </UFormField>
+          <UFormField label="End Time" name="end_time">
+            <UInput type="time" v-model="appointment.endTime" />
+          </UFormField>
           <textarea v-model="appointment.notes" placeholder="Notes"></textarea>
-          <UButton type="submit" color="black" variant="solid" label="save" :loading="pending" />
+          <UButton type="submit" color="black" variant="solid" label="Save" :loading="pending" />
         </UForm>
         <!-- template #footer>Add Appointment</template -->
       </UCard>
@@ -44,7 +54,14 @@
     email: z.string().optional(),
     phone: z.string(),
     address: z.string(),
-    dateTime: z.string(), 
+    startDate: z.date(),
+    startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+      message: "Invalid time format (expected HH:mm)",
+    }), 
+    endDate: z.date(),     
+    endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+      message: "Invalid time format (expected HH:mm)",
+    }), 
     notes: z.string(),
   })
 
@@ -55,7 +72,10 @@
     email: undefined,
     phone: undefined,
     address: undefined,
-    dateTime: undefined, 
+    startDate: undefined,
+    startTime: undefined,
+    endDate: undefined,
+    endTime: undefined,
     notes: undefined
   }
 
@@ -75,7 +95,7 @@
   })
 
   //const onError = (status, message) => {throw createError({ statusCode: status, message: message || 'An unknown error has occured.'});}
-  const onError = (error) => {
+  const onError = (error: string) => {
     useToastBar('Error', 'Form error', error)
   }
 </script>
