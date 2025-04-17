@@ -24,6 +24,9 @@
 
   //   initCalendar();
 
+  const eventParsed = computed(() => props.dataSet ? props.dataSet.map(({eventID, dateStart, dateEnd, name}) => {
+    id: eventID, start: dateStart, end: dateEnd, title: name
+  }) : [])
   const handleDateClick = (arg: never) => {
       alert('date click! ' + arg.dateStr)
     }
@@ -37,7 +40,16 @@
         },
         initialView: 'dayGridMonth',
         dateClick: handleDateClick,
-        events: props.dataSet
+        views: {
+          dayGrid: {
+            // options apply to dayGridMonth, dayGridWeek, and dayGridDay views
+            titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' }
+          },
+          timeGrid: {
+            // options apply to timeGridWeek and timeGridDay views
+          },
+        },
+        events: eventParsed.value
       }
 </script>
 

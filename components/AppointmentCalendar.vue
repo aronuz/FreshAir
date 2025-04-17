@@ -41,4 +41,10 @@ const selectAppointment = (appt) => {
   appointment.value = { ...appt };
 };
 
+useHead({
+  title: 'Book HVAC Service - HVAC Fresh Air',
+  meta: [
+    {name: 'description', content: 'Schedule your HVAC service appointment today.'}
+  ]
+})
 </script>
