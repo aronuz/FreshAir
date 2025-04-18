@@ -1,12 +1,12 @@
 <template>
   <div>
     <h1>Book your HVAC Service</h1>
-    <BookingCalendar/>
+    <AppointmentCalendar/>
   </div>
 </template>
 
 <script lang="ts" setup>
-import BookingCalendar from '../components/BookingCalendar.vue';
+import AppointmentCalendar from '../components/AppointmentCalendar.vue'
 
 definePageMeta({
   middleware: 'errorMiddleware'

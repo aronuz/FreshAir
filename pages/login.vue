@@ -13,13 +13,13 @@
             Welcome!
         </template>
 
-        <form @submit="handleLogin">
+        <UForm @submit="handleLogin">
             <UFormGroup label="Email" name="email" class="mb-4" required help="A confirmation link will be emailed to your email.">
                 <UInput v-model="email" type="email" placeholder="Email" required />
             </UFormGroup>
 
             <UButton type="submit" variant="solid" color="black" :loading="pending">Sign in</UButton>
-        </form>
+        </UForm>
     </UCard>
 </template>
 

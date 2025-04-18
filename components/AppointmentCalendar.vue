@@ -31,7 +31,8 @@ const { fetchAppointments,
         pending } = useFetchQueries()
 
 const handleSave = async () => {
-  dataSet = await fetchAppointments()
+  dataSet = await fetchAppointments() ?? []
+  console.log(dataSet)
 }
 
 handleSave()

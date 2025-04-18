@@ -11,22 +11,38 @@
   import list from '@fullcalendar/list'
 
   const props = defineProps({
-    dataSet: Array<Object>
+    dataSet: {
+      type: Array,
+      required: true,
+      validator: (value: any) => {
+        // Ensure the array contains only objects with specific structure
+        return value.every((item: { date: string|number|Date } ) => 
+          (typeof item === 'object' && 
+          item.date && 
+          !isNaN(new Date(item.date).getTime())) || 
+          ['string', 'number'].includes(typeof item)
+        )
+      }
+    }
   })
 
-  // const initCalendar = () => {
-  //   new FullCalendar(document.getElementById('calendar'), {
-  //     plugins: [dayGridPlugin],
-  //     initialView: 'dayGridMonth',
-  //     events: props.dataSet,
-  //   }).render();
-  // }
-
-  //   initCalendar();
-
-  const eventParsed = computed(() => props.dataSet ? props.dataSet.map(({eventID, dateStart, dateEnd, name}) => {
-    id: eventID, start: dateStart, end: dateEnd, title: name
+  const eventParsed = computed(() => props.dataSet ? props.dataSet.map(({id, start_date, start_time, end_date, end_time, name}) => {
+    id, startDate: start_date, startTime: start_time, endDate: end_date, endTime: end_time, title: name
   }) : [])
+
+  const eventParsed = computed(() =>
+  props.dataSet
+    ? props.dataSet.map(({ id, start_date, start_time, end_date, end_time, name }) => ({
+        id,
+        startDate: start_date,
+        startTime: start_time,
+        endDate: end_date,
+        endTime: end_time,
+        title: name
+      }))
+    : []
+);
+
   const handleDateClick = (arg: never) => {
       alert('date click! ' + arg.dateStr)
     }

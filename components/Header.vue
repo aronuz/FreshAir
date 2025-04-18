@@ -1,15 +1,17 @@
 <template>
-  <header>
-    <NuxtLink to="/" class="text-xl font-bold">Home</NuxtLink>
-    <div>
-      {{ user.email }}
-    </div>
-    <div>      
-      <NuxtLink v-if="isAdmin" to="/admin">Admin</NuxtLink>
-    </div>
-    <div>
-      <UButton v-if="user" @click="handleSignout">Logout</UButton>
-    </div>
+  <header class="flex justify-between items-center mt-5">
+    <NuxtLink to="/" class="text-xl font-bold p-2 hover:bg-gray-200">Home</NuxtLink>
+    <nav class="flex space-x-4 font-mono">
+      <div>
+        {{ user ? user.email : 'Guest' }}
+      </div>
+      <div>      
+        <NuxtLink v-if="isAdmin" to="/admin">Admin</NuxtLink>
+      </div>
+      <div>
+        <UButton v-if="user" @click="handleSignout">Logout</UButton>
+      </div>
+    </nav>
   </header>
 </template>
 
