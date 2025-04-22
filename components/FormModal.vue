@@ -38,10 +38,24 @@
 
 <script lang="ts" setup>
   import { z } from 'zod'
+  
+  const initState = {
+    name: undefined,
+    email: undefined,
+    phone: undefined,
+    address: undefined,
+    startDate: undefined,
+    startTime: undefined,
+    endDate: undefined,
+    endTime: undefined,
+    notes: undefined
+  }
+  const blankState = useState('selectedAppointment', () => initState)
 
   const { 
         submitAppointment,
-        pending 
+        pending,
+        updatedAppointment
       } = useFetchQueries()
 
   const props = defineProps({
@@ -67,24 +81,14 @@
 
   const appform = ref()
 
-  const blankState = {
-    name: undefined,
-    email: undefined,
-    phone: undefined,
-    address: undefined,
-    startDate: undefined,
-    startTime: undefined,
-    endDate: undefined,
-    endTime: undefined,
-    notes: undefined
-  }
-
-  const appointment = ref({...blankState})
+  const appointment = ref({...initState})
 
   const blankForm = () => {
-    Object.assign(appointment.value, blankState)
+    Object.assign(appointment.value, initState)
     appform.value.clear()
   } 
+
+  watch(updatedAppointment, (value) => appointment.value = value)
 
   const isOpen = computed({
     get: () => props.modelValue,

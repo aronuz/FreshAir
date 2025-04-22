@@ -26,26 +26,30 @@
     }
   })
 
-  const eventParsed = computed(() => props.dataSet ? props.dataSet.map(({id, start_date, start_time, end_date, end_time, name}) => {
-    id, startDate: start_date, startTime: start_time, endDate: end_date, endTime: end_time, title: name
-  }) : [])
+  // const eventParsed = computed(() => props.dataSet ? props.dataSet.map(({id, start_date, start_time, end_date, end_time, name}) => {
+  //   id, startDate: start_date, startTime: start_time, endDate: end_date, endTime: end_time, title: name
+  // }) : [])
 
-  const eventParsed = computed(() =>
-  props.dataSet
-    ? props.dataSet.map(({ id, start_date, start_time, end_date, end_time, name }) => ({
-        id,
-        startDate: start_date,
-        startTime: start_time,
-        endDate: end_date,
-        endTime: end_time,
-        title: name
-      }))
-    : []
-);
+  //   const eventsParsed = computed(() =>
+  //   props.dataSet
+  //     ? props.dataSet.map((event: { id: string, start_date: string, start_time: string, end_date: string, end_time: string, name: string }) => ({
+  //         id: event.id,
+  //         startDate: event.start_date,
+  //         startTime: event.start_time,
+  //         endDate: event.end_date,
+  //         endTime: event.end_time,
+  //         title: event.name
+  //       }))
+  //     : []
+  // );
 
-  const handleDateClick = (arg: never) => {
-      alert('date click! ' + arg.dateStr)
-    }
+  const eventsParsed = computed(() =>
+    props.dataSet ? props.dataSet : []
+  );
+
+  const handleDateClick = (arg: { dateStr: string }) => {
+    alert('date click! ' + arg.dateStr)
+  }
 
   const calendarOptions = {
         plugins: [ dayGridPlugin, interactionPlugin, timegrid, list ],
@@ -65,8 +69,8 @@
             // options apply to timeGridWeek and timeGridDay views
           },
         },
-        events: eventParsed.value
-      }
+        events: eventsParsed.value
+  }
 </script>
 
 <style>

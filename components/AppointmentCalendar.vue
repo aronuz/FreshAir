@@ -25,6 +25,8 @@ import { ref } from 'vue';
 const isOpen = ref(false)
 const dataSet = ref(null)
 
+const selectedAppointment = useState('selectedAppointment', () => null)
+
 const { fetchAppointments,
         updateAppointment,
         deleteAppointment,
