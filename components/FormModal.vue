@@ -3,9 +3,9 @@
       <UCard>
         <template #header>Add Appointment</template>
 
-        <UForm :state=appointment :schema="schema" ref="appform" @submit="submitAppointment" :validate-on="[submit]" :error="onError">
-          <UFormGroup :required="true" label="name" name="name" class="mb=4">
-            <UInput placeholder="Name" v-model="appointment.name"/>
+        <UForm :state=appointment :schema="schema" ref="appform" @submit="saveAppointment">
+          <UFormGroup :required="true" label="name" name="title" class="mb=4">
+            <UInput placeholder="Name" v-model="appointment.title"/>
           </UFormGroup>
           <UFormGroup :required="true" label="Email" name="email" class="mb=4">
             <UInput placeholder="Email" v-model="appointment.email"/>
@@ -17,18 +17,20 @@
             <input type="address" v-model="appointment.address" placeholder="Address" />
           </UFormGroup>
           <UFormField label="Start Date" name="start_date">
-            <UInput type="date" v-model="appointment.startDate" />
+            <UInput type="date" v-model="appointment.start_date" />
           </UFormField>
           <UFormField label="Start Time" name="start_time">
-            <UInput type="time" v-model="appointment.startTime" />
+            <UInput type="time" v-model="appointment.start_time" />
           </UFormField>
           <UFormField label="End Date" name="end_date">
-            <UInput type="date" v-model="appointment.endDate" />
+            <UInput type="date" v-model="appointment.end_date" />
           </UFormField>
           <UFormField label="End Time" name="end_time">
-            <UInput type="time" v-model="appointment.endTime" />
+            <UInput type="time" v-model="appointment.end_time" />
           </UFormField>
-          <textarea v-model="appointment.notes" placeholder="Notes"></textarea>
+          <UFormField label="Notes" name="notes">
+            <UTextarea variant="outline" v-model="appointment.notes" placeholder="Notes" />
+          </UFormField>
           <UButton type="submit" color="black" variant="solid" label="Save" :loading="pending" />
         </UForm>
         <!-- template #footer>Add Appointment</template -->
@@ -39,18 +41,34 @@
 <script lang="ts" setup>
   import { z } from 'zod'
   
-  const initState = {
-    name: undefined,
+  import { useFetchQueries} from '~/composables/useFetchQueries'
+
+  interface stateType {
+    title: string | undefined,
+    email: string | undefined,
+    phone: string | undefined,
+    address: string | undefined,
+    start_date: string | undefined,
+    start_time: string | undefined,
+    end_date: string | undefined,
+    end_time: string | undefined,
+    notes: string | undefined
+  }
+  
+  const { toastBar } = useToastBar()
+
+  const initState: stateType = {
+    title: undefined,
     email: undefined,
     phone: undefined,
     address: undefined,
-    startDate: undefined,
-    startTime: undefined,
-    endDate: undefined,
-    endTime: undefined,
+    start_date: undefined,
+    start_time: undefined,
+    end_date: undefined,
+    end_time: undefined,
     notes: undefined
   }
-  const blankState = useState('selectedAppointment', () => initState)
+  const blankState: Ref<stateType> = useState('selectedAppointment', () => initState)
 
   const { 
         submitAppointment,
@@ -64,16 +82,16 @@
   const emit = defineEmits(['update:modelValue', 'saved'])
 
   const schema = z.object({
-    name: z.string(),
+    title: z.string(),
     email: z.string().optional(),
     phone: z.string(),
     address: z.string(),
-    startDate: z.date(),
-    startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+    start_date: z.date(),
+    start_time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
       message: "Invalid time format (expected HH:mm)",
     }), 
-    endDate: z.date(),     
-    endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+    end_date: z.date(),     
+    end_time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
       message: "Invalid time format (expected HH:mm)",
     }), 
     notes: z.string(),
@@ -81,14 +99,26 @@
 
   const appform = ref()
 
-  const appointment = ref({...initState})
+  const appointment: Ref<stateType> = ref({...initState})
 
   const blankForm = () => {
     Object.assign(appointment.value, initState)
     appform.value.clear()
   } 
 
-  watch(updatedAppointment, (value) => appointment.value = value)
+  const saveAppointment = async () => {
+    if (appform.value.errors.length) {
+      let errors = ''
+      for (const error in appform.value.errors) {
+        errors += `${error} `
+      }
+      showError(errors)
+    } else {
+      submitAppointment(appointment)
+    }
+  }
+
+  watch(updatedAppointment as Ref<stateType>, (value: stateType) => appointment.value = value)
 
   const isOpen = computed({
     get: () => props.modelValue,
@@ -99,7 +129,7 @@
   })
 
   //const onError = (status, message) => {throw createError({ statusCode: status, message: message || 'An unknown error has occured.'});}
-  const onError = (error: string) => {
-    useToastBar('Error', 'Form error', error)
+  const showError = (error: string) => {
+    toastBar('Error', 'Form error', error.trim())
   }
 </script>

@@ -42,7 +42,7 @@ const sendEmail = async () => {
     });
   } catch (e) {
     error.value = e;
-    onError( '500', error.value)
+    onError( 500, error.value)
   }
   emailData.value = { to: '', subject: '', body: '' };
 };

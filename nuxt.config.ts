@@ -25,7 +25,7 @@ export default defineNuxtConfig({
   },
   modules: [// Install this module
   '@nuxtjs/sitemap', '@nuxtjs/supabase', '@nuxt/ui'],
-  css: ['~/assets/css/main.css'],
+  // css: ['~/assets/css/main.css'],
   router: {
     extendRoutes(routes, resolve) {
       routes.push({

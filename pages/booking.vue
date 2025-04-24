@@ -8,9 +8,9 @@
 <script lang="ts" setup>
 import AppointmentCalendar from '../components/AppointmentCalendar.vue'
 
-definePageMeta({
-  middleware: 'errorMiddleware'
-});
+// definePageMeta({
+//   middleware: 'errorMiddleware'
+// });
 
 useHead({
   title: 'Book HVAC Service - HVAC Fresh Air',

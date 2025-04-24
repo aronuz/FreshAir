@@ -19,14 +19,14 @@
     "@nuxt/kit": "^3.16.0",
     "@nuxt/ui": "^3.0.2",
     "@nuxtjs/sitemap": "^7.2.6",
-    "@nuxtjs/supabase": "^1.5.0",
-    "nuxt": "^3.15.4",
+    "nuxt": "^3.16.0",
     "typescript": "^5.8.3",
     "vue-router": "latest",
     "vue3-datepicker": "^0.4.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@nuxtjs/supabase": "^1.5.0",
     "@vue/compiler-sfc": "^3.5.13",
     "vue": "^3.5.13"
   }

@@ -23,7 +23,8 @@
     </UCard>
 </template>
 
-<script setup>
+<script setup>    
+    const { toastBar } = useToastBar()
     const supabase = useSupabaseClient()
     const success = ref(false)
     const email = ref('')
@@ -46,7 +47,7 @@
                 success.value = true
             }
         } catch (e) {
-            useToastBar('Error', 'Authientication Error', 'Failed to Authienticate. Please try again.')
+            toastBar('Error', 'Authientication Error', 'Failed to Authienticate. Please try again.')
         } finally {
             pending.value = false
         }
