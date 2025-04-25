@@ -1,8 +1,6 @@
 <template>
   <UModal v-model="isOpen">
-      <UCard>
-        <template #header>Add Appointment</template>
-
+      <UCard variant="soft">
         <UForm :state=appointment :schema="schema" ref="appform" @submit="saveAppointment">
           <UFormGroup :required="true" label="name" name="title" class="mb=4">
             <UInput placeholder="Name" v-model="appointment.title"/>

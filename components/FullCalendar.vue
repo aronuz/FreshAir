@@ -1,5 +1,4 @@
 <template>
-  <!-- <div id="calendar"></div> -->
   <FullCalendar :options="calendarOptions" />
 </template>
 
@@ -33,21 +32,16 @@
               if (key === 'id') {
                 if (typeof itemValue !== 'number' || !Number.isInteger(itemValue)) {
                   console.error(`Property "${key}" in item at index ${index} of prop "items" must be an integer number.`);
-                  return false;
+                  return false
                 }
-              } else if (key === 'phone' || key === 'email') {
-                if (itemValue !== null && typeof itemValue !== 'string') {
-                  console.error(`Property "${key}" in item at index ${index} of prop "items" must be a string or null.`);
-                  return false;
-                }
-              } else if (key === 'date' || key === 'time') {
-                const date = key === 'date' ? itemValue : `2000-01-01 ${itemValue}`
-                const parsedDate = Date.parse(date);
+              } else if (key === 'start' || key === 'end') {
+              const itemValue = item[key];
+                const parsedDate = Date.parse(itemValue)
                 return !isNaN(parsedDate); 
               } else {
                 if (typeof itemValue !== 'string') {
                   console.error(`Property "${key}" in item at index ${index} of prop "items" must be a string.`);
-                  return false;
+                  return false
                 }
               }
             }
@@ -58,27 +52,13 @@
     }
   })
 
-  // const eventParsed = computed(() => props.dataSet ? props.dataSet.map(({id, start_date, start_time, end_date, end_time, name}) => {
-  //   id, startDate: start_date, startTime: start_time, endDate: end_date, endTime: end_time, title: name
-  // }) : [])
-
-  //   const eventsParsed = computed(() =>
-  //   props.dataSet
-  //     ? props.dataSet.map((event: { id: string, start_date: string, start_time: string, end_date: string, end_time: string, name: string }) => ({
-  //         id: event.id,
-  //         startDate: event.start_date,
-  //         startTime: event.start_time,
-  //         endDate: event.end_date,
-  //         endTime: event.end_time,
-  //         title: event.name
-  //       }))
-  //     : []
-  // );
-
-  const eventsParsed = computed(() =>
-    props.dataSet ? props.dataSet : []
-  );
-
+  const events = ref([])
+  watch(() => props.dataSet, (dataSet) => {
+    events.value.splice(0)
+    dataSet.forEach(event => events.value.push({...event}))
+  }, { deep: true, immediate: true }
+  )
+  
   const handleDateClick = (arg: { dateStr: string }) => {
     alert('date click! ' + arg.dateStr)
   }
@@ -90,6 +70,7 @@
           center: 'title',
           right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
+        height: "auto",
         initialView: 'dayGridMonth',
         dateClick: handleDateClick,
         views: {
@@ -101,7 +82,7 @@
             // options apply to timeGridWeek and timeGridDay views
           },
         },
-        events: eventsParsed.value
+        events: events.value
   }
 </script>
 

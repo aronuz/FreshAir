@@ -17,7 +17,7 @@
     "@fullcalendar/timegrid": "^6.1.17",
     "@fullcalendar/vue3": "^6.1.17",
     "@nuxt/kit": "^3.16.0",
-    "@nuxt/ui": "^3.0.2",
+    "@nuxt/ui": "^3.1.0",
     "@nuxtjs/sitemap": "^7.2.6",
     "nuxt": "^3.16.0",
     "typescript": "^5.8.3",

@@ -1,13 +1,31 @@
 <template>
-  <div>    
-    <FullCalendar :data-set="eventsParsed" />
-    <FormModal v-model="isOpen" @saved="reload"/>
-    <UButton v-if="!isOpen" icon="i-heroicons-plus-circle" color="#FFF" variant="solid" label="Add" @click="isOpen = true"/>
+  <div class="grid grid-cols-12 grid-rows-1 gap-2">
+    <UCard class="col-span-12 md:col-span-1">
+      <UModal
+        title="New Appointment"
+        :close="{
+          color: 'primary',
+          variant: 'outline',
+          class: 'rounded-full',
+          onClick: () => isOpen = false
+        }"
+      >
+        <UButton v-if="!isOpen" icon="i-heroicons-plus-circle" color="#FFF" variant="solid" label="Add" @click="isOpen = true"/>
+        <template #body>      
+          <FormModal v-model="isOpen" @saved="reload"/>
+        </template>
+      </UModal>     
+    </UCard>
+        
+    <UCard class="col-span-12 md:col-span-9">      
+      <FullCalendar :data-set="eventsParsed" />
+    </UCard>
 
-    <section v-if="!pending && appointments.length">
+    <UCard class="col-span-12 md:col-span-2">
+      <section v-if="eventsParsed.length">
         <h2>Existing Appointments</h2>
-      <div v-for="appt in appointments" :key="appt.id">
-        <p>{{ appt.name }} - {{ appt.dateTime }}</p>
+      <div v-for="event in events" :key="event.id">
+        <p>{{ event.title }} @ {{ event.start_date }}</p>
         <button @click="selectAppointment(appt)">Edit</button>
       </div>
       <button v-if="selectedAppointment" @click="updateAppointment">Update Appointment</button>
@@ -16,6 +34,7 @@
     <section v-if="pending">
       <USkeleton class="h=4 w-full mb-2" />
     </section>
+    </UCard>
   </div>
 </template>
 
@@ -44,17 +63,14 @@ const reload = async () => {
   const {data, isPending, error} = await fetchAppointments(onError, pending)
   pending.value = isPending.value
   appointments.value = data
-  console.log('appointments')
-  console.log(appointments.value)
   events.splice(0)
-  eventsParsed.splice(0)
+  eventsParsed.value.splice(0)
   if(appointments.value) {
     for (const key in appointments.value) {
       if (Object.hasOwnProperty.call(appointments.value, key)) {
         events.push(appointments.value[key]);
       }
     }
-    // console.log(events)
     const eventsObject = events.map(item => {
       const { id, title, start_date: start, end_date: end } = item
 
@@ -66,11 +82,7 @@ const reload = async () => {
       return event
       }
     )
-    for(const event of eventsObject){
-      eventsParsed.value.push(event)
-    }
-    console.log('---------')
-    console.log(eventsParsed.value)
+    eventsObject.forEach(event => eventsParsed.value.push({...event}))
   }
 }
 
