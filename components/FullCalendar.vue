@@ -14,14 +14,46 @@
     dataSet: {
       type: Array,
       required: true,
-      validator: (value: any) => {
-        // Ensure the array contains only objects with specific structure
-        return value.every((item: { date: string|number|Date } ) => 
-          (typeof item === 'object' && 
-          item.date && 
-          !isNaN(new Date(item.date).getTime())) || 
-          ['string', 'number'].includes(typeof item)
-        )
+      validator: (value: unknown): boolean => {
+        if (!Array.isArray(value)) {
+          console.error('Prop "items" must be an array.');
+          return false;
+        }
+
+        return value.every((item, index) => {
+          if (typeof item !== 'object' || item === null) {
+            console.error(`Item at index ${index} in prop "items" must be an object.`);
+            return false;
+          }
+
+          for (const key in item) {
+            if (Object.prototype.hasOwnProperty.call(item, key)) {
+              const itemValue = item[key];
+
+              if (key === 'id') {
+                if (typeof itemValue !== 'number' || !Number.isInteger(itemValue)) {
+                  console.error(`Property "${key}" in item at index ${index} of prop "items" must be an integer number.`);
+                  return false;
+                }
+              } else if (key === 'phone' || key === 'email') {
+                if (itemValue !== null && typeof itemValue !== 'string') {
+                  console.error(`Property "${key}" in item at index ${index} of prop "items" must be a string or null.`);
+                  return false;
+                }
+              } else if (key === 'date' || key === 'time') {
+                const date = key === 'date' ? itemValue : `2000-01-01 ${itemValue}`
+                const parsedDate = Date.parse(date);
+                return !isNaN(parsedDate); 
+              } else {
+                if (typeof itemValue !== 'string') {
+                  console.error(`Property "${key}" in item at index ${index} of prop "items" must be a string.`);
+                  return false;
+                }
+              }
+            }
+          }
+          return true;
+        })
       }
     }
   })

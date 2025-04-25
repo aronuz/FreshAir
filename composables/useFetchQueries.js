@@ -25,8 +25,8 @@ export const useFetchQueries = () => {
         const dateTo = dateRange && dateRange.value ? dateRange.value.to.toDateString() : '2025-04-30'
         const { data } = await useAsyncData(`range-${dateFrom}-${dateTo}`, async () => {
             console.log('in async')
-            const { data, error } = await supabase.from('appointments').select('*').gte('date', dateFrom)
-            .lte('date', dateTo).order('created_at', { ascending: true })
+            const { data, error } = await supabase.from('Appointments').select('*').gte('start_date', dateFrom)
+            .lte('start_date', dateTo).order('created_at', { ascending: true })
         
             if (error) {
                 console.error('Supabase error:', error);
@@ -42,7 +42,7 @@ export const useFetchQueries = () => {
         } else {
             onError(204, 'No records found for the selected date range.')
         }
-        return { data: dataSet, pending, error }
+        return { data: dataSet, isPending: pending, error }
     };
 
     const submitAppointment = async (appointment) => {
