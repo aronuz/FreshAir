@@ -1,7 +1,7 @@
 export const useFetchQueries = () => {
     const supabase = useSupabaseClient()
     const error = ref('');
-    const pending = ref(true)
+    const pending = ref(false)
     const appointments = ref([]);
     const blankState = useState('blankState')
     const selectedAppointment = useState('selectedAppointment')
@@ -46,52 +46,68 @@ export const useFetchQueries = () => {
     };
 
     const submitAppointment = async (appointment) => {
-        if (selectedAppointment) {
-            await updateAppointment();
-            return;
+        let saveData = null
+        let saveError = null
+        let actionType = 'create'
+        if (selectedAppointment.value) {
+            const { data, error, type } = await updateAppointment()
+            saveData = data
+            saveError = error
+            actionType = type
+        } else {
+            try {
+                pending.value = true
+                const { data, error } = await supabase.from('appointmemts').insert([{...appointment.value}])
+                // await $fetch('/api/appointments', {
+                // method: 'POST',
+                // body: appointment.value,
+                // });
+                if (error) {
+                    saveError = error
+                } else {
+                    saveData = data ? data[0] : ''; // Assuming single row insertion
+                }
+            } catch (error) {
+                saveError.value = error;
+            } finally {
+                pending.value = false
+            }
         }
-        pending.value = true
-        try {
-            const { error } = await supabase.from('appointmemts').insert([{...appointment.value}])
-            // await $fetch('/api/appointments', {
-            // method: 'POST',
-            // body: appointment.value,
-            // });
-            if(error) throw(error)
-            else toastBar('Success', 'Appointment removed')
-        } catch (e) {
-            error.value = e;
-            onError( 500, `Unable to create a new appoinment record.\n${error.value}`)
-        }
-        await fetchAppointments();
-        updatedAppointment.value = blankState.value;
+        return { data: saveData, error: saveError, type: actionType }
     };
 
-    const updateAppointment = async () => {
-        if (!selectedAppointment) return;
+    const updateAppointment = async () => {        
+        let saveData = null
+        let saveError = "Failed to get selected appoinment"
+        const type = "update"
+        if (!selectedAppointment.value) return { error: saveError, data: null, type};
         try {
         pending.value = true 
-        updatedAppointment.value.id = selectedAppointment.value.id
-        const { error } = await supabase.from('appointmemts').upsert(updatedAppointment.value)
-        // await $fetch(`/api/appointments/${selectedAppointment.value.id}`, {
-        //     method: 'PUT',
-        //     body: appointment.value,
-        // });
-        if(error) throw(error)
-        await fetchAppointments();
-        updatedAppointment.value = blankState.value;
-        selectedAppointment.value = null
-        } catch (e) {
-            error.value = e
-            onError( 500, `Unable to update your appoinment.\n${error.value}`)
+            updatedAppointment.value.id = selectedAppointment.value
+            const { data, error } = await supabase.from('appointmemts').upsert(selectedAppointment.value)
+            // await $fetch(`/api/appointments/${selectedAppointment.value.id}`, {
+            //     method: 'PUT',
+            //     body: appointment.value,
+            // });
+            if (error) {
+                saveError = error
+            } else {
+                saveData = data ? data[0] : ''; // For single row insertion
+            }
+        } catch (error) {
+            saveError.value = error;
+        } finally {
+            selectedAppointment.value = null
+            pending.value = false
         }
+        return { data: data ?? '', error, type }
     }
       
     const deleteAppointment = async () => {
         if (!selectedAppointment.value) return;
         pending.value = true
         try {
-          const id = selectedAppointment.value.id 
+          const id = selectedAppointment.value 
           await supabase.from('appointments').delete().eq('id', id)
           await fetchAppointments();
           updatedAppointment.value = blankState.value;

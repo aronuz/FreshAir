@@ -1,19 +1,18 @@
 <template>
-  <UModal v-model="isOpen">
       <UCard variant="soft">
-        <UForm :state=appointment :schema="schema" ref="appform" @submit="saveAppointment">
-          <UFormGroup :required="true" label="name" name="title" class="mb=4">
+        <UForm :state=appointment :schema="schema" ref="appform" @submit.prevent="saveAppointment">
+          <UFormField required label="Name" name="title" class="mb=4">
             <UInput placeholder="Name" v-model="appointment.title"/>
-          </UFormGroup>
-          <UFormGroup :required="true" label="Email" name="email" class="mb=4">
+          </UFormField>
+          <UFormField label="Email" name="email" class="mb=4">
             <UInput placeholder="Email" v-model="appointment.email"/>
-          </UFormGroup>
-          <UFormGroup :required="true" label="Phone" name="phone" class="mb=4">
+          </UFormField>
+          <UFormField required label="Phone" name="phone" class="mb=4">
             <UInput placeholder="Phone" v-model="appointment.phone"/>
-          </UFormGroup>
-          <UFormGroup :required="true" label="Address" name="address" class="mb=4">
-            <input type="address" v-model="appointment.address" placeholder="Address" />
-          </UFormGroup>
+          </UFormField>
+          <UFormField required label="Address" name="address" class="mb=4">
+            <UInput type="address" v-model="appointment.address" placeholder="Address" />
+          </UFormField>
           <UFormField label="Start Date" name="start_date">
             <UInput type="date" v-model="appointment.start_date" />
           </UFormField>
@@ -23,17 +22,16 @@
           <UFormField label="End Date" name="end_date">
             <UInput type="date" v-model="appointment.end_date" />
           </UFormField>
-          <UFormField label="End Time" name="end_time">
+          <UFormField label="End Time" name="end_time" :required="!!appointment.end_date">
             <UInput type="time" v-model="appointment.end_time" />
           </UFormField>
           <UFormField label="Notes" name="notes">
             <UTextarea variant="outline" v-model="appointment.notes" placeholder="Notes" />
           </UFormField>
-          <UButton type="submit" color="black" variant="solid" label="Save" :loading="pending" />
+          <UButton type="submit" color="primary" variant="solid" label="Save" :loading="pending" />
         </UForm>
         <!-- template #footer>Add Appointment</template -->
       </UCard>
-    </UModal>
 </template>
 
 <script lang="ts" setup>
@@ -70,8 +68,8 @@
 
   const { 
         submitAppointment,
-        pending,
-        updatedAppointment
+        updatedAppointment,
+        pending
       } = useFetchQueries()
 
   const props = defineProps({
@@ -84,16 +82,52 @@
     email: z.string().optional(),
     phone: z.string(),
     address: z.string(),
-    start_date: z.date(),
+    start_date: z.coerce.date().refine((date) => date > new Date(), {
+      message: 'Date must be in the future.',
+    }),
     start_time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
       message: "Invalid time format (expected HH:mm)",
     }), 
-    end_date: z.date(),     
-    end_time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+    end_date: z.coerce.date().optional(),
+    end_time: z.string().optional(),
+    notes: z.string().optional(),
+  }).refine(
+    (data) => {
+      if (data.end_date && data.start_date && data.start_date <= data.end_date) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'End date must be after the start date.',
+      path: ['endDate'],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.end_date && !data.end_time) {
+        return false;
+      }
+      return true
+    },
+    {
+      message: 'End time is required if end date is provided.',
+      path: ['endTime'],
+    }
+  ).refine(
+    (data) => {
+      if (data.end_time) {
+        const regex = /^([01]\d|2[0-3]):([0-5]\d)$/
+        const time = data.end_time!.toString()
+        return regex.test(time);
+      }
+      return true
+    },
+    {
       message: "Invalid time format (expected HH:mm)",
-    }), 
-    notes: z.string(),
-  })
+      path: ['endTime'],
+    }
+  )
 
   const appform = ref()
 
@@ -110,9 +144,15 @@
       for (const error in appform.value.errors) {
         errors += `${error} `
       }
-      showError(errors)
+      showError('500', errors)
     } else {
-      submitAppointment(appointment)
+      const {data, error, type} = await submitAppointment(appointment) 
+      if(data){
+        toastBar('Success', `Service ${type === 'update' ? 're':''}scheduled`)
+      } else {
+        const action = type === 'create' ? 'create a new': 'update'
+        showError('500', `Unable to ${action} appoinment record.\n${error}`)
+      }
     }
   }
 
@@ -127,7 +167,7 @@
   })
 
   //const onError = (status, message) => {throw createError({ statusCode: status, message: message || 'An unknown error has occured.'});}
-  const showError = (error: string) => {
-    toastBar('Error', 'Form error', error.trim())
+  const showError = (error: string, status = 'Form Error') => {
+    toastBar('Error', status, error.trim())
   }
 </script>
