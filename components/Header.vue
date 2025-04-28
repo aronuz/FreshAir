@@ -15,36 +15,25 @@
   </header>
 </template>
 
-<script lang="ts" setup>
-  import { ref, useState } from 'vue';
-  
+<script lang="ts" setup>  
   const props = defineProps({
-    user: Object,
+    user: Boolean, //Object,
     isAdmin: Boolean
   })
 
   const user = useSupabaseUser()
   const isAdmin = ref(false)
 
-  watch (user, (user: User | null) => {
-    if (user) {
-      //isAdmin.value = user.role = "admin"
-      isAdmin.value = useState('isAdmin', (user: User | null) => false); // Example admin state
-    }
-  }, { immediate: true })
+  // watch (user, (user: User | null) => {
+  //   if (user) {
+  //     //isAdmin.value = user.role = "admin"
+  //     isAdmin.value = useState('isAdmin', (user: User | null) => false); // Example admin state
+  //   }
+  // }, { immediate: true })
 
   const handleSignout = () => {
-    supabase.auth.signOut()
+    // supabase.auth.signOut()
     navigateTo('/login', )
   }
 
 </script>
-
-<style>
-body {
-  font-family: 'Inter';
-}
-body {
-  @apply dark:bk-gray-900 bg-white
-}
-</style>
