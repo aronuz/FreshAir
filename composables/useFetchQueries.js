@@ -8,8 +8,10 @@ export const useFetchQueries = () => {
     const updatedAppointment = ref(blankState.value)
     const { toastBar } = useToastBar()
 
-    const fetchAppointments = async (onError, pending, list = false, dateRange = null) => {
+    const fetchAppointments = async (pending, list = false, dateRange = null) => {
         pending.value = true
+        let saveError = null
+        let saveStatus = null
         const groupByDate = (data) => {
             let group = {}
             for (const entry of data){
@@ -24,12 +26,14 @@ export const useFetchQueries = () => {
         const dateFrom = dateRange && dateRange.value ? dateRange.value.from.toDateString() : '2025-04-01'
         const dateTo = dateRange && dateRange.value ? dateRange.value.to.toDateString() : '2025-04-30'
         const { data } = await useAsyncData(`range-${dateFrom}-${dateTo}`, async () => {
-            console.log('in async')
-            const { data, error } = await supabase.from('Appointments').select('*').gte('start_date', dateFrom)
+            const { data, error, status } = await supabase.from('appointments').select('*').gte('start_date', dateFrom)
             .lte('start_date', dateTo).order('created_at', { ascending: true })
         
             if (error) {
                 console.error('Supabase error:', error);
+                saveError = error.message
+                saveStatus = error.status
+                // onError(500, `Supabase error: ${error}`)
                 return null; // Or throw an error to be caught by useAsyncData
             }
             return data;
@@ -37,16 +41,15 @@ export const useFetchQueries = () => {
         let dataSet = []
         if (data && data.value) {
             dataSet = list ? groupByDate(data.value) : data.value
-        } else if (error.value) {
-            onError(500, error.value.message || 'Failed to fetch records')
-        } else {
-            onError(204, 'No records found for the selected date range.')
+        } else if (!error){
+            saveError = error.message
+            saveStatus = error.status
+            // onError(204, 'No records found for the selected date range.')
         }
-        return { data: dataSet, isPending: pending, error }
+        return { data: dataSet, isPending: pending, error: saveError, status: saveStatus }
     };
 
     const submitAppointment = async (appointment) => {
-        let saveData = null
         let saveError = null
         let actionType = 'create'
         if (selectedAppointment.value) {
@@ -57,27 +60,27 @@ export const useFetchQueries = () => {
         } else {
             try {
                 pending.value = true
-                const { data, error } = await supabase.from('appointmemts').insert([{...appointment.value}])
+                // console.log({...appointment.value})
+                const { error } = await supabase.from('appointments').insert([appointment])
                 // await $fetch('/api/appointments', {
                 // method: 'POST',
                 // body: appointment.value,
                 // });
                 if (error) {
-                    saveError = error
-                } else {
-                    saveData = data ? data[0] : ''; // Assuming single row insertion
-                }
+                    saveError = error.message
+                    // console.log('db error: '+JSON.stringify(error))
+                } 
             } catch (error) {
+                console.log('500 error: '+error)
                 saveError.value = error;
             } finally {
                 pending.value = false
             }
         }
-        return { data: saveData, error: saveError, type: actionType }
+        return { error: saveError, type: actionType }
     };
 
     const updateAppointment = async () => {        
-        let saveData = null
         let saveError = "Failed to get selected appoinment"
         const type = "update"
         if (!selectedAppointment.value) return { error: saveError, data: null, type};
@@ -90,17 +93,16 @@ export const useFetchQueries = () => {
             //     body: appointment.value,
             // });
             if (error) {
-                saveError = error
-            } else {
-                saveData = data ? data[0] : ''; // For single row insertion
-            }
+                saveError = error.message
+                // console.log('db error: '+JSON.stringify(error))
+            } 
         } catch (error) {
             saveError.value = error;
         } finally {
             selectedAppointment.value = null
             pending.value = false
         }
-        return { data: data ?? '', error, type }
+        return { error, type }
     }
       
     const deleteAppointment = async () => {

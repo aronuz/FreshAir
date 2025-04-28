@@ -1,5 +1,16 @@
 <template>
-      <UCard variant="soft">
+  <UModal 
+    v-model:open="isOpen"
+    title="New Appointment"
+    :close="{
+      color: 'primary',
+      variant: 'outline',
+      class: 'rounded-full',
+      onClick: () => isOpen = false
+    }"
+  >
+    <template #body>
+      <!-- <UCard variant="soft"> -->
         <UForm :state=appointment :schema="schema" ref="appform" @submit.prevent="saveAppointment">
           <UFormField required label="Name" name="title" class="mb=4">
             <UInput placeholder="Name" v-model="appointment.title"/>
@@ -14,13 +25,13 @@
             <UInput type="address" v-model="appointment.address" placeholder="Address" />
           </UFormField>
           <UFormField label="Start Date" name="start_date">
-            <UInput type="date" v-model="appointment.start_date" />
+            <UInput type="date" v-model="formattedStartDate" @update:modelValue="updateStartDate"/>
           </UFormField>
           <UFormField label="Start Time" name="start_time">
             <UInput type="time" v-model="appointment.start_time" />
           </UFormField>
           <UFormField label="End Date" name="end_date">
-            <UInput type="date" v-model="appointment.end_date" />
+            <UInput type="date" v-model="formattedEndDate" @update:modelValue="updateEndDate"/>
           </UFormField>
           <UFormField label="End Time" name="end_time" :required="!!appointment.end_date">
             <UInput type="time" v-model="appointment.end_time" />
@@ -31,7 +42,9 @@
           <UButton type="submit" color="primary" variant="solid" label="Save" :loading="pending" />
         </UForm>
         <!-- template #footer>Add Appointment</template -->
-      </UCard>
+      <!-- </UCard> -->
+    </template>
+  </UModal>   
 </template>
 
 <script lang="ts" setup>
@@ -44,9 +57,9 @@
     email: string | undefined,
     phone: string | undefined,
     address: string | undefined,
-    start_date: string | undefined,
+    start_date: Date | undefined,
     start_time: string | undefined,
-    end_date: string | undefined,
+    end_date: Date | undefined,
     end_time: string | undefined,
     notes: string | undefined
   }
@@ -134,9 +147,29 @@
   const appointment: Ref<stateType> = ref({...initState})
 
   const blankForm = () => {
+    formattedStartDate.value = null
+    formattedEndDate.value = null
     Object.assign(appointment.value, initState)
     appform.value.clear()
   } 
+
+  // A computed property or watcher to format the Date object
+  const formattedStartDate = ref(appointment.value.start_date ? appointment.value.start_date.toISOString().split('T')[0]: null);
+
+  // To handle changes from UInput and update the original Date object
+  function updateStartDate(newDateString: string) {
+    appointment.value.start_date = new Date(newDateString);
+    formattedStartDate.value = newDateString; // Keep the formatted string in sync
+  }
+
+  // A computed property or watcher to format the Date object
+  const formattedEndDate = ref(appointment.value.end_date ? appointment.value.end_date.toISOString().split('T')[0]: null);
+
+  // To handle changes from UInput and update the original Date object
+  function updateEndDate(newDateString: string) {
+    appointment.value.end_date = new Date(newDateString);
+    formattedEndDate.value = newDateString; // Keep the formatted string in sync
+  }
 
   const saveAppointment = async () => {
     if (appform.value.errors.length) {
@@ -146,12 +179,22 @@
       }
       showError('500', errors)
     } else {
-      const {data, error, type} = await submitAppointment(appointment) 
-      if(data){
-        toastBar('Success', `Service ${type === 'update' ? 're':''}scheduled`)
+      console.log(appointment.value)
+      const sanitizedAppointment = Object.fromEntries(
+        Object.entries(appointment.value).map(([key, value]) => [key, value === undefined ? null : value])
+      )
+      sanitizedAppointment.start_date = sanitizedAppointment.start_date
+      ? sanitizedAppointment.start_date.toISOString().split('T')[0]
+      : null;
+      sanitizedAppointment.end_date = sanitizedAppointment.end_date
+      ? sanitizedAppointment.end_date.toISOString().split('T')[0]
+      : null;
+      const { error, type} = await submitAppointment(sanitizedAppointment) 
+      if(error){const action = type === 'create' ? 'create a new': 'update'
+        showError('500', `Unable to ${action} appoinment record.\n${JSON.stringify(error)}`)
       } else {
-        const action = type === 'create' ? 'create a new': 'update'
-        showError('500', `Unable to ${action} appoinment record.\n${error}`)
+        toastBar('Success', `Service ${type === 'update' ? 're':''}scheduled`)
+        emit('saved')
       }
     }
   }

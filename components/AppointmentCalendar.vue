@@ -1,20 +1,8 @@
 <template>
   <div class="grid grid-cols-12 grid-rows-1 gap-2">
     <UCard class="col-span-12 md:col-span-1">
-      <UModal
-        title="New Appointment"
-        :close="{
-          color: 'primary',
-          variant: 'outline',
-          class: 'rounded-full',
-          onClick: () => isOpen = false
-        }"
-      >
         <UButton v-if="!isOpen" icon="i-heroicons-plus-circle" color="#FFF" variant="solid" label="Add" @click="isOpen = true"/>
-        <template #body>      
-          <FormModal v-model="isOpen" @saved="reload"/>
-        </template>
-      </UModal>     
+        <FormModal v-model="isOpen" @saved="reload"/>
     </UCard>
         
     <UCard class="col-span-12 md:col-span-9">      
@@ -60,8 +48,13 @@ const onError = (status, message = 'An unknown error has occured.') => {
 }
 
 const reload = async () => {
-  const {data, isPending, error} = await fetchAppointments(onError, pending)
+  const {data, isPending, error, status} = await fetchAppointments(pending)
+  isOpen.value = false
   pending.value = isPending.value
+  if(error){
+    onError(status, error)
+    return
+  }
   appointments.value = data
   events.splice(0)
   eventsParsed.value.splice(0)
@@ -75,7 +68,12 @@ const reload = async () => {
       const { id, title, start_date: start, end_date: end } = item
 
       const startTime = `${item.start_date}T${item.start_time}`
-      const endTime = `${item.end_date}T${item.end_time}`
+      
+      let endTime = null
+      if(item.end_date) {
+        const timeString = item.end_time ? `T${item.end_time}` : ''
+        endTime = `${item.end_date}${timeString}`
+      }
 
       const event = { id, title, start: startTime, end: endTime }
 
