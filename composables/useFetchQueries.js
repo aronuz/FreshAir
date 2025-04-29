@@ -5,7 +5,7 @@ export const useFetchQueries = () => {
     const appointments = ref([]);
     const blankState = useState('blankState')
     const selectedAppointment = useState('selectedAppointment')
-    const updatedAppointment = ref(blankState.value)
+    const updatedAppointment = useState('updatedAppointment') //ref(blankState.value)
     const { toastBar } = useToastBar()
 
     const fetchAppointments = async (pending, list = false, dateRange = null) => {
@@ -85,8 +85,7 @@ export const useFetchQueries = () => {
         const type = "update"
         if (!selectedAppointment.value) return { error: saveError, data: null, type};
         try {
-        pending.value = true 
-            updatedAppointment.value.id = selectedAppointment.value
+        pending.value = true
             const { data, error } = await supabase.from('appointmemts').upsert(selectedAppointment.value)
             // await $fetch(`/api/appointments/${selectedAppointment.value.id}`, {
             //     method: 'PUT',
@@ -100,6 +99,7 @@ export const useFetchQueries = () => {
             saveError.value = error;
         } finally {
             selectedAppointment.value = null
+            updatedAppointment.value = null //blankState.value;
             pending.value = false
         }
         return { error, type }
@@ -109,10 +109,9 @@ export const useFetchQueries = () => {
         if (!selectedAppointment.value) return;
         pending.value = true
         try {
-          const id = selectedAppointment.value 
+          const id = selectedAppointment.value.id
           await supabase.from('appointments').delete().eq('id', id)
           await fetchAppointments();
-          updatedAppointment.value = blankState.value;
           selectedAppointment.value = null
           toastBar('Success', 'Appointment removed')
         } catch (e) {

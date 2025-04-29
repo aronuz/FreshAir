@@ -52,6 +52,8 @@
     }
   })
 
+  const emit = defineEmits(['event'])
+  
   const events = ref([])
   watch(() => props.dataSet, (dataSet) => {
     events.value.splice(0)
@@ -61,6 +63,11 @@
   
   const handleDateClick = (arg: { dateStr: string }) => {
     alert('date click! ' + arg.dateStr)
+  }
+
+  const handleEventClick = (arg: { el: { style: any }; event: any }) => {
+    arg.el.style.borderColor = 'red'
+    emit('event', arg.event.id)
   }
 
   const calendarOptions = {
@@ -73,6 +80,7 @@
         height: "auto",
         initialView: 'dayGridMonth',
         dateClick: handleDateClick,
+        eventClick: handleEventClick,
         views: {
           dayGrid: {
             // options apply to dayGridMonth, dayGridWeek, and dayGridDay views

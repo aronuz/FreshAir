@@ -53,6 +53,7 @@
   import { useFetchQueries} from '~/composables/useFetchQueries'
 
   interface stateType {
+    id?: number,
     title: string | undefined,
     email: string | undefined,
     phone: string | undefined,
@@ -67,6 +68,7 @@
   const { toastBar } = useToastBar()
 
   const initState: stateType = {
+    id: undefined,
     title: undefined,
     email: undefined,
     phone: undefined,
@@ -199,7 +201,11 @@
     }
   }
 
-  watch(updatedAppointment as Ref<stateType>, (value: stateType) => appointment.value = value)
+  watch(updatedAppointment as Ref<stateType>, (value: stateType) => {
+    appointment.value = value
+    formattedStartDate.value = value.end_date!.toISOString().split('T')[0]
+    formattedEndDate.value = value.end_date ? value.end_date.toISOString().split('T')[0]: null
+  })
 
   const isOpen = computed({
     get: () => props.modelValue,
