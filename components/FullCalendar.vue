@@ -10,6 +10,7 @@
   import list from '@fullcalendar/list'
 
   const props = defineProps({
+    selectedId: {type: Number, required: false},
     dataSet: {
       type: Array,
       required: true,
@@ -52,7 +53,7 @@
     }
   })
 
-  const emit = defineEmits(['event'])
+  const emit = defineEmits(['select', 'deselect'])
   
   const events = ref([])
   watch(() => props.dataSet, (dataSet) => {
@@ -65,9 +66,17 @@
     alert('date click! ' + arg.dateStr)
   }
 
-  const handleEventClick = (arg: { el: { style: any }; event: any }) => {
-    arg.el.style.borderColor = 'red'
-    emit('event', arg.event.id)
+  const handleEventClick = (arg: { el: any; event: any }) => {
+    console.log(props.selectedId)
+    if (arg.event.id == props.selectedId){
+      console.log(arg.el.classList)
+      arg.el.classList.remove('selected-slot')
+      emit('deselect', arg.event.id)
+      console.log(arg.el)
+    }
+    document.querySelectorAll('.selected-slot').forEach(e => e.classList.remove('selected-slot'))
+    arg.el.classList.add('selected-slot')
+    emit('select', arg.event.id)
   }
 
   const calendarOptions = {
@@ -95,5 +104,8 @@
 </script>
 
 <style>
-
+.selected-slot{
+    background-color: #418899;
+    color: #FFF;
+}
 </style>
