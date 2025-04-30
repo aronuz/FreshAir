@@ -7,7 +7,7 @@
     </UCard>
         
     <UCard class="col-span-12 md:col-span-9">      
-      <FullCalendar :data-set="eventsParsed" :selected-id="selectedAppointment?.id ?? null" @select="selectAppointment" @deselect="selectedAppointment = null"/>
+      <FullCalendar :data-set="eventsParsed" @select="selectAppointment" @deselect="selectedAppointment = null"/>
     </UCard>
 
     <UCard class="col-span-12 md:col-span-2">
@@ -46,7 +46,7 @@ const { fetchAppointments,
       } = useFetchQueries()
 
 watch(() => selectedAppointment.value, (value) => {
-  value ? addLabel.value = 'Reschedule Service' : 'Schedule Service'})      
+  addLabel.value = value ? 'Reschedule Service' : 'Schedule Service'})      
 const onError = (status, message = 'An unknown error has occured.') => {
   toastBar('Error', `Error ${status}`, message)
   throw createError({ statusCode: status, message: message});

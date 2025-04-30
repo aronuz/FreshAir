@@ -10,7 +10,6 @@
   import list from '@fullcalendar/list'
 
   const props = defineProps({
-    selectedId: {type: Number, required: false},
     dataSet: {
       type: Array,
       required: true,
@@ -62,21 +61,28 @@
   }, { deep: true, immediate: true }
   )
   
+  let setId: number | null = null
+
   const handleDateClick = (arg: { dateStr: string }) => {
     alert('date click! ' + arg.dateStr)
   }
 
   const handleEventClick = (arg: { el: any; event: any }) => {
-    console.log(props.selectedId)
-    if (arg.event.id == props.selectedId){
-      console.log(arg.el.classList)
-      arg.el.classList.remove('selected-slot')
-      emit('deselect', arg.event.id)
-      console.log(arg.el)
+    const el = arg.el
+    const id = arg.event.id
+    if(setId){
+      const selectedEl = document.querySelector(`.fc-event[data-event-id="${setId}"]`);
+      if (selectedEl) selectedEl.classList.remove('selected-slot')
     }
-    document.querySelectorAll('.selected-slot').forEach(e => e.classList.remove('selected-slot'))
-    arg.el.classList.add('selected-slot')
-    emit('select', arg.event.id)
+    if (setId === id){ 
+      setId = null
+      emit('deselect', id)
+    } else {
+      el.classList.add('selected-slot')
+      el.setAttribute('data-event-id', id);
+      setId = id
+      emit('select', id)
+    }
   }
 
   const calendarOptions = {
