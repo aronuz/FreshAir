@@ -1,9 +1,9 @@
 <template>
   <UModal 
     v-model:open="isOpen"
-    title="New Appointment"
+    :title="!updatedAppointment ? 'New Appointment' : 'Reschedule Service'"
     :close="{
-      color: 'primary',
+      color: 'primary',  
       variant: 'outline',
       class: 'rounded-full',
       onClick: () => isOpen = false
@@ -39,7 +39,7 @@
           <UFormField label="Notes" name="notes">
             <UTextarea variant="outline" v-model="appointment.notes" placeholder="Notes" />
           </UFormField>
-          <UButton type="submit" color="primary" variant="solid" label="Save" :loading="pending" />
+          <UButton type="submit" color="primary" variant="solid" :label="saveLabel" :loading="pending" @onClick="" />
         </UForm>
         <!-- template #footer>Add Appointment</template -->
       <!-- </UCard> -->
@@ -58,9 +58,9 @@
     email: string | undefined,
     phone: string | undefined,
     address: string | undefined,
-    start_date: Date | undefined,
+    start_date: Date | string | undefined,
     start_time: string | undefined,
-    end_date: Date | undefined,
+    end_date: Date | string | undefined,
     end_time: string | undefined,
     notes: string | undefined
   }
@@ -68,7 +68,6 @@
   const { toastBar } = useToastBar()
 
   const initState: stateType = {
-    id: undefined,
     title: undefined,
     email: undefined,
     phone: undefined,
@@ -80,6 +79,7 @@
     notes: undefined
   }
   const blankState: Ref<stateType> = useState('selectedAppointment', () => initState)
+  const selectedAppointment = useState('selectedAppointment')
 
   const { 
         submitAppointment,
@@ -100,7 +100,7 @@
     start_date: z.coerce.date().refine((date) => date > new Date(), {
       message: 'Date must be in the future.',
     }),
-    start_time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+    start_time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)/, {
       message: "Invalid time format (expected HH:mm)",
     }), 
     end_date: z.coerce.date().optional(),
@@ -146,30 +146,32 @@
 
   const appform = ref()
 
-  const appointment: Ref<stateType> = ref({...initState})
+  const saveLabel = ref('Save')
+
+  const appointment = reactive({...initState})
 
   const blankForm = () => {
     formattedStartDate.value = null
     formattedEndDate.value = null
-    Object.assign(appointment.value, initState)
+    Object.assign(appointment, initState)
     appform.value.clear()
   } 
 
   // A computed property or watcher to format the Date object
-  const formattedStartDate = ref(appointment.value.start_date ? appointment.value.start_date.toISOString().split('T')[0]: null);
+  const formattedStartDate = ref(appointment.start_date ? (appointment.start_date as Date).toISOString().split('T')[0]: null);
 
   // To handle changes from UInput and update the original Date object
   function updateStartDate(newDateString: string) {
-    appointment.value.start_date = new Date(newDateString);
+    appointment.start_date = new Date(newDateString);
     formattedStartDate.value = newDateString; // Keep the formatted string in sync
   }
 
   // A computed property or watcher to format the Date object
-  const formattedEndDate = ref(appointment.value.end_date ? appointment.value.end_date.toISOString().split('T')[0]: null);
+  const formattedEndDate = ref(appointment.end_date ? (appointment.end_date as Date).toISOString().split('T')[0]: null);
 
   // To handle changes from UInput and update the original Date object
   function updateEndDate(newDateString: string) {
-    appointment.value.end_date = new Date(newDateString);
+    appointment.end_date = new Date(newDateString);
     formattedEndDate.value = newDateString; // Keep the formatted string in sync
   }
 
@@ -181,9 +183,9 @@
       }
       showError('500', errors)
     } else {
-      console.log(appointment.value)
+      console.log(appointment)
       const sanitizedAppointment = Object.fromEntries(
-        Object.entries(appointment.value).map(([key, value]) => [key, value === undefined ? null : value])
+        Object.entries(appointment).map(([key, value]) => [key, value === undefined ? null : value])
       )
       sanitizedAppointment.start_date = sanitizedAppointment.start_date
       ? sanitizedAppointment.start_date.toISOString().split('T')[0]
@@ -191,9 +193,9 @@
       sanitizedAppointment.end_date = sanitizedAppointment.end_date
       ? sanitizedAppointment.end_date.toISOString().split('T')[0]
       : null;
-      const { error, type} = await submitAppointment(sanitizedAppointment) 
+      const { error, status, type } = await submitAppointment(sanitizedAppointment) 
       if(error){const action = type === 'create' ? 'create a new': 'update'
-        showError('500', `Unable to ${action} appoinment record.\n${JSON.stringify(error)}`)
+        showError(status, `Unable to ${action} appoinment record.\n${JSON.stringify(error)}`)
       } else {
         toastBar('Success', `Service ${type === 'update' ? 're':''}scheduled`)
         emit('saved')
@@ -201,10 +203,23 @@
     }
   }
 
-  watch(updatedAppointment as Ref<stateType>, (value: stateType) => {
-    appointment.value = value
-    formattedStartDate.value = value.end_date!.toISOString().split('T')[0]
-    formattedEndDate.value = value.end_date ? value.end_date.toISOString().split('T')[0]: null
+  watch(updatedAppointment as Ref<stateType>, (value) => {
+    if (value){
+      // appointment = {...value, email: value.email ?? '', end_time: value.end_time ?? '', notes: value.notes ?? ''}
+      Object.assign(appointment, {...value, email: value.email ?? '', end_time: value.end_time ?? '', notes: value.notes ?? ''})
+      appointment.start_date = new Date(value.start_date as string)
+      if(value.end_date) appointment.end_date = new Date(value.end_date as string)
+      else appointment.end_date = undefined
+      saveLabel.value = 'Update'
+      try{
+        const val = schema.parse(appointment)
+        console.log('Parsed User Data:', val);
+      }catch(error){
+        console.error('Validation Error:', error.errors);
+      }
+    } else {
+      saveLabel.value = 'Save'
+    }
   })
 
   const isOpen = computed({
@@ -212,6 +227,16 @@
     set: (val: Boolean) => {
       if (!val) blankForm()
       emit('update:modelValue', val)
+    }
+  })
+
+  watch(isOpen, (value) => {
+    if (!value && selectedAppointment.value) {
+      const selectedEl = document.querySelector(`.fc-event[data-event-id="${selectedAppointment.value.id}"]`);
+      if (selectedEl) selectedEl.classList.remove('selected-slot')
+      selectedAppointment.value = null
+      updatedAppointment.value = null 
+      delete appointment.id
     }
   })
 

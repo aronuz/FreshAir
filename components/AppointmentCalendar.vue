@@ -1,13 +1,13 @@
 <template>
   <div class="grid grid-cols-12 grid-rows-1 gap-2">
     <UCard class="col-span-12 md:col-span-1">
-        <UButton v-if="!isOpen" icon="i-heroicons-plus-circle" color="#FFF" variant="solid" :label="addLabel" @click="setValues; isOpen = true"/>
+        <UButton v-if="!isOpen" icon="i-heroicons-plus-circle" color="#FFF" variant="solid" :label="addLabel" @click="setValues"/>
         <UButton v-if="!isOpen && selectedAppointment" icon="i-heroicons-x-circle" color="#FFF" variant="solid" label="Remove" @click="handleRemove"/>
         <FormModal v-model="isOpen" @saved="reload"/>
     </UCard>
         
     <UCard class="col-span-12 md:col-span-9">      
-      <FullCalendar :data-set="eventsParsed" @select="selectAppointment" @deselect="selectedAppointment = null"/>
+      <FullCalendar :data-set="eventsParsed" @select="selectAppointment" @deselect="deselectAppointment"/>
     </UCard>
 
     <UCard class="col-span-12 md:col-span-2">
@@ -103,12 +103,26 @@ const selectAppointment = (id) => {
   }
 }
 
-const setValues = () => {  
-  if(selectedAppointment.value) updatedAppointment.value = selectedAppointment.value
+const deselectAppointment = () => {
+  selectedAppointment.value = null
+  updatedAppointment.value = null
 }
 
-const handleRemove = () => {
-  deleteAppointment(selectedAppointment.value.id)
+const setValues = () => {  
+  if(selectedAppointment.value) updatedAppointment.value = {...selectedAppointment.value}
+  isOpen.value = true
+}
+
+const handleRemove = async () => {
+  const id = selectedAppointment.value.id
+  const { error, isPending } = await deleteAppointment(pending)
+  if (error) onError(500, error)
+  else {
+    const selectedEl = document.querySelector(`.fc-event[data-event-id="${id}"]`);
+    if (selectedEl) selectedEl.remove()
+    toastBar('Success', `Service appointment removed`)
+  }
+  pending.value = isPending.value
 }
 
 useHead({
