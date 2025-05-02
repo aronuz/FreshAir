@@ -109,10 +109,3 @@
     eventsSet: () => { emit('calendarReady') }
   }
 </script>
-
-<style>
-.selected-slot{
-    background-color: #418899;
-    color: #FFF;
-}
-</style>

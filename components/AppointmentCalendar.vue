@@ -23,12 +23,12 @@
     <UCard class="col-span-12 md:col-span-2">
         <section v-if="eventsParsed.length">
           <h2>Existing Appointments</h2>
-          <div v-for="event in events" :key="event.id">
-            <p>{{ event.title }} @ {{ event.start_date }}</p>
-            <button @click="selectAppointment(event.id)">Edit</button>
+          <div v-for="(group, key) in grouppedEvents" :key="key">
+            <div>{{ key }}</div>
+            <div v-for="event in group" :key="event.id">
+              <div @click="updateEventEl($event, event.id)">{{ event.title }}</div>
+            </div>
           </div>
-          <button v-if="selectedAppointment" @click="updateAppointment">Update Appointment</button>
-          <button v-if="selectedAppointment" @click="deleteAppointment">Delete Appointment</button>
         </section>
         <section v-if="pending">
           <USkeleton class="h=4 w-full mb-2" />
@@ -47,7 +47,7 @@ const isReady = ref(false)
 const addLabel = ref('Schedule Service')
 const appointments = ref(null)
 const events = []
-let eventsParsed = ref([])
+// let eventsParsed = ref([])
 const selectedAppointment = useState('selectedAppointment', () => null)
 const updatedAppointment =  useState('updatedAppointment', () => null)
 
@@ -71,33 +71,55 @@ const reload = async () => {
     return
   }
   appointments.value = data
-  events.splice(0)
-  eventsParsed.value.splice(0)
-  if(appointments.value) {
-    for (const key in appointments.value) {
-      if (Object.hasOwnProperty.call(appointments.value, key)) {
-        events.push(appointments.value[key]);
-      }
+  // events.splice(0)
+  for (const key in data) {
+    if (Object.hasOwnProperty.call(data, key)) {
+      events.push(data[key]);
     }
-    const eventsObject = events.map(item => {
-      const { id, title, start_date: start, end_date: end } = item
-
-      const startTime = `${item.start_date}T${item.start_time}`
-      
-      let endTime = null
-      if(item.end_date) {
-        const timeString = item.end_time ? `T${item.end_time}` : ''
-        endTime = `${item.end_date}${timeString}`
-      }
-
-      const event = { id, title, start: startTime, end: endTime }
-
-      return event
-      }
-    )
-    eventsObject.forEach(event => eventsParsed.value.push({...event}))
   }
+  // eventsParsed.value.splice(0)
+  // if(appointments.value) {
+  //   setFullCalendar(appointments.value)
+  //   setSideBar(appointments.value)
+  // }
 }
+
+const eventsParsed = computed(() => {
+  const events = appointments.value
+  if(!events) return []
+  const eventsObject = events.map(item => {
+    const { id, title, start_date: start, end_date: end } = item
+
+    const startTime = `${item.start_date}T${item.start_time}`
+    
+    let endTime = null
+    if(item.end_date) {
+      const timeString = item.end_time ? `T${item.end_time}` : ''
+      endTime = `${item.end_date}${timeString}`
+    }
+
+    const event = { id, title, start: startTime, end: endTime }
+
+    return event
+    }
+  )
+  return eventsObject
+  // eventsObject.forEach(event => eventsParsed.value.push({...event}))
+})
+
+const grouppedEvents = computed( () => {
+    let group = {}
+    const events = appointments.value
+    for (const entry of events){
+        const date = entry.start_date
+        if(!group[date]){
+            group[date] = []
+        }
+        group[date].push(entry)
+    }
+    console.log(group)
+    return group
+})
 
 reload()
 
@@ -117,6 +139,23 @@ const deselectAppointment = () => {
   selectedAppointment.value = null
   updatedAppointment.value = null
 }
+const setSelectedClass = (event, id) => {
+  const el = event.target
+  el.classList.add('selected-slot')
+  el.setAttribute('data-event-id', id);
+  selectAppointment(id)
+}
+
+const updateEventEl = (event, id) => {
+    if(selectedAppointment.value){
+      const selectedEl = document.querySelectorAll(`.selected-slot`)[0];
+      if (selectedEl) selectedEl.classList.remove('selected-slot')
+    
+      if (selectedAppointment.value.id === id) deselectAppointment()
+      else setSelectedClass(event, id)
+    } else setSelectedClass(event, id)
+  }
+
 
 const setValues = () => {  
   if(selectedAppointment.value) updatedAppointment.value = {...selectedAppointment.value}
@@ -142,3 +181,10 @@ useHead({
   ]
 })
 </script>
+
+<style>
+.selected-slot {
+    background-color: #418899;
+    color: #FFF;
+}
+</style>
