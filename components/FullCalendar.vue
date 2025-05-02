@@ -52,7 +52,7 @@
     }
   })
 
-  const emit = defineEmits(['select', 'deselect'])
+  const emit = defineEmits(['select', 'deselect', 'calendarReady'])
   
   const events = ref([])
   watch(() => props.dataSet, (dataSet) => {
@@ -86,26 +86,27 @@
   }
 
   const calendarOptions = {
-        plugins: [ dayGridPlugin, interactionPlugin, timegrid, list ],
-        headerToolbar: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        height: "auto",
-        initialView: 'dayGridMonth',
-        dateClick: handleDateClick,
-        eventClick: handleEventClick,
-        views: {
-          dayGrid: {
-            // options apply to dayGridMonth, dayGridWeek, and dayGridDay views
-            titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' }
-          },
-          timeGrid: {
-            // options apply to timeGridWeek and timeGridDay views
-          },
-        },
-        events: events.value
+    plugins: [ dayGridPlugin, interactionPlugin, timegrid, list ],
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay'
+    },
+    height: "auto",
+    initialView: 'dayGridMonth',
+    dateClick: handleDateClick,
+    eventClick: handleEventClick,
+    views: {
+      dayGrid: {
+        // options apply to dayGridMonth, dayGridWeek, and dayGridDay views
+        titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' }
+      },
+      timeGrid: {
+        // options apply to timeGridWeek and timeGridDay views
+      },
+    },
+    events: events.value,
+    eventsSet: () => { emit('calendarReady') }
   }
 </script>
 

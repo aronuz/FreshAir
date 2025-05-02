@@ -12,6 +12,10 @@ import AppointmentCalendar from '../components/AppointmentCalendar.vue'
 //   middleware: 'errorMiddleware'
 // });
 
+definePageMeta({
+  layout: "default"
+})
+
 useHead({
   title: 'Book HVAC Service - HVAC Fresh Air',
   meta: [

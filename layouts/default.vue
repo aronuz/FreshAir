@@ -1,7 +1,7 @@
 <template>
   <div class="container mx-auto max-w-4xl">
     <Header :user="user" :is-admin="isAdmin" />
-    <slot />
+    <NuxtPage />
     <Footer />
   </div>
 </template>

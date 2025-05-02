@@ -46,6 +46,10 @@ const sendEmail = async () => {
   }
   emailData.value = { to: '', subject: '', body: '' };
 };
+
+definePageMeta({
+  layout: "default"
+})
 </script>
 
 <style scoped>

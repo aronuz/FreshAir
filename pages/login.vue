@@ -52,4 +52,8 @@
             pending.value = false
         }
     }
+
+    definePageMeta({
+        layout: "default"
+    })
 </script>

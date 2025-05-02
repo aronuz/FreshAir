@@ -13,6 +13,10 @@
 <script lang="ts" setup>
 const galleryItems = [{src: '/images/image.jpg', alt: 'HVAC service'}]
 
+definePageMeta({
+  layout: "default"
+})
+
 useHead({
   title: 'Gallery - HVAC Fresh Air',
   meta: [ { name: 'description', content: 'View our HVAC gallety.'}]

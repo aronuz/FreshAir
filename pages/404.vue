@@ -13,6 +13,12 @@
   </div>
 </template>
 
+<script setup>
+definePageMeta({
+  layout: "default"
+})
+</script>
+
 <style scoped>
 .error-page {
   text-align: center;

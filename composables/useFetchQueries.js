@@ -99,7 +99,6 @@ export const useFetchQueries = () => {
                 }else{
                     try {
                         pending.value = true
-                        console.log(selectedAppointment.value.id, typeof selectedAppointment.value.id)
                         const { error } = await supabase.from('appointments').update(updatedValues).eq('id', selectedAppointment.value.id)
                         // await $fetch(`/api/appointments/${selectedAppointment.value.id}`, {
                         //     method: 'PUT',

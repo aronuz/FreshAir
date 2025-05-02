@@ -1,28 +1,38 @@
 <template>
   <div class="grid grid-cols-12 grid-rows-1 gap-2">
     <UCard class="col-span-12 md:col-span-1">
+      <div v-if="eventsParsed.length">
         <UButton v-if="!isOpen" icon="i-heroicons-plus-circle" color="#FFF" variant="solid" :label="addLabel" @click="setValues"/>
         <UButton v-if="!isOpen && selectedAppointment" icon="i-heroicons-x-circle" color="#FFF" variant="solid" label="Remove" @click="handleRemove"/>
         <FormModal v-model="isOpen" @saved="reload"/>
+      </div>
+      <div v-else>
+        <USkeleton class="h=4 w-full mb-2" />
+      </div>
     </UCard>
         
-    <UCard class="col-span-12 md:col-span-9">      
-      <FullCalendar :data-set="eventsParsed" @select="selectAppointment" @deselect="deselectAppointment"/>
+    <UCard class="col-span-12 md:col-span-9">
+      <ClientOnly>
+        <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendarReady="isReady = true" @select="selectAppointment" @deselect="deselectAppointment"/>
+      </ClientOnly>
+      <div v-if="!isReady">
+        <USkeleton class="h=4 w-full mb-2" />
+      </div>
     </UCard>
 
     <UCard class="col-span-12 md:col-span-2">
-      <section v-if="eventsParsed.length">
-        <h2>Existing Appointments</h2>
-      <div v-for="event in events" :key="event.id">
-        <p>{{ event.title }} @ {{ event.start_date }}</p>
-        <button @click="selectAppointment(event.id)">Edit</button>
-      </div>
-      <button v-if="selectedAppointment" @click="updateAppointment">Update Appointment</button>
-      <button v-if="selectedAppointment" @click="deleteAppointment">Delete Appointment</button>
-    </section>
-    <section v-if="pending">
-      <USkeleton class="h=4 w-full mb-2" />
-    </section>
+        <section v-if="eventsParsed.length">
+          <h2>Existing Appointments</h2>
+          <div v-for="event in events" :key="event.id">
+            <p>{{ event.title }} @ {{ event.start_date }}</p>
+            <button @click="selectAppointment(event.id)">Edit</button>
+          </div>
+          <button v-if="selectedAppointment" @click="updateAppointment">Update Appointment</button>
+          <button v-if="selectedAppointment" @click="deleteAppointment">Delete Appointment</button>
+        </section>
+        <section v-if="pending">
+          <USkeleton class="h=4 w-full mb-2" />
+        </section>
     </UCard>
   </div>
 </template>
@@ -33,6 +43,7 @@ import { ref } from 'vue';
 const { toastBar } = useToastBar()
 const pending = ref(false)
 const isOpen = ref(false)
+const isReady = ref(false)
 const addLabel = ref('Schedule Service')
 const appointments = ref(null)
 const events = []

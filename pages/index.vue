@@ -22,7 +22,9 @@
  </template>
 
 <script setup>
-// You can add any logic here if needed
+definePageMeta({
+  layout: "default"
+})
 </script>
 
 <style scoped>

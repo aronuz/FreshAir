@@ -5,3 +5,9 @@
     {/* ... more about us content */}
   </div>
 </template>
+
+<script setup>
+  definePageMeta({
+    layout: "default"
+  })
+</script>
