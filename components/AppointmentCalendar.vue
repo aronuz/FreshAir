@@ -54,7 +54,6 @@ const onError = (status, message = 'An unknown error has occured.') => {
 
 const reload = async () => {
   const {data, isPending, error, status} = await fetchAppointments(pending)
-  isOpen.value = false
   pending.value = isPending.value
   if(error){
     onError(status, error)

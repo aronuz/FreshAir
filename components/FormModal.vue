@@ -198,6 +198,7 @@
         showError(status, `Unable to ${action} appoinment record.\n${JSON.stringify(error)}`)
       } else {
         toastBar('Success', `Service ${type === 'update' ? 're':''}scheduled`)
+        isOpen.value = false
         emit('saved')
       }
     }

@@ -6,7 +6,6 @@ export const useFetchQueries = () => {
     const blankState = useState('blankState')
     const selectedAppointment = useState('selectedAppointment')
     const updatedAppointment = useState('updatedAppointment') //ref(blankState.value)
-    const { toastBar } = useToastBar()
 
     const fetchAppointments = async (pending, list = false, dateRange = null) => {
         pending.value = true
@@ -65,9 +64,9 @@ export const useFetchQueries = () => {
                 // body: appointment.value,
                 // });
                 
-                if (error && error.message) {
-                    saveError = error.message
-                    saveStatus = error.code
+                if (error) {
+                    saveError = error.message ?? 'Uknown error'
+                    saveStatus = error.code ?? ''
                 }
             } catch (error) {
                 saveError = error;
@@ -102,14 +101,15 @@ export const useFetchQueries = () => {
                 }else{
                     try {
                         pending.value = true
-                        const { error } = await supabase.from('appointmemts').update(updatedValues).eq('id', selectedAppointment.value.id)
+                        console.log(selectedAppointment.value.id, typeof selectedAppointment.value.id)
+                        const { error } = await supabase.from('appointments').update(updatedValues).eq('id', selectedAppointment.value.id)
                         // await $fetch(`/api/appointments/${selectedAppointment.value.id}`, {
                         //     method: 'PUT',
                         //     body: appointment.value,
                         // });
-                        if (error && error.message) {
-                            saveError = error.message
-                            saveStatus = error.code
+                        if (error) {
+                            saveError = error.message ?? 'Unkown error'
+                            saveStatus = error.code ?? ''
                         } else {             
                             selectedAppointment.value = null
                             updatedAppointment.value = null //blankState.value
@@ -137,9 +137,9 @@ export const useFetchQueries = () => {
             try {
                 const id = selectedAppointment.value.id
                 const { error } = await supabase.from('appointments').delete().eq('id', id)
-                if (error && error.message) {
-                    deleteError = error.message
-                    deleteStatus = error.code 
+                if (error) {
+                    deleteError = error.message ?? 'Uknown error'
+                    deleteStatus = error.code ?? ''
                 }
                 else selectedAppointment.value = null
             } catch (error) {
