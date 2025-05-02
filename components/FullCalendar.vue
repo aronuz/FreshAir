@@ -71,7 +71,7 @@
     const el = arg.el
     const id = arg.event.id
     if(setId){
-      const selectedEl = document.querySelector(`.fc-event[data-event-id="${setId}"]`);
+      const selectedEl = document.querySelectorAll(`.selected-slot`)[0] //(`.fc-event[data-event-id="${setId}"]`);
       if (selectedEl) selectedEl.classList.remove('selected-slot')
     }
     if (setId === id){ 
