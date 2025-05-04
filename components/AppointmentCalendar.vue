@@ -72,7 +72,7 @@ const reload = async () => {
     return
   }
   appointments.value = data
-  existingRecords = timeData
+  existingRecords.value = timeData
   // events.splice(0)
   for (const key in data) {
     if (Object.hasOwnProperty.call(data, key)) {

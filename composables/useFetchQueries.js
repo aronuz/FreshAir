@@ -22,8 +22,8 @@ export const useFetchQueries = () => {
             return group
         }
         const today = new Date()
-        const dateFrom = dateRange && dateRange.value ? dateRange.value : today.toISOString().split('T')[0]
-        const dateTo = dateRange && dateRange.value ? dateRange.value : new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0]
+        const dateFrom = dateRange?.value?.from ? dateRange.value.from : today.toISOString().split('T')[0]
+        const dateTo = dateRange?.value?.to ? dateRange.value.to : new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0]
         const { data, timeData } = await useAsyncData(`range-${dateFrom}-${dateTo}`, async () => {
             const { data, error } = await supabase.from('appointments').select('*').gte('start_date', dateFrom)
             .or(`end_date.lt.${dateTo},end_date.is.null`).order('created_at', { ascending: true })
@@ -32,7 +32,7 @@ export const useFetchQueries = () => {
                 saveStatus = '500'
                 return null; // Or throw an error to be caught by useAsyncData
             } else if (data && Object.keys(data).length) {
-                const { timeData } = await supabase.from('times').select('*')
+                const { data: timeData } = await supabase.from('times').select('*')
             }
             return { data, timeData };
         })
