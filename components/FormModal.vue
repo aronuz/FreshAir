@@ -88,7 +88,8 @@
       } = useFetchQueries()
 
   const props = defineProps({
-    modelValue: Boolean
+    modelValue: Boolean,
+    existingRecords: Object
   })
   const emit = defineEmits(['update:modelValue', 'saved'])
 
@@ -108,10 +109,18 @@
     notes: z.string().optional(),
   }).refine(
     (data) => {
+      return isTimeOverlap(data.start_date, data.start_time)
+    },
+    {
+      message: 'Selected time is not available. Please choose a different time.',
+      path: ['startTime'],
+    }
+  ).refine(
+    (data) => {
       if (data.end_date && data.start_date && data.start_date <= data.end_date) {
-        return false;
+        return false
       }
-      return true;
+      return true
     },
     {
       message: 'End date must be after the start date.',
@@ -121,7 +130,7 @@
   .refine(
     (data) => {
       if (data.end_date && !data.end_time) {
-        return false;
+        return false
       }
       return true
     },
@@ -134,7 +143,7 @@
       if (data.end_time) {
         const regex = /^([01]\d|2[0-3]):([0-5]\d)$/
         const time = data.end_time!.toString()
-        return regex.test(time);
+        return regex.test(time)
       }
       return true
     },
@@ -158,21 +167,21 @@
   } 
 
   // A computed property or watcher to format the Date object
-  const formattedStartDate = ref(appointment.start_date ? (appointment.start_date as Date).toISOString().split('T')[0]: null);
+  const formattedStartDate = ref(appointment.start_date ? (appointment.start_date as Date).toISOString().split('T')[0]: null)
 
   // To handle changes from UInput and update the original Date object
   function updateStartDate(newDateString: string) {
-    appointment.start_date = new Date(newDateString);
-    formattedStartDate.value = newDateString; // Keep the formatted string in sync
+    appointment.start_date = new Date(newDateString)
+    formattedStartDate.value = newDateString // Keep the formatted string in sync
   }
 
   // A computed property or watcher to format the Date object
-  const formattedEndDate = ref(appointment.end_date ? (appointment.end_date as Date).toISOString().split('T')[0]: null);
+  const formattedEndDate = ref(appointment.end_date ? (appointment.end_date as Date).toISOString().split('T')[0]: null)
 
   // To handle changes from UInput and update the original Date object
   function updateEndDate(newDateString: string) {
-    appointment.end_date = new Date(newDateString);
-    formattedEndDate.value = newDateString; // Keep the formatted string in sync
+    appointment.end_date = new Date(newDateString)
+    formattedEndDate.value = newDateString // Keep the formatted string in sync
   }
 
   const saveAppointment = async () => {
@@ -189,10 +198,10 @@
       )
       sanitizedAppointment.start_date = sanitizedAppointment.start_date
       ? sanitizedAppointment.start_date.toISOString().split('T')[0]
-      : null;
+      : null
       sanitizedAppointment.end_date = sanitizedAppointment.end_date
       ? sanitizedAppointment.end_date.toISOString().split('T')[0]
-      : null;
+      : null
       const { error, status, type } = await submitAppointment(sanitizedAppointment) 
       if(error){const action = type === 'create' ? 'create a new': 'update'
         showError(status, `Unable to ${action} appoinment record.\n${JSON.stringify(error)}`)
@@ -214,9 +223,9 @@
       saveLabel.value = 'Update'
       try{
         const val = schema.parse(appointment)
-        console.log('Parsed User Data:', val);
+        console.log('Parsed User Data:', val)
       }catch(error){
-        console.error('Validation Error:', error.errors);
+        console.error('Validation Error:', error.errors)
       }
     } else {
       saveLabel.value = 'Save'
@@ -233,7 +242,7 @@
 
   watch(isOpen, (value) => {
     if (!value && selectedAppointment.value) {
-      const selectedEl = document.querySelector(`.fc-event[data-event-id="${selectedAppointment.value.id}"]`);
+      const selectedEl = document.querySelector(`.fc-event[data-event-id="${selectedAppointment.value.id}"]`)
       if (selectedEl) selectedEl.classList.remove('selected-slot')
       selectedAppointment.value = null
       updatedAppointment.value = null 
@@ -241,7 +250,31 @@
     }
   })
 
-  //const onError = (status, message) => {throw createError({ statusCode: status, message: message || 'An unknown error has occured.'});}
+  function isTimeOverlap(newStartDate: Date, newStartTime: string) {
+    const diffInMs = 2 * 3600 * 1000 // Two hours in milliseconds
+
+    const newAppointmentDay = newStartDate.toDateString()
+    const newAppointmentTime = new Date(`${newStartDate}T${newStartTime}`).getTime()
+
+    for (const { start_date, start_time } of props.existingRecords) {
+      const existingRecordDate = new Date(start_date) 
+      const existingRecordDay = existingRecordDate.toDateString()
+      const existingRecordTime = new Date(`${start_date}T${start_time}`).getTime()
+
+      // Check if the appointments are on the same day
+      if (newAppointmentDay === existingRecordDay) {
+        // Check if within two hours
+        const timeDiff = Math.abs(newAppointmentTime - existingRecordTime)
+        if (timeDiff < diffInMs) {
+          return true
+        }
+      }
+    }
+
+    return false // No overlap found
+  }
+
+  //const onError = (status, message) => {throw createError({ statusCode: status, message: message || 'An unknown error has occured.'})}
   const showError = (error: string, status = 'Form Error') => {
     toastBar('Error', status, error.trim())
   }
