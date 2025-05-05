@@ -22,8 +22,8 @@ export const useFetchQueries = () => {
             return group
         }
         const today = new Date()
-        const dateFrom = dateRange && dateRange.value ? dateRange.value : today.toISOString().split('T')[0]
-        const dateTo = dateRange && dateRange.value ? dateRange.value : new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0]
+        const dateFrom = dateRange?.value?.from ? dateRange.value.from : today.toISOString().split('T')[0]
+        const dateTo = dateRange?.value?.to ? dateRange.value.to : new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0]
         const { data } = await useAsyncData(`range-${dateFrom}-${dateTo}`, async () => {
             const { data, error } = await supabase.from('appointments').select('*').gte('start_date', dateFrom)
             .or(`end_date.lt.${dateTo},end_date.is.null`).order('created_at', { ascending: true })
@@ -31,18 +31,29 @@ export const useFetchQueries = () => {
                 saveError = error
                 saveStatus = '500'
                 return null; // Or throw an error to be caught by useAsyncData
-            }
-            return data;
+            } 
+            return { data };
         })
         let dataSet = []
         if (data && data.value) {
-            dataSet = list ? groupByDate(data.value) : data.value
-        } else if (!error){
+            dataSet = list ? groupByDate(data.value.data) : data.value.data
+        } else if (error){
             saveError = error
             saveStatus = '500'
         }
-        return { data: dataSet, isPending: pending, error: saveError, status: saveStatus }
-    };
+        const response = await useAsyncData(`times-${dateFrom}-${dateTo}`, async () => {
+            const { data: timesData, error } = await supabase.from('times').select('*')
+            if (error) {
+                saveError = error
+                saveStatus = '500'
+                return null; // Or throw an error to be caught by useAsyncData
+            }            
+            return { timesData }
+        })
+        const dataValue = response.data?.value?.timesData
+        const timesData = dataValue && dataValue.length ? dataValue : []
+        return { data: dataSet, timesData, isPending: pending, error: saveError, status: saveStatus }
+    }
 
     const submitAppointment = async (appointment) => {
         let saveError = null
@@ -56,7 +67,7 @@ export const useFetchQueries = () => {
         } else {
             try {
                 pending.value = true
-                const { error } = await supabase.from('appointments').insert([appointment])
+                const { data, error } = await supabase.from('appointments').insert([appointment]).select('id, start_date, start_time').single()
                 // await $fetch('/api/appointments', {
                 // method: 'POST',
                 // body: appointment.value,
@@ -65,6 +76,10 @@ export const useFetchQueries = () => {
                 if (error) {
                     saveError = error.message ?? 'Uknown error'
                     saveStatus = error.code ?? ''
+                } else if (data && Object.keys(data).length) {
+                    const { ['id']: value, ...rest } = data
+                    const timesData = { ['record_id']: value, ...rest }
+                    const { error } = await supabase.from('times').insert([timesData])
                 }
             } catch (error) {
                 saveError = error;
@@ -99,7 +114,8 @@ export const useFetchQueries = () => {
                 }else{
                     try {
                         pending.value = true
-                        const { error } = await supabase.from('appointments').update(updatedValues).eq('id', selectedAppointment.value.id)
+                        const id = selectedAppointment.value.id
+                        const { error } = await supabase.from('appointments').update(updatedValues).eq('id', id)
                         // await $fetch(`/api/appointments/${selectedAppointment.value.id}`, {
                         //     method: 'PUT',
                         //     body: appointment.value,
@@ -107,7 +123,9 @@ export const useFetchQueries = () => {
                         if (error) {
                             saveError = error.message ?? 'Unkown error'
                             saveStatus = error.code ?? ''
-                        } else {             
+                        } else {
+                            const data = { start_date: appointment.start_date, start_time: appointment.start_time }
+                            const { error } = await supabase.from('times').update(data).eq('record_id', id)      
                             selectedAppointment.value = null
                             updatedAppointment.value = null //blankState.value
                         }
@@ -137,8 +155,10 @@ export const useFetchQueries = () => {
                 if (error) {
                     deleteError = error.message ?? 'Uknown error'
                     deleteStatus = error.code ?? ''
+                } else {
+                    const { error } = await supabase.from('times').delete().eq('record_id', id)
+                    selectedAppointment.value = null
                 }
-                else selectedAppointment.value = null
             } catch (error) {
                 deleteError = `${deleteError}\n${error}`;
                 deleteStatus = "500"
