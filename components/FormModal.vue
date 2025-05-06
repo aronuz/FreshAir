@@ -95,9 +95,11 @@
 
   const schema = z.object({
     title: z.string(),
-    email: z.string().optional(),
-    phone: z.string(),
-    address: z.string(),
+    email: z.string().email("Please provide a valide email address").optional(),
+    phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, {
+      message: "Please provide a valid phone number",
+    }),
+    address: z.string().min(1, "Address is required").max(255, "Address is too long"),
     start_date: z.coerce.date().refine((date) => date > new Date(), {
       message: 'Date must be in the future.',
     }),
@@ -106,7 +108,7 @@
     }), 
     end_date: z.coerce.date().optional(),
     end_time: z.string().optional(),
-    notes: z.string().optional(),
+    notes: z.string().max(255, "Text is too long").optional(),
   }).refine(
     (data) => {
       return isTimeOverlap(data.start_date, data.start_time)
@@ -184,7 +186,10 @@
     formattedEndDate.value = newDateString // Keep the formatted string in sync
   }
 
-  const saveAppointment = async () => {
+  const saveAppointment = async ({ data, valid, errors }) => {
+    console.log('Form Data:', data)
+    console.log('Form Valid:', valid)
+    console.log('Form Errors:', errors)
     if (appform.value.errors.length) {
       let errors = ''
       for (const error in appform.value.errors) {
