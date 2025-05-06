@@ -11,7 +11,7 @@
   >
     <template #body>
       <!-- <UCard variant="soft"> -->
-        <UForm :state=appointment :schema="schema" ref="appform" @submit.prevent="saveAppointment">
+        <UForm :state=appointment :schema="schema" ref="appform" @submit.prevent="saveAppointment" @error="onError">
           <UFormField required label="Name" name="title" class="mb=4">
             <UInput placeholder="Name" v-model="appointment.title"/>
           </UFormField>
@@ -48,6 +48,7 @@
 </template>
 
 <script lang="ts" setup>
+  import type { FormErrorEvent, FormSubmitEvent } from '@nuxt/ui'
   import { z } from 'zod'
   
   import { useFetchQueries} from '~/composables/useFetchQueries'
@@ -111,18 +112,19 @@
     notes: z.string().max(255, "Text is too long").optional(),
   }).refine(
     (data) => {
-      return isTimeOverlap(data.start_date, data.start_time)
+      const hasOverlap = isTimeOverlap(data.start_date, data.start_time)
+      return hasOverlap
     },
     {
       message: 'Selected time is not available. Please choose a different time.',
-      path: ['startTime'],
+      path: ['start_time'],
     }
   ).refine(
     (data) => {
       if (data.end_date && data.start_date && data.start_date <= data.end_date) {
-        return false
+        return true
       }
-      return true
+      return false
     },
     {
       message: 'End date must be after the start date.',
@@ -186,10 +188,8 @@
     formattedEndDate.value = newDateString // Keep the formatted string in sync
   }
 
-  const saveAppointment = async ({ data, valid, errors }) => {
-    console.log('Form Data:', data)
-    console.log('Form Valid:', valid)
-    console.log('Form Errors:', errors)
+  const saveAppointment = async (event: FormSubmitEvent<typeof appointment>) => {
+    console.log('Form Data:', event)
     if (appform.value.errors.length) {
       let errors = ''
       for (const error in appform.value.errors) {
@@ -209,12 +209,24 @@
       : null
       const { error, status, type } = await submitAppointment(sanitizedAppointment) 
       if(error){const action = type === 'create' ? 'create a new': 'update'
-        showError(status, `Unable to ${action} appoinment record.\n${JSON.stringify(error)}`)
+        showError(status as string, `Unable to ${action} appoinment record.\n${JSON.stringify(error)}`)
       } else {
-        toastBar('Success', `Service ${type === 'update' ? 're':''}scheduled`)
+        toastBar('success', `Service ${type === 'update' ? 're':''}scheduled`)
         isOpen.value = false
         emit('saved')
       }
+    }
+  }
+
+  const onError = async (event: FormErrorEvent) => {
+    if (event?.errors.length)
+    for(const error of event.errors){
+      setTimeout(() => showError(error.message), 1000)
+    }
+    if (event.errors[0]?.id) {
+      const element = document.getElementById(event.errors[0].id)
+      element?.focus()
+      element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
   }
 
@@ -272,16 +284,16 @@
         // Check if within two hours
         const timeDiff = Math.abs(newAppointmentTime - existingRecordTime)
         if (timeDiff < diffInMs) {
-          return true
+          return false
         }
       }
     }
 
-    return false // No overlap found
+    return true // No overlap found
   }
 
   //const onError = (status, message) => {throw createError({ statusCode: status, message: message || 'An unknown error has occured.'})}
   const showError = (error: string, status = 'Form Error') => {
-    toastBar('Error', status, error.trim())
+    toastBar('error', status, error.trim())
   }
 </script>

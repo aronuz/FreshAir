@@ -60,7 +60,7 @@ const { fetchAppointments,
 watch(() => selectedAppointment.value, (value) => {
   addLabel.value = value ? 'Reschedule Service' : 'Schedule Service'})      
 const onError = (status, message = 'An unknown error has occured.') => {
-  toastBar('Error', `Error ${status}`, message)
+  toastBar('error', `Error ${status}`, message)
   throw createError({ statusCode: status, message: message});
 }
 
@@ -171,7 +171,7 @@ const handleRemove = async () => {
   else {
     const selectedEl = document.querySelector(`.fc-event[data-event-id="${id}"]`);
     if (selectedEl) selectedEl.remove()
-    toastBar('Success', `Service appointment removed`)
+    toastBar('success', `Service appointment removed`)
   }
   pending.value = isPending.value
 }
