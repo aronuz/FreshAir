@@ -1,9 +1,10 @@
 <template>
-  <div class="container mx-auto max-w-4xl">
+  <!-- container mx-auto max-w-4xl"> -->
+  <UContainer class="grid place-content-around h-screen"> 
     <Header :user="user" :is-admin="isAdmin" />
     <NuxtPage />
     <Footer />
-  </div>
+  </UContainer>
 </template>
 
 <script setup>    
