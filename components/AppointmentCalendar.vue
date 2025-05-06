@@ -4,7 +4,7 @@
       <div v-if="eventsParsed.length">
         <UButton v-if="!isOpen" icon="i-heroicons-plus-circle" color="#FFF" variant="solid" :label="addLabel" @click="setValues"/>
         <UButton v-if="!isOpen && selectedAppointment" icon="i-heroicons-x-circle" color="#FFF" variant="solid" label="Remove" @click="handleRemove"/>
-        <FormModal v-model="isOpen" @saved="reload"/>
+        <FormModal v-model="isOpen" :existing-records="existingRecords" @saved="reload"/>
       </div>
       <div v-else>
         <USkeleton class="h=4 w-full mb-2" />
@@ -47,6 +47,7 @@ const isReady = ref(false)
 const addLabel = ref('Schedule Service')
 const appointments = ref(null)
 const events = []
+const existingRecords = ref([])
 // let eventsParsed = ref([])
 const selectedAppointment = useState('selectedAppointment', () => null)
 const updatedAppointment =  useState('updatedAppointment', () => null)
@@ -64,13 +65,14 @@ const onError = (status, message = 'An unknown error has occured.') => {
 }
 
 const reload = async () => {
-  const {data, isPending, error, status} = await fetchAppointments(pending)
+  const {data, timesData, isPending, error, status} = await fetchAppointments(pending)
   pending.value = isPending.value
   if(error){
     onError(status, error)
     return
   }
   appointments.value = data
+  existingRecords.value = timesData
   // events.splice(0)
   for (const key in data) {
     if (Object.hasOwnProperty.call(data, key)) {
