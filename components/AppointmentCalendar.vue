@@ -1,6 +1,6 @@
 <template>
   <div class="grid grid-cols-12 grid-rows-1 gap-2">
-    <UCard class="col-span-12 md:col-span-1">
+    <UCard class="col-span-12 md:col-span-3">
       <div v-if="eventsParsed.length">
         <UButton v-if="!isOpen" icon="i-heroicons-plus-circle" color="#FFF" variant="solid" :label="addLabel" @click="setValues"/>
         <UButton v-if="!isOpen && selectedAppointment" icon="i-heroicons-x-circle" color="#FFF" variant="solid" label="Remove" @click="handleRemove"/>
@@ -11,7 +11,7 @@
       </div>
     </UCard>
         
-    <UCard class="col-span-12 md:col-span-9">
+    <UCard class="col-span-12 md:col-span-9 hidden md:flex">
       <ClientOnly>
         <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendarReady="isReady = true" @select="selectAppointment" @deselect="deselectAppointment"/>
       </ClientOnly>
@@ -20,7 +20,7 @@
       </div>
     </UCard>
 
-    <UCard class="col-span-12 md:col-span-2">
+    <UCard class="col-span-12 md:hidden">
         <section v-if="eventsParsed.length">
           <h2>Existing Appointments</h2>
           <div v-for="(group, key) in grouppedEvents" :key="key">

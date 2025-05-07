@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h1>Book your HVAC Service</h1>
+  <div class="flex flex-col items-center">
+    <h1 class="text-2xl font-bold">Book your HVAC Service</h1>
     <AppointmentCalendar/>
   </div>
 </template>

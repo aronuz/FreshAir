@@ -1,6 +1,10 @@
 <template>
-    <section class="py-12 text-center">
-        <UImage src="/images/hero.jpg" alt="HVAC System" class="rounded-lg shadow-lg mx-auto max-w-2xl" />
+    <section class="pb-12 text-center">
+        <NuxtImg src="/images/wallsplit1.png" alt="HVAC System" width="250px" height="250px" 
+            class="rounded-sm shadow-sm w-11/12 h-20 mx-auto"
+            sizes="sm:100px md:150px lg:100px xl:300px" 
+        />
+       <!-- class="rounded-lg shadow-lg mx-auto max-w-2xl" -->
         <h2 class="text-4xl font-bold text-gray-800 mt-6">Reliable HVAC Services You Can Trust</h2>
         <p class="text-lg text-gray-600 mt-4 max-w-xl mx-auto">
         We provide top-notch heating, ventilation, and air conditioning services for residential and commercial clients.
