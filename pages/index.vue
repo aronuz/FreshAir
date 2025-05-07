@@ -8,7 +8,7 @@
         </p>
         <div class="mt-8 space-x-4">
         <UButton to="/contact" label="Request Service" color="primary" size="lg" />
-        <UButton to="/services" label="Our Services" variant="outline" color="primary" size="lg" />
+        <UButton to="/gallery" label="Our Services" variant="outline" color="primary" size="lg" />
         </div>
     </section>
 
@@ -33,7 +33,7 @@
         </div>
     </section>
 
-    <section class="py-12 mt-8 bg-gray-100 rounded-lg shadow-md">
+    <!-- <section class="py-12 mt-8 bg-gray-100 rounded-lg shadow-md">
         <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Our Services</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div class="bg-white rounded-lg shadow-sm p-6">
@@ -62,9 +62,9 @@
         </div>
         </div>
         <div class="mt-6 text-center">
-        <UButton to="/services" label="View All Services" variant="outline" color="primary" />
+        <UButton to="/gallery" label="View All Services" variant="outline" color="primary" />
         </div>
-    </section>
+    </section> -->
 
     <section class="py-12 mt-8 bg-primary-500 text-white rounded-lg shadow-md">
         <div class="text-center">

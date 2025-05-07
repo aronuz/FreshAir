@@ -1,23 +1,20 @@
 <template>
-  <div>
-    <div class="gallery-item">
-      <img :src="imageSrc" :alt="altText">
-    </div>
+  <div class="gallery-item">
+    <img :src="imagePath" :alt="altText">
   </div>
 </template>
 
 <script lang="ts" setup>
-defineProps({
+const props = defineProps({
   imageSrc: String,
   altText: String
 })
-const imagePath = 'images/image.jpg';
-const imageUrl = useAssets().getURL(imagePath);
+const imagePath = ref(`/images/${props.imageSrc}.png`)
 </script>
 
 <style scoped>
   .gallery-item {
-    width: 300px;
+    max-height: 100%;
     margin: 10px;
   }
   .img {
