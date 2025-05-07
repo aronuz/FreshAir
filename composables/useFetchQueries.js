@@ -6,7 +6,7 @@ export const useFetchQueries = () => {
     const selectedAppointment = useState('selectedAppointment')
     const updatedAppointment = useState('updatedAppointment') //ref(blankState.value)
 
-    const fetchAppointments = async (pending, list = false, dateRange = null) => {
+    const fetchAppointments = async (pending, list = false, dateRange = null, limit = null) => {
         pending.value = true
         let saveError = null
         let saveStatus = null
@@ -24,9 +24,13 @@ export const useFetchQueries = () => {
         const today = new Date()
         const dateFrom = dateRange?.value?.from ? dateRange.value.from : today.toISOString().split('T')[0]
         const dateTo = dateRange?.value?.to ? dateRange.value.to : new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0]
-        const { data } = await useAsyncData(`range-${dateFrom}-${dateTo}`, async () => {
-            const { data, error } = await supabase.from('appointments').select('*').gte('start_date', dateFrom)
-            .or(`end_date.lt.${dateTo},end_date.is.null`).order('created_at', { ascending: true })
+        
+        const query = supabase.from('appointments').select('*').gte('start_date', dateFrom)
+        .or(`end_date.lt.${dateTo},end_date.is.null`).order('created_at', { ascending: true })
+        if (limit) query.limit(limit)
+        
+        const { data } = await useAsyncData(`short-${dateFrom}-${dateTo}`, async () => {
+            const { data, error } = await query
             if (error) {
                 saveError = error
                 saveStatus = '500'
@@ -41,17 +45,20 @@ export const useFetchQueries = () => {
             saveError = error
             saveStatus = '500'
         }
-        const response = await useAsyncData(`times-${dateFrom}-${dateTo}`, async () => {
-            const { data: timesData, error } = await supabase.from('times').select('*')
-            if (error) {
-                saveError = error
-                saveStatus = '500'
-                return null; // Or throw an error to be caught by useAsyncData
-            }            
-            return { timesData }
-        })
-        const dataValue = response.data?.value?.timesData
-        const timesData = dataValue && dataValue.length ? dataValue : []
+        let timesData = []
+        if(!limit) {
+            const response = await useAsyncData(`times-${dateFrom}-${dateTo}`, async () => {
+                const { data: timesData, error } = await supabase.from('times').select('*')
+                if (error) {
+                    saveError = error
+                    saveStatus = '500'
+                    return null; // Or throw an error to be caught by useAsyncData
+                }            
+                return { timesData }
+            })
+            const dataValue = response.data?.value?.timesData
+            if (dataValue && dataValue.length) timesData = dataValue
+        }
         return { data: dataSet, timesData, isPending: pending, error: saveError, status: saveStatus }
     }
 

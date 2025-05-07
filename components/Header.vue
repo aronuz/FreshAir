@@ -1,6 +1,10 @@
 <template>
   <UContainer class="py-4">
     <div class="nav-container">
+      <UCard>
+        <h1 class="text-2xl font-bold text-primary-500">Fresh Air HVAC</h1>
+        <p class="text-sm text-gray-500">Your Comfort, Our Priority</p>
+      </UCard>
       <nav class="nav-top-left">
         <NuxtLink to="/">Home</NuxtLink>
         <UButton

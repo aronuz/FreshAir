@@ -1,10 +1,12 @@
 <template>
   <!-- container mx-auto max-w-4xl"> -->
-  <UContainer class="grid place-content-around h-screen"> 
-    <Header :user="user" :is-admin="isAdmin" />
-    <NuxtPage />
-    <Footer />
-  </UContainer>
+  <div class="bg-gray-100">
+    <UContainer class="grid place-content-around h-screen"> 
+      <Header :user="user" :is-admin="isAdmin" />
+      <NuxtPage />
+      <Footer />
+    </UContainer>
+  </div>
 </template>
 
 <script setup>    
