@@ -24,12 +24,15 @@ export const useFetchQueries = () => {
         const today = new Date()
         const dateFrom = dateRange?.value?.from ? dateRange.value.from : today.toISOString().split('T')[0]
         const dateTo = dateRange?.value?.to ? dateRange.value.to : new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0]
-        
+        let prefix = 'all'
         const query = supabase.from('appointments').select('*').gte('start_date', dateFrom)
         .or(`end_date.lt.${dateTo},end_date.is.null`).order('created_at', { ascending: true })
-        if (limit) query.limit(limit)
+        if (limit) {
+            query.limit(limit)
+            prefix = 'short'
+        }
         
-        const { data } = await useAsyncData(`short-${dateFrom}-${dateTo}`, async () => {
+        const { data } = await useAsyncData(`${prefix}-${dateFrom}-${dateTo}`, async () => {
             const { data, error } = await query
             if (error) {
                 saveError = error
