@@ -24,8 +24,13 @@ export default defineNuxtConfig({
     }
   },
   modules: [// Install this module
-  '@nuxtjs/sitemap', '@nuxtjs/supabase', '@nuxt/ui'],
+  '@nuxtjs/sitemap', '@nuxtjs/supabase', '@nuxt/ui', '@nuxt/image'],
   css: ['~/assets/css/main.css'],
+  image: {
+    //domains: ['picsum.photos', 'www.google.com'],
+    format: ['webp', 'jpeg', 'jpg', 'png'],
+    provider: 'ipx',
+  },
   router: {
     extendRoutes(routes, resolve) {
       routes.push({

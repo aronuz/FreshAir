@@ -1,6 +1,10 @@
 <template>
   <div class="gallery-item">
-    <img :src="imagePath" :alt="altText">
+    <NuxtImg :src="imagePath" :alt="altText" 
+      width="250px" height="250px" 
+      class="rounded-xl shadow-lg w-full"
+      sizes="sm:100px md:140px lg:200px xl:300px" 
+    />
   </div>
 </template>
 
@@ -14,12 +18,10 @@ const imagePath = ref(`/images/${props.imageSrc}.png`)
 
 <style scoped>
   .gallery-item {
-    max-height: 100%;
     margin: 10px;
   }
-  .img {
+  /* .img {
     width: 100%;
     height: auto;
-    border-radius: 5px;
-  }
+  } */
 </style>
