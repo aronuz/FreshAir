@@ -2,8 +2,8 @@
   <div class="grid grid-cols-12 grid-rows-1 gap-2">
     <UCard class="col-span-12 md:col-span-3">
       <div v-if="eventsParsed.length">
-        <UButton v-if="!isOpen" class="flex flex-row justify-between text-4xl md:text-3xl p-4" block :icon="`i-heroicons-${addIcon}`" size="2xl" color="secondary" variant="solid" :label="addLabel" @click="setValues">{{ addLabel }}</UButton>
-        <UButton v-if="!isOpen && selectedAppointment" class="flex flex-row justify-between text-4xl md:text-3xl mt-4 p-4 pr-8" block icon="i-heroicons-x-circle" size="2xl" color="error" variant="solid" label="Remove" @click="handleRemove">Remove</UButton>
+        <UButton v-if="!isOpen" class="flex flex-row justify-between text-4xl md:text-xl p-4" block :icon="`i-heroicons-${addIcon}`" size="2xl" color="secondary" variant="solid" :label="addLabel" @click="setValues">{{ addLabel }}</UButton>
+        <UButton v-if="!isOpen && selectedAppointment" class="flex flex-row justify-between text-4xl md:text-xl mt-4 p-4 pr-11" block icon="i-heroicons-x-circle" size="2xl" color="error" variant="solid" label="Remove" @click="handleRemove">Remove</UButton>
       </div>
       <div v-else>
         <USkeleton class="h=4 w-full mb-2" />
