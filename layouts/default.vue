@@ -1,11 +1,16 @@
 <template>
   <!-- container mx-auto max-w-4xl"> -->
-  <div class="bg-gray-100">
-    <UContainer class="grid place-content-around mb-8 pb-8"> 
+  <div class="relative overflow-hidden">
+    <div class="fixed inset-0 bg-cover bg-center bg-no-repeat z-0" style="background-image: url('/images/FreshAirHero.png'); background-attachment: fixed;">
+      <div class="absolute inset-0  opacity-30"></div>
+    </div>
+    <div class="relative z-10">
+    <UContainer class="grid place-content-around mb-8 pb-8 z-10"> 
       <Header :user="user" :is-admin="isAdmin" />
       <NuxtPage />
       <Footer />
     </UContainer>
+  </div>
   </div>
 </template>
 

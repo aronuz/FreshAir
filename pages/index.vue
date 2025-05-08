@@ -1,12 +1,8 @@
 <template>
     <section class="pb-12 text-center">
-        <NuxtImg src="/images/wallsplit1.png" alt="HVAC System" width="250px" height="250px" 
-            class="rounded-sm shadow-sm w-11/12 h-20 mx-auto"
-            sizes="sm:100px md:150px lg:100px xl:300px" 
-        />
-       <!-- class="rounded-lg shadow-lg mx-auto max-w-2xl" -->
+        <div class="bg-white h-full w-1/2 mx-auto" style="opacity: .7">
         <h2 class="text-4xl font-bold text-gray-800 mt-6">Reliable HVAC Services You Can Trust</h2>
-        <p class="text-lg text-gray-600 mt-4 max-w-xl mx-auto">
+        <p class="text-lg text-gray-600 mt-4 max-w-xl mx-auto"">
         We provide top-notch heating, ventilation, and air conditioning services for residential and commercial clients.
         Our experienced technicians are dedicated to ensuring your comfort all year round.
         </p>
@@ -14,6 +10,7 @@
         <UButton to="/contact" label="Request Service" color="primary" size="lg" />
         <UButton to="/gallery" label="Our Services" variant="outline" color="primary" size="lg" />
         </div>
+    </div>
     </section>
 
     <section class="py-12 bg-white rounded-lg shadow-md mt-8">
@@ -47,22 +44,7 @@
 
     <section v-if="!showTable && scheduledServices && scheduledServices.length > 0" class="py-12 mt-8 bg-white rounded-lg shadow-md">
         <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Upcoming Appointments</h2>
-        <div class="overflow-x-auto">
-            <UTable :data="scheduledServices" :columns="serviceColumns" />
-                <!-- <template #note-data="{ row }">
-                {{ row.note.slice(0, 50) }}...
-                </template>
-                <template #date-data="{ row }">
-                {{ row.date }}
-                </template>
-                <template #time-data="{ row }">
-                {{ row.time }}
-                </template> 
-            </UTable>-->
-        </div>
-        <!-- <div class="mt-4 text-center">
-            <UButton to="/booking" label="View All Appointments" variant="link" color="primary" />
-        </div> -->
+        <UTable :data="scheduledServices" :columns="serviceColumns" />
     </section>
 </template>
   
