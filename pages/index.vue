@@ -1,19 +1,17 @@
 <template>
-    <section class="pb-12 text-center">
-        <div class="bg-white h-full w-1/2 mx-auto" style="opacity: .7">
-        <h2 class="text-4xl font-bold text-gray-800 mt-6">Reliable HVAC Services You Can Trust</h2>
-        <p class="text-lg text-gray-600 mt-4 max-w-xl mx-auto"">
+    <section class="pb-12 text-center font-bold bg-gray-100 h-full w-1/2 mx-auto opacity-80 rounded-lg shadow-md">
+        <h2 class="text-4xl text-gray-800 mt-6">Reliable HVAC Services You Can Trust</h2>
+        <p class="text-lg text-gray-600 mt-4 max-w-xl mx-auto">
         We provide top-notch heating, ventilation, and air conditioning services for residential and commercial clients.
         Our experienced technicians are dedicated to ensuring your comfort all year round.
         </p>
-        <div class="mt-8 space-x-4">
-        <UButton to="/contact" label="Request Service" color="primary" size="lg" />
-        <UButton to="/gallery" label="Our Services" variant="outline" color="primary" size="lg" />
+        <div class="mt-8 space-x-4 font-bold">
+        <UButton to="/contact" label="Request Service" color="info" size="lg" />
+        <UButton to="/gallery" label="Our Services" variant="outline" color="info" size="lg" />
         </div>
-    </div>
     </section>
 
-    <section class="py-12 bg-white rounded-lg shadow-md mt-8">
+    <section class="py-12 bg-gray-100 rounded-lg shadow-md mt-8">
         <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Why Choose Us?</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="text-center">
@@ -34,9 +32,9 @@
         </div>
     </section>
 
-    <section class="py-12 mt-8 bg-primary-500 text-white rounded-lg shadow-md">
-        <div class="text-center">
-        <h2 class="text-3xl font-bold mb-4">Schedule an Appointment Today!</h2>
+    <section class="py-12 mt-8 bg-secondary-500 text-white rounded-lg shadow-md">
+        <div class="text-center font-bold">
+        <h2 class="text-3xl mb-4">Schedule an Appointment Today!</h2>
         <p class="text-lg mb-6">Get your HVAC system checked by a professional. Book your appointment today.</p>
         <UButton to="/booking" label="Book Appointment" color="white" size="lg" />
         </div>

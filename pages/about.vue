@@ -4,13 +4,13 @@
     <p>We are a family-owned HVAC company dedicated to providing excellent service.</p>
     {/* ... more about us content */}
   </div> -->
-  <section class="py-12">
+  <section class="pt-6">
     <h2 class="text-3xl font-bold text-gray-800 text-center mb-8">About Fresh Air HVAC</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-0">
       <div class="grid justify-items-center md:justify-items-start w-full h-full">
         <NuxtImg src="/images/about-us.png" alt="Our Team" class="rounded-lg shadow-lg w-full" />
       </div>
-      <div class="font-bold text-white bg-gray-500 ml-0 p-4 rounded" style="opacity: 0.7;">
+      <div class="font-bold text-white bg-gray-500 ml-0 p-4 rounded opacity-70">
         <p class="text-lg mb-4">
           Welcome to Fresh Air HVAC, your trusted partner for all your heating, ventilation, and air conditioning needs in the [Your Service Area] area. With over [Number] years of experience in the industry, we have built a reputation for providing reliable, efficient, and high-quality HVAC services to residential and commercial clients alike.
         </p>
@@ -24,7 +24,7 @@
     </div>
   </section>
 
-  <section class="py-12 bg-white rounded-lg shadow-md mt-8">
+  <section class="py-6 bg-white rounded-lg shadow-md my-8">
     <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Our Values</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       <div class="text-center">
@@ -45,7 +45,7 @@
     </div>
   </section>
 
-  <section class="py-12 mt-8 bg-gray-100 rounded-lg shadow-md">
+  <section class="py-6 bg-gray-100 rounded-lg shadow-md mb-8">
     <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Meet Our Team</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       <div class="text-center">

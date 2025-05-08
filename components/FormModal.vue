@@ -1,48 +1,55 @@
 <template>
-  <UModal 
+  <UModal
     v-model:open="isOpen"
     :title="!updatedAppointment ? 'New Appointment' : 'Reschedule Service'"
     :close="{
-      color: 'primary',  
+      color: 'info',  
       variant: 'outline',
       class: 'rounded-full',
       onClick: () => isOpen = false
     }"
   >
     <template #body>
-      <!-- <UCard variant="soft"> -->
-        <UForm :state=appointment :schema="schema" ref="appform" @submit.prevent="saveAppointment" @error="onError">
-          <UFormField required label="Name" name="title" class="mb=4">
-            <UInput placeholder="Name" v-model="appointment.title"/>
-          </UFormField>
-          <UFormField label="Email" name="email" class="mb=4">
-            <UInput placeholder="Email" v-model="appointment.email"/>
-          </UFormField>
-          <UFormField required label="Phone" name="phone" class="mb=4">
-            <UInput placeholder="Phone" v-model="appointment.phone"/>
-          </UFormField>
-          <UFormField required label="Address" name="address" class="mb=4">
-            <UInput type="address" v-model="appointment.address" placeholder="Address" />
-          </UFormField>
-          <UFormField label="Start Date" name="start_date">
-            <UInput type="date" v-model="formattedStartDate" @update:modelValue="updateStartDate"/>
-          </UFormField>
-          <UFormField label="Start Time" name="start_time">
-            <UInput type="time" v-model="appointment.start_time" />
-          </UFormField>
-          <UFormField label="End Date" name="end_date">
-            <UInput type="date" v-model="formattedEndDate" @update:modelValue="updateEndDate"/>
-          </UFormField>
-          <UFormField label="End Time" name="end_time" :required="!!appointment.end_date">
-            <UInput type="time" v-model="appointment.end_time" />
-          </UFormField>
-          <UFormField label="Notes" name="notes">
-            <UTextarea variant="outline" v-model="appointment.notes" placeholder="Notes" />
-          </UFormField>
-          <UButton type="submit" color="primary" variant="solid" :label="saveLabel" :loading="pending" @onClick="" />
+        <UForm class="grid grid-rows-5 gap-y-1" :state=appointment :schema="schema" ref="appform" @submit.prevent="saveAppointment" @error="onError">
+          <div class="flex justify-evenly">
+            <UFormField required label="Name" name="title" class="mb=4">
+              <UInput placeholder="Name" v-model="appointment.title"/>
+            </UFormField>
+            <UFormField label="Email" name="email" class="mb=4">
+              <UInput placeholder="Email" v-model="appointment.email"/>
+            </UFormField>
+          </div>
+          <div class="flex justify-evenly">
+            <UFormField required label="Phone" name="phone" class="mb=4">
+              <UInput placeholder="Phone" v-model="appointment.phone"/>
+            </UFormField>
+            <UFormField required label="Address" name="address" class="mb=4">
+              <UInput type="address" v-model="appointment.address" placeholder="Address" />
+            </UFormField>
+          </div>          
+          <div class="flex justify-around mr-6">
+            <UFormField required label="Start Date" name="start_date" class="mr-12">
+              <UInput type="date" v-model="formattedStartDate" @update:modelValue="updateStartDate"/>
+            </UFormField>
+            <UFormField required label="Start Time" name="start_time">
+              <UInput type="time" v-model="appointment.start_time" />
+            </UFormField>
+          </div>
+          <div class="flex justify-around mr-6">
+            <UFormField label="End Date" name="end_date" class="mr-12">
+              <UInput type="date" v-model="formattedEndDate" @update:modelValue="updateEndDate"/>
+            </UFormField>
+            <UFormField label="End Time" name="end_time" :required="!!appointment.end_date">
+              <UInput type="time" v-model="appointment.end_time" />
+            </UFormField>
+          </div>
+          <div class="flex justify-around mr-6">
+            <UFormField label="Notes" name="notes" class="mr-10">
+              <UTextarea variant="outline" v-model="appointment.notes" placeholder="Notes" />
+            </UFormField>
+            <UButton class="h-1/2 w-25 pl-8 mt-8" type="submit" color="primary" variant="solid" :label="saveLabel" :loading="pending" @onClick="" />
+          </div>
         </UForm>
-        <!-- template #footer>Add Appointment</template -->
-      <!-- </UCard> -->
     </template>
   </UModal>   
 </template>
@@ -297,3 +304,9 @@
     toastBar('error', status, error.trim())
   }
 </script>
+
+<style>
+  div[role="dialog"] div {
+    overflow: hidden;
+  }
+</style>

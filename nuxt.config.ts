@@ -19,7 +19,7 @@ export default defineNuxtConfig({
         { hid: 'description', name: 'description', content: 'Expert HVAC Servicesfor residential and comercial clients.'}
       ],
       link: [
-        {rel: 'icon', type: 'image/x-icon', href: '/favicon'}
+        {rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'}
       ]
     }
   },
