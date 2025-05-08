@@ -6,18 +6,18 @@
   </div> -->
   <section class="py-12">
     <h2 class="text-3xl font-bold text-gray-800 text-center mb-8">About Fresh Air HVAC</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div>
-        <NuxtImg src="/images/about-us.png" alt="Our Team" class="rounded-lg shadow-lg h-full" />
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-0">
+      <div class="grid justify-items-center md:justify-items-start w-full h-full">
+        <NuxtImg src="/images/about-us.png" alt="Our Team" class="rounded-lg shadow-lg w-full" />
       </div>
-      <div class="bg-white" style="opacity: .7">
-        <p class="text-lg text-gray-700 mb-4">
+      <div class="font-bold text-white bg-gray-500 ml-0 p-4 rounded" style="opacity: 0.7;">
+        <p class="text-lg mb-4">
           Welcome to Fresh Air HVAC, your trusted partner for all your heating, ventilation, and air conditioning needs in the [Your Service Area] area. With over [Number] years of experience in the industry, we have built a reputation for providing reliable, efficient, and high-quality HVAC services to residential and commercial clients alike.
         </p>
-        <p class="text-lg text-gray-700 mb-4">
+        <p class="text-lg mb-4">
           Our mission is simple: to ensure your comfort and satisfaction by delivering exceptional service and expert solutions. We understand the importance of a comfortable indoor environment, and our team of certified technicians is dedicated to keeping your HVAC systems running smoothly and efficiently, no matter the season.
         </p>
-        <p class="text-lg text-gray-700">
+        <p class="text-lg">
           At Fresh Air HVAC, we believe in honesty, integrity, and transparent communication. We take the time to understand your specific needs and provide tailored solutions that fit your budget and requirements. Our commitment to quality workmanship and customer care sets us apart.
         </p>
       </div>
@@ -50,7 +50,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       <div class="text-center">
         <UAvatar src="/images/team-member-1.jpg" size="xl" class="mx-auto" />
-        <h3 class="font-semibold text-lg text-gray-700 mt-2">John Doe</h3>
+        <h3 class="font-semibold text-lg mt-2">John Doe</h3>
         <p class="text-gray-600 text-sm">Lead Technician</p>
       </div>
       </div>

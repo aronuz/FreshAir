@@ -1,6 +1,6 @@
 <template>
   <UCard class="bg-gray-200 rounded-lg shadow-md">
-    <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Our Services</h2>
+    <h2 class="text-3xl font-bold text-gray-800 text-center mb-8">Our Services</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div v-for="service in services" :key="service.id" class="flex-container bg-white rounded-lg shadow-sm p-4 pt-8">
           <div class="flex-items">

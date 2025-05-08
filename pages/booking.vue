@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center">
-    <h1 class="text-2xl font-bold">Book your HVAC Service</h1>
+    <h2 class="text-3xl font-bold text-gray-800 text-center mb-8">Book your HVAC Service</h2>
     <AppointmentCalendar/>
   </div>
 </template>
