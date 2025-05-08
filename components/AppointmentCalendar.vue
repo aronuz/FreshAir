@@ -2,15 +2,15 @@
   <div class="grid grid-cols-12 grid-rows-1 gap-2">
     <UCard class="col-span-12 md:col-span-3">
       <div v-if="eventsParsed.length">
-        <UButton v-if="!isOpen" icon="i-heroicons-plus-circle" color="#FFF" variant="solid" :label="addLabel" @click="setValues"/>
-        <UButton v-if="!isOpen && selectedAppointment" icon="i-heroicons-x-circle" color="#FFF" variant="solid" label="Remove" @click="handleRemove"/>
-        <FormModal v-model="isOpen" :existing-records="existingRecords" @saved="reload"/>
+        <UButton v-if="!isOpen" class="flex flex-row justify-between text-4xl md:text-3xl p-4" block :icon="`i-heroicons-${addIcon}`" size="2xl" color="secondary" variant="solid" :label="addLabel" @click="setValues">{{ addLabel }}</UButton>
+        <UButton v-if="!isOpen && selectedAppointment" class="flex flex-row justify-between text-4xl md:text-3xl mt-4 p-4 pr-8" block icon="i-heroicons-x-circle" size="2xl" color="error" variant="solid" label="Remove" @click="handleRemove">Remove</UButton>
       </div>
       <div v-else>
         <USkeleton class="h=4 w-full mb-2" />
       </div>
     </UCard>
-        
+    <FormModal v-model="isOpen" :existing-records="existingRecords" @saved="reload"/>
+      
     <UCard class="col-span-12 md:col-span-9 hidden md:flex">
       <ClientOnly>
         <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendarReady="isReady = true" @select="selectAppointment" @deselect="deselectAppointment"/>
@@ -20,14 +20,13 @@
       </div>
     </UCard>
 
-    <UCard class="col-span-12 md:hidden">
+    <UCard class="col-span-12 md:hidden text-4xl w-100 mx-auto">
         <section v-if="eventsParsed.length">
-          <h2>Existing Appointments</h2>
           <div v-for="(group, key) in grouppedEvents" :key="key">
             <div>{{ key }}</div>
-            <div v-for="event in group" :key="event.id">
+            <UCard v-for="event in group" :key="event.id" class="flex flex-col odd:bg-white even:bg-gray-100">
               <div @click="updateEventEl($event, event.id)">{{ event.title }}</div>
-            </div>
+            </UCard>
           </div>
         </section>
         <section v-if="pending">
@@ -44,6 +43,7 @@ const { toastBar } = useToastBar()
 const pending = ref(false)
 const isOpen = ref(false)
 const isReady = ref(false)
+const addIcon = ref('plus-circle')
 const addLabel = ref('Schedule Service')
 const appointments = ref(null)
 const events = []
@@ -58,7 +58,10 @@ const { fetchAppointments,
       } = useFetchQueries()
 
 watch(() => selectedAppointment.value, (value) => {
-  addLabel.value = value ? 'Reschedule Service' : 'Schedule Service'})      
+  addIcon.value = value ? 'pencil-square': 'plus-circle'
+  addLabel.value = value ? 'Reschedule Service' : 'Schedule Service'
+})  
+
 const onError = (status, message = 'An unknown error has occured.') => {
   toastBar('error', `Error ${status}`, message)
   throw createError({ statusCode: status, message: message});
@@ -184,7 +187,12 @@ useHead({
 })
 </script>
 
-<style>
+<style scoped>
+:deep() {
+  .iconify{
+    font-size: 2em;
+  }
+}
 .selected-slot {
     background-color: #418899;
     color: #FFF;
