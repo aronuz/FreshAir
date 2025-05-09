@@ -108,9 +108,47 @@ const handleSubmit = async () => {
   loading.value = false;
 }
 
-    definePageMeta({
-      layout: "default"
-    })
+  definePageMeta({
+    layout: "default"
+  })
+
+  useHead({
+    title: 'Contact Us - Fresh Air',
+    meta: [
+      {
+        name: 'description',
+        content: 'Get in touch with us! Whether you need HVAC support, maintenance, or emergency repairs, we are here to help. Contact us today.'
+      },
+      {
+        property: 'og:title',
+        content: 'Contact Us - Fresh Air'
+      },
+      {
+        property: 'og:description',
+        content: 'Need assistance? Reach out to us for expert HVAC services and customer support.'
+      },
+      {
+        property: 'og:image',
+        content: '/images/contact-cover.png'
+      },
+      {
+        name: 'robots',
+        content: 'index, follow'
+      },
+      {
+        name: 'telephone',
+        content: '+1-234-567-8901'
+      },
+      {
+        name: 'email',
+        content: 'contact@yourcompany.com'
+      },
+      {
+        name: 'address',
+        content: '123 Main Street, City, State, ZIP'
+      }
+    ]
+  })
   </script>
   
   <style scoped>
