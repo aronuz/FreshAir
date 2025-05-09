@@ -32,7 +32,48 @@ definePageMeta({
 useHead({
   title: 'Gallery - HVAC Fresh Air',
   meta: [ { name: 'description', content: 'View our HVAC gallety.'}]
+  title: 'Our HVAC Services - Frsh Air',
+  meta: [
+    {
+      name: 'description',
+      content: 'Explore our comprehensive HVAC services, including installation, maintenance, and emergency repairs. We ensure top-quality air conditioning, heating, and ventilation solutions.'
+    },
+    {
+      property: 'og:title',
+      content: 'Our HVAC Services - Frsh Air'
+    },
+    {
+      property: 'og:description',
+      content: 'Discover our wide range of HVAC solutions, from system installation to duct cleaning, ensuring optimal indoor air quality and comfort.'
+    },
+    {
+      property: 'og:image',
+      content: '/images/services-cover.jpg'
+    },
+    {
+      name: 'robots',
+      content: 'index, follow'
+    },
+    {
+      name: 'telephone',
+      content: '+1-234-567-8901'
+    },
+    {
+      name: 'email',
+      content: 'contact@yourcompany.com'
+    },
+    {
+      name: 'address',
+      content: '123 Main Street, City, State, ZIP'
+    },
+    {
+      name: 'keywords',
+      content: 'HVAC services, air conditioning installation, heating repair, duct cleaning, HVAC maintenance, emergency HVAC repair, indoor air quality, ventilation systems'
+    }
+
+  ]
 })
+
 </script>
 
 <style scoped>
