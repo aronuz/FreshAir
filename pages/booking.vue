@@ -17,9 +17,44 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Book HVAC Service - HVAC Fresh Air',
+  title: 'Schedule & Update HVAC Appointments | Freash Air',
   meta: [
-    {name: 'description', content: 'Schedule your HVAC service appointment today.'}
+    {
+      name: 'description',
+      content: 'Easily schedule, view, and update your HVAC service appointments online. Book installation, maintenance, or emergency repairs with our experienced team.'
+    },
+    {
+      property: 'og:title',
+      content: 'Schedule & Update HVAC Appointments | Freash Air'
+    },
+    {
+      property: 'og:description',
+      content: 'Book an HVAC service appointment hassle-free! Choose a time that works for you and get professional heating, cooling, and ventilation solutions.'
+    },
+    {
+      property: 'og:image',
+      content: '/images/appointment-cover.jpg'
+    },
+    {
+      name: 'robots',
+      content: 'index, follow'
+    },
+    {
+      name: 'telephone',
+      content: '+1-234-567-8901'
+    },
+    {
+      name: 'email',
+      content: 'appointments@yourcompany.com'
+    },
+    {
+      name: 'address',
+      content: '123 Main Street, City, State, ZIP'
+    },
+    {
+      name: 'keywords',
+      content: 'HVAC appointment, schedule service, book HVAC repair, heating and cooling scheduling, emergency HVAC booking, maintenance appointments, HVAC service management'
+    }
   ]
 })
 </script>

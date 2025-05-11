@@ -61,4 +61,25 @@
   definePageMeta({
     layout: "default"
   })
+  useHead({
+  title: 'About Us - Fresh Air',
+  meta: [
+    {
+      name: 'description',
+      content: 'Learn more about our company, values, and mission. At Frsh Air we are committed to providing top-quality HVAC services with excellence and dedication.'
+    },
+    {
+      property: 'og:title',
+      content: 'About Us - Fresh Air'
+    },
+    {
+      property: 'og:description',
+      content: 'Reliable, efficient, and high-quality HVAC services to residential and commercial clients alike.'
+    },
+    {
+      property: 'og:image',
+      content: '/images/about-cover.png'
+    }
+  ]
+})
 </script>

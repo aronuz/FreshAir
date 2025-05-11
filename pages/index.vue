@@ -80,4 +80,47 @@
         loadAppointments()
     });
 
+    import { useHead } from '#imports'
+
+    useHead({
+    title: 'Fresh Air | HVAC Experts - Installation, Maintenance & Repairs',
+    meta: [
+            {
+            name: 'description',
+            content: 'Your trusted HVAC experts, providing top-quality heating, cooling, ventilation, and air conditioning services. Book an appointment today and explore our full range of HVAC solutions.'
+            },
+            {
+            property: 'og:title',
+            content: 'Fresh Air | HVAC Experts - Installation, Maintenance & Repairs'
+            },
+            {
+            property: 'og:description',
+            content: 'Reliable HVAC solutions tailored for residential and commercial spaces. Schedule an appointment today and browse our services.'
+            },
+            {
+            property: 'og:image',
+            content: '/images/home-cover.jpg'
+            },
+            {
+            name: 'robots',
+            content: 'index, follow'
+            },
+            {
+            name: 'telephone',
+            content: '+1-234-567-8901'
+            },
+            {
+            name: 'email',
+            content: 'contact@yourcompany.com'
+            },
+            {
+            name: 'address',
+            content: '123 Main Street, City, State, ZIP'
+            },
+            {
+            name: 'keywords',
+            content: 'HVAC experts, heating and cooling, air conditioning installation, HVAC maintenance, emergency repairs, ventilation systems, ductwork cleaning, indoor air quality, book HVAC service'
+            }
+        ]
+    })
 </script>
