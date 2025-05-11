@@ -3,12 +3,12 @@
     <h2 class="text-3xl font-bold text-gray-800 text-center mb-8">Our Services</h2>
     <ClientOnly>
       <TransitionGroup name="service" tag="div" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="(service, i) in services" :key="service.id" class="slide bg-white rounded-lg shadow-sm p-4 pt-4 w-fit h-fit" :style="displayStyle[i]">
+        <div v-for="(service, i) in services" :key="service.id" class="slide bg-white rounded-lg shadow-sm p-4 py-4 w-fit h-fit" :style="displayStyle[i]">
           <!-- :style="`display: ${hidden ? 'none': 'flex'}`" -->
-          <div class="flex-container">
-            <div class="flex-items">
-              <h3 class="font-semibold text-lg text-gray-700 mb-2">{{ service.name }}</h3>
-              <p class="text-gray-600 text-sm">{{ service.description }}</p>
+          <div class="flex-container pb-4">
+            <div class="flex-items h-fit">
+              <h3 class="font-semibold text-2xl md:text-lg text-gray-700 mb-2">{{ service.name }}</h3>
+              <p class="text-gray-600 text-2xl md:text-sm h-fit">{{ service.description }}</p>
             </div>
             <div class="flex-items">
               <GalleryItem :image-src="service.type" :alt-text="service.description" loading="lazy"/>
@@ -110,8 +110,6 @@ useHead({
     justify-content: space-between;
     align-items: flex-start;
     align-content: stretch;
-    /* min-height: 200px; */
-    height: fit-content;
   }
 
   .slide {
@@ -120,13 +118,12 @@ useHead({
     transition: opacity 0.5s ease-out, transform 0.5s ease-out;
   }
 
-  .flex-items:nth-child(1) {
+  .flex-items {
     display: block;
     flex-grow: 0;
     flex-shrink: 1;
     flex-basis: auto;
     align-self: auto;
-    height: fit-content;
   }
 
   .flex-items:nth-child(1) {
