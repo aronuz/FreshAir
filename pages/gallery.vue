@@ -3,8 +3,9 @@
     <h2 class="text-3xl font-bold text-gray-800 text-center mb-8">Our Services</h2>
     <ClientOnly>
       <TransitionGroup name="service" tag="div" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="(service, i) in services" :key="service.id" class="flex-container bg-white rounded-lg shadow-sm p-4 pt-8" :style="displayStyle[i]">
+        <div v-for="(service, i) in services" :key="service.id" class="slide bg-white rounded-lg shadow-sm p-4 pt-4 w-fit h-fit" :style="displayStyle[i]">
           <!-- :style="`display: ${hidden ? 'none': 'flex'}`" -->
+          <div class="flex-container">
             <div class="flex-items">
               <h3 class="font-semibold text-lg text-gray-700 mb-2">{{ service.name }}</h3>
               <p class="text-gray-600 text-sm">{{ service.description }}</p>
@@ -12,6 +13,7 @@
             <div class="flex-items">
               <GalleryItem :image-src="service.type" :alt-text="service.description" loading="lazy"/>
             </div> 
+          </div>
         </div>
       </TransitionGroup>
     </ClientOnly>  
@@ -38,15 +40,16 @@ const showEl = () => {
     await new Promise(function (resolve) { 
         setTimeout(() => {resolve(true)}, delay); 
     })
-    displayStyle[i] = {display: 'flex'}
+    displayStyle[i] = {display: 'block'}
   })
 } 
 
-onMounted(() => {
+
 if (process.client) {
-  showEl()
+//   onMounted(() => {
+    showEl()
+//   })
 }
-})
 
 definePageMeta({
   layout: "default"
@@ -101,13 +104,19 @@ useHead({
 
 <style scoped>
   .flex-container {
+    display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: space-between;
     align-items: flex-start;
     align-content: stretch;
-    min-height: 200px;
-    transform: translateY(60px), translateX(60px);
+    /* min-height: 200px; */
+    height: fit-content;
+  }
+
+  .slide {
+    opacity: 1;
+    transform: translateY(0px);
     transition: opacity 0.5s ease-out, transform 0.5s ease-out;
   }
 
@@ -117,6 +126,7 @@ useHead({
     flex-shrink: 1;
     flex-basis: auto;
     align-self: auto;
+    height: fit-content;
   }
 
   .flex-items:nth-child(1) {
@@ -132,11 +142,11 @@ useHead({
     transition: all 0.5s ease;
   }
   .service-enter-from {
-    opacity: 0;
-    transform: translateY(-60px), translateX(-60px);
-  }
-  .service-enter-to {
     opacity: 1;
     transform: translateY(0);
+  }
+  .service-enter-to {
+    opacity: 0;
+    transform: translateY(-60px);
   }
 </style>
