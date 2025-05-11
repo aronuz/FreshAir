@@ -26,20 +26,20 @@
   
       <div class="hidden md:block">
         <nav class="flex shrink justify-between p-3 text-2xl font-bold text-white rounded-sm">
-          <NuxtLink to="/" class="w-30 h-10 bg-gray-400 px-5 rounded-lg">Home</NuxtLink>
-          <NuxtLink to="/gallery" class="w-30 h-10 bg-gray-400 px-5 rounded-lg">Gallery</NuxtLink>
-          <NuxtLink to="/contact" class="w-30 h-10 bg-gray-400 px-5 rounded-lg">Contact</NuxtLink>
-          <NuxtLink to="/booking" class="w-30 h-10 bg-gray-400 px-5 rounded-lg">Service</NuxtLink>
-          <NuxtLink to="/about" class="w-30 h-10 bg-gray-400 px-5 rounded-lg">About</NuxtLink>
+          <NuxtLink to="/" class="w-fit h-10 bg-gray-400 px-5 rounded-lg">Home</NuxtLink>
+          <NuxtLink to="/gallery" class="w-fit h-10 bg-gray-400 px-5 rounded-lg">Services</NuxtLink>
+          <NuxtLink to="/booking" class="w-fit h-10 bg-gray-400 px-5 rounded-lg">Schedule a Service</NuxtLink>
+          <NuxtLink to="/contact" class="w-fit h-10 bg-gray-400 px-5 rounded-lg">Contact Us</NuxtLink>
+          <NuxtLink to="/about" class="w-fit h-10 bg-gray-400 px-5 rounded-lg">About Us</NuxtLink>
         </nav>
       </div>
       <UCard v-if="isMobileMenuOpen">
         <nav class="flex flex-col gap-4">
           <NuxtLink to="/" @click="isMobileMenuOpen = false">Home</NuxtLink>
-          <NuxtLink to="/gallery" @click="isMobileMenuOpen = false">Gallery</NuxtLink>
-          <NuxtLink to="/contact" @click="isMobileMenuOpen = false">Contact</NuxtLink>
-          <NuxtLink to="/booking" @click="isMobileMenuOpen = false">Service</NuxtLink>
-          <NuxtLink to="/about" @click="isMobileMenuOpen = false">About</NuxtLink>
+          <NuxtLink to="/gallery" @click="isMobileMenuOpen = false">Services</NuxtLink>
+          <NuxtLink to="/booking" @click="isMobileMenuOpen = false">Schedule a Service</NuxtLink>
+          <NuxtLink to="/contact" @click="isMobileMenuOpen = false">Contact Us</NuxtLink>
+          <NuxtLink to="/about" @click="isMobileMenuOpen = false">About Us</NuxtLink>
           <NuxtLink v-if="isAdmin" to="/admin" label="Admin" @click="isMobileMenuOpen = false" />
           <UButton v-if="isUser" color="primary" variant="ghost" @click="handleSignout; isMobileMenuOpen = false" label="Log Out" />
           <UButton v-else color="primary" variant="ghost" @click="handleSignin; isMobileMenuOpen = false" label="Log In" />
