@@ -1,17 +1,20 @@
 <template>
   <section class="pt-6 mb-8">
     <h2 class="text-3xl font-bold text-gray-800 text-center mb-8">Our Services</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="service in services" :key="service.id" class="flex-container bg-white rounded-lg shadow-sm p-4 pt-8">
-          <div class="flex-items">
-            <h3 class="font-semibold text-lg text-gray-700 mb-2">{{ service.name }}</h3>
-            <p class="text-gray-600 text-sm">{{ service.description }}</p>
-          </div>
-          <div class="flex-items">
-            <GalleryItem :image-src="service.type" :alt-text="service.description" loading="lazy"/>
-          </div>      
-      </div>
-    </div>
+    <ClientOnly>
+      <TransitionGroup name="service" tag="div" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div v-for="(service, i) in services" :key="service.id" class="flex-container bg-white rounded-lg shadow-sm p-4 pt-8" :style="displayStyle[i]">
+          <!-- :style="`display: ${hidden ? 'none': 'flex'}`" -->
+            <div class="flex-items">
+              <h3 class="font-semibold text-lg text-gray-700 mb-2">{{ service.name }}</h3>
+              <p class="text-gray-600 text-sm">{{ service.description }}</p>
+            </div>
+            <div class="flex-items">
+              <GalleryItem :image-src="service.type" :alt-text="service.description" loading="lazy"/>
+            </div> 
+        </div>
+      </TransitionGroup>
+    </ClientOnly>  
   </section>
 </template>
 
@@ -25,13 +28,33 @@ const services = [
   {id: 6, name: 'Emergency Services', type: 'emergency', description: '24/7 emergency repair services when you need them most.'}
 ]
 
+const displayStyle: Array<Object> = reactive([])
+for (const i in services){
+  displayStyle[i] = {display: 'none'}
+}
+const showEl = () => { 
+  displayStyle.forEach( async (_, i) => {
+    const delay = 200 * (i)
+    await new Promise(function (resolve) { 
+        setTimeout(() => {resolve(true)}, delay); 
+    })
+    displayStyle[i] = {display: 'flex'}
+  })
+} 
+
+onMounted(() => {
+if (process.client) {
+  showEl()
+}
+})
+
 definePageMeta({
   layout: "default"
 })
 
 useHead({
   title: 'Gallery - HVAC Fresh Air',
-  meta: [ { name: 'description', content: 'View our HVAC gallety.'}]
+  meta: [ { name: 'description', content: 'View our HVAC gallety.'}],
   title: 'Our HVAC Services - Frsh Air',
   meta: [
     {
@@ -78,13 +101,14 @@ useHead({
 
 <style scoped>
   .flex-container {
-    display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: space-between;
     align-items: flex-start;
     align-content: stretch;
     min-height: 200px;
+    transform: translateY(60px), translateX(60px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
   }
 
   .flex-items:nth-child(1) {
@@ -93,16 +117,26 @@ useHead({
     flex-shrink: 1;
     flex-basis: auto;
     align-self: auto;
+  }
+
+  .flex-items:nth-child(1) {
     order: 0;
   }
 
   .flex-items:nth-child(2) {
-    display: block;
-    flex-grow: 0;
-    flex-shrink: 1;
-    flex-basis: auto;
-    align-self: auto;
-    order: 0;
+    order: 1;
     max-height: 100%;
+  }
+
+  .service-enter-active {
+    transition: all 0.5s ease;
+  }
+  .service-enter-from {
+    opacity: 0;
+    transform: translateY(-60px), translateX(-60px);
+  }
+  .service-enter-to {
+    opacity: 1;
+    transform: translateY(0);
   }
 </style>
