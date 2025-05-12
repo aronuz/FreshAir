@@ -26,7 +26,7 @@ export const useFetchQueries = () => {
         const dateTo = dateRange?.value?.to ? dateRange.value.to : new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0]
         let prefix = 'all'
         const query = supabase.from('appointments').select('*').gte('start_date', dateFrom)
-        .or(`end_date.lt.${dateTo},end_date.is.null`).order('created_at', { ascending: true })
+        .or(`end_date.lt.${dateTo},end_date.is.null`).order('start_date', { ascending: true }).order('start_time', { ascending: true })
         if (limit) {
             query.limit(limit)
             prefix = 'short'
