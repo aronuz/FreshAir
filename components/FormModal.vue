@@ -8,9 +8,10 @@
       class: 'rounded-full',
       onClick: () => isOpen = false
     }"
+    class="mb-6"
   >
     <template #body>
-        <UForm class="grid grid-rows-5 gap-y-1" :state=appointment :schema="schema" ref="appform" @submit.prevent="saveAppointment" @error="onError">
+        <UForm class="grid grid-rows-5 gap-y-0 relative bottom-7" :state=appointment :schema="schema" ref="appform" @submit.prevent="saveAppointment" @error="onError">
           <div class="flex justify-evenly">
             <UFormField required label="Name" name="title" class="mb=4">
               <UInput placeholder="Name" v-model="appointment.title"/>
@@ -19,12 +20,15 @@
               <UInput placeholder="Email" v-model="appointment.email"/>
             </UFormField>
           </div>
-          <div class="flex justify-evenly">
+          <div class="flex justify-between">
             <UFormField required label="Phone" name="phone" class="mb=4">
               <UInput placeholder="Phone" v-model="appointment.phone"/>
             </UFormField>
             <UFormField required label="Address" name="address" class="mb=4">
               <UInput type="address" v-model="appointment.address" placeholder="Address" />
+            </UFormField>
+            <UFormField required label="Zip" name="zip" class="mb=4">
+              <UInput v-model="appointment.zip" placeholder="Zip Code" />
             </UFormField>
           </div>          
           <div class="flex justify-around mr-6">
@@ -66,6 +70,7 @@
     email: string | undefined,
     phone: string | undefined,
     address: string | undefined,
+    zip: string | undefined,
     start_date: Date | string | undefined,
     start_time: string | undefined,
     end_date: Date | string | undefined,
@@ -80,6 +85,7 @@
     email: undefined,
     phone: undefined,
     address: undefined,
+    zip: undefined,
     start_date: undefined,
     start_time: undefined,
     end_date: undefined,
@@ -108,6 +114,7 @@
       message: "Please provide a valid phone number",
     }),
     address: z.string().min(1, "Address is required").max(255, "Address is too long"),
+    zip: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid zip code'),
     start_date: z.coerce.date().refine((date) => date > new Date(), {
       message: 'Date must be in the future.',
     }),
@@ -119,6 +126,16 @@
     notes: z.string().max(255, "Text is too long").optional(),
   }).refine(
     (data) => {
+      const hasCoverage = isCoveredZip(data.zip)
+      return hasCoverage
+    },
+    {
+      message: 'Unfortunately, we do not service this zip code at this time.',
+      path: ['zip'],
+    }
+
+  ).refine(
+    (data) => {
       const hasOverlap = isTimeOverlap(data.start_date, data.start_time)
       return hasOverlap
     },
@@ -128,7 +145,7 @@
     }
   ).refine(
     (data) => {
-      if (data.end_date && data.start_date && data.start_date <= data.end_date) {
+      if (!data.end_date || (data.end_date && data.start_date && data.start_date <= data.end_date)) {
         return true
       }
       return false
@@ -274,7 +291,12 @@
     }
   })
 
-  function isTimeOverlap(newStartDate: Date, newStartTime: string) {
+  const zipCodes = [11201, 11203, 11204, 11205, 11206, 11207, 11208, 11209, 11210, 11211, 11212, 11213, 11214, 11215, 11216, 11217, 11218, 11219, 11220, 11221, 11222, 11223, 11224, 11225, 11226, 11228, 11229, 11230, 11231, 11232, 11233, 11234, 11235, 11236, 11237, 11238, 11239, 11241, 11243, 11249]
+  const isCoveredZip = (zip: string) => {
+    return zipCodes.includes(parseInt(zip))
+  }
+
+  const isTimeOverlap = (newStartDate: Date, newStartTime: string) => {
     const diffInMs = 2 * 3600 * 1000 // Two hours in milliseconds
 
     const newAppointmentDay = newStartDate.toDateString()
