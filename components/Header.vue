@@ -27,7 +27,7 @@
     </div>
   
       <div class="hidden md:block">
-        <nav class="flex shrink justify-between p-3 text-2xl font-bold text-white rounded-sm">
+        <nav class="flex shrink justify-between p-3 md:text-lg lg:text-xl xl:text-2xl font-bold text-white rounded-sm">
           <NuxtLink to="/" class="w-fit h-10 bg-gray-400 px-5 rounded-lg">Home</NuxtLink>
           <NuxtLink to="/gallery" class="w-fit h-10 bg-gray-400 px-5 rounded-lg">Services</NuxtLink>
           <NuxtLink to="/booking" class="w-fit h-10 bg-gray-400 px-5 rounded-lg">Schedule a Service</NuxtLink>
