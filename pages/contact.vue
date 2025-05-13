@@ -29,30 +29,7 @@
               <p class="text-gray-600">Sunday: Closed</p>
             </div>
           </div>
-          <div>
-            <h3 class="text-xl font-semibold text-gray-700 mb-4">Send Us a Message</h3>
-            <UForm :state="formState" @submit="handleSubmit">
-              <UFormGroup label="Name" name="name">
-                <UInput v-model="formState.name" placeholder="Your Name" />
-              </UFormGroup>
-              <UFormGroup label="Email" name="email">
-                <UInput v-model="formState.email" type="email" placeholder="Your Email" />
-              </UFormGroup>
-              <UFormGroup label="Phone" name="phone" optional>
-                <UInput v-model="formState.phone" placeholder="Your Phone (Optional)" />
-              </UFormGroup>
-              <UFormGroup label="Message" name="message">
-                <UTextarea v-model="formState.message" placeholder="Your Message" />
-              </UFormGroup>
-              <UButton type="submit" label="Send Message" color="primary" :loading="loading" />
-              <div v-if="submissionSuccess" class="mt-4 text-green-500">
-                Message sent successfully! We'll get back to you soon.
-              </div>
-              <div v-if="submissionError" class="mt-4 text-red-500">
-                There was an error sending your message. Please try again later.
-              </div>
-            </UForm>
-          </div>
+          <ContactForm />          
         </div>
       </section>
 
@@ -73,82 +50,47 @@
   </template>
   
   <script setup>
-  const formState = reactive({
-  name: '',
-  email: '',
-  phone: '',
-  message: '',
-});
+    definePageMeta({
+      layout: "default"
+    })
 
-const loading = ref(false);
-const submissionSuccess = ref(false);
-const submissionError = ref(false);
-
-const handleSubmit = async () => {
-  loading.value = true;
-  submissionSuccess.value = false;
-  submissionError.value = false;
-
-  // Simulate sending the form data (replace with your actual API call)
-  await new Promise(resolve => setTimeout(resolve, 1500));
-
-  // Simulate a successful submission
-  const isSuccess = Math.random() > 0.2; // Simulate occasional errors
-
-  if (isSuccess) {
-    formState.name = ''
-    formState.email = ''
-    formState.phone = ''
-    formState.message = ''
-    submissionSuccess.value = true;
-  } else {
-    submissionError.value = true;
-  }
-
-  loading.value = false;
-}
-
-  definePageMeta({
-    layout: "default"
-  })
-
-  useHead({
-    title: 'Contact Us - Fresh Air',
-    meta: [
-      {
-        name: 'description',
-        content: 'Get in touch with us! Whether you need HVAC support, maintenance, or emergency repairs, we are here to help. Contact us today.'
-      },
-      {
-        property: 'og:title',
-        content: 'Contact Us - Fresh Air'
-      },
-      {
-        property: 'og:description',
-        content: 'Need assistance? Reach out to us for expert HVAC services and customer support.'
-      },
-      {
-        property: 'og:image',
-        content: '/images/contact-cover.png'
-      },
-      {
-        name: 'robots',
-        content: 'index, follow'
-      },
-      {
-        name: 'telephone',
-        content: '+1-234-567-8901'
-      },
-      {
-        name: 'email',
-        content: 'contact@yourcompany.com'
-      },
-      {
-        name: 'address',
-        content: '123 Main Street, City, State, ZIP'
-      }
-    ]
-  })
+    useHead({
+      title: 'Contact Us - Fresh Air',
+      meta: [
+        {
+          name: 'description',
+          content: 'Get in touch with us! Whether you need HVAC support, maintenance, or emergency repairs, we are here to help. Contact us today.'
+        },
+        {
+          property: 'og:title',
+          content: 'Contact Us - Fresh Air'
+        },
+        {
+          property: 'og:description',
+          content: 'Need assistance? Reach out to us for expert HVAC services and customer support.'
+        },
+        {
+          property: 'og:image',
+          content: '/images/contact-cover.png'
+        },
+        {
+          name: 'robots',
+          content: 'index, follow'
+        },
+        {
+          name: 'telephone',
+          content: '+1-234-567-8901'
+        },
+        {
+          name: 'email',
+          content: 'contact@yourcompany.com'
+        },
+        {
+          name: 'address',
+          content: '123 Main Street, City, State, ZIP'
+        }
+      ]
+    })
   </script>
   
   <style scoped>
