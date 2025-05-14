@@ -1,6 +1,6 @@
 <template>
   <section class="pt-6 mb-8">
-    <h2 class="text-3xl font-bold text-gray-800 text-center mb-8">Our Services</h2>
+    <h2 class="text-3xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-8">Our Services</h2>
     <ClientOnly>
       <TransitionGroup name="service" tag="div" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div v-for="(service, i) in services" :key="service.id" class="slide bg-white rounded-lg shadow-sm p-4 py-4 w-fit h-fit" :style="displayStyle[i]">

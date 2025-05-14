@@ -1,23 +1,23 @@
 <template>
   <div>
     <h3 class="text-xl font-semibold text-gray-700 mb-4">Send Us a Message</h3>
-    <UForm :state="emailState" :schema="schema" ref="emailform" @submit.prevent="sendEmail" @error="onError">
+    <UForm :state="emailState" :schema="schema" ref="emailform" class="flex flex-col" @submit.prevent="sendEmail" @error="onError">
       <UFormField label="Name" name="name">
-        <UInput v-model="emailState.name" placeholder="Your Name" />
+        <UInput class="flex" v-model="emailState.name" placeholder="Your Name" />
       </UFormField>
       <UFormField label="Email" name="email">
-        <UInput v-model="emailState.email" type="email" placeholder="Your Email" />
+        <UInput class="flex" v-model="emailState.email" type="email" placeholder="Your Email" />
       </UFormField>
-      <UFormField label="Phone" name="phone" optional>
-        <UInput v-model="emailState.phone" placeholder="Your Phone (Optional)" />
+      <UFormField label="Phone (Optional)" name="phone" optional>
+        <UInput class="flex" v-model="emailState.phone" placeholder="Your Phone" />
       </UFormField>
       <UFormField label="Subject" name="subject">
-        <UInput v-model="emailState.subject" placeholder="Subject" />
+        <UInput class="flex" v-model="emailState.subject" placeholder="Subject" />
       </UFormField>
       <UFormField label="Message" name="message">
-        <UTextarea v-model="emailState.message" placeholder="Your Message" />
+        <UTextarea class="flex" v-model="emailState.message" autoresize placeholder="Your Message" />
       </UFormField>
-      <UButton type="submit" label="Send Message" color="primary" :loading="loading" />
+      <UButton type="submit" label="Send Message" class="flex justify-center" color="primary" :loading="loading" />
     </UForm>
   </div>
 </template>
@@ -117,5 +117,10 @@
   }
 </script>
 
-<style>
+<style scoped>
+:deep(){
+  form .text-sm {
+    margin-bottom: 10px !important;
+  }
+}
 </style>

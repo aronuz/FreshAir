@@ -5,7 +5,7 @@
     {/* ... more about us content */}
   </div> -->
   <section class="pt-6">
-    <h2 class="text-3xl font-bold text-gray-800 text-center mb-8">About Fresh Air HVAC</h2>
+    <h2 class="text-3xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-8">About Fresh Air HVAC</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-0">
       <div class="grid justify-items-center md:justify-items-start w-full h-full">
         <NuxtImg src="/images/about-us.png" alt="Our Team" class="rounded-lg shadow-lg w-full" />
@@ -25,7 +25,7 @@
   </section>
 
   <section class="py-6 bg-white rounded-lg shadow-md my-8">
-    <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Our Values</h2>
+    <h2 class="text-2xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-6">Our Values</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       <div class="text-center">
         <UIcon name="i-heroicons-hand-thumb-up" class="text-primary-500 text-4xl mx-auto mb-2" />
@@ -46,7 +46,7 @@
   </section>
 
   <section class="py-6 bg-gray-100 rounded-lg shadow-md mb-8">
-    <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Meet Our Team</h2>
+    <h2 class="text-2xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-6">Meet Our Team</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       <div class="text-center">
         <UAvatar src="/images/team-member-1.jpg" size="xl" class="mx-auto" />

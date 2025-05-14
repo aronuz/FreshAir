@@ -1,6 +1,6 @@
 <template>
     <section class="pb-12 text-center font-bold bg-gray-100 h-full w-1/2 mx-auto opacity-80 rounded-lg shadow-md">
-        <h2 class="text-4xl text-gray-800 mt-6">Reliable HVAC Services You Can Trust</h2>
+        <h2 class="text-4xl text-gray-800 text-shadow-lg text-shadow-cyan-500 mt-6">Reliable HVAC Services You Can Trust</h2>
         <p class="text-lg text-gray-600 mt-4 max-w-xl mx-auto">
         We provide top-notch heating, ventilation, and air conditioning services for residential and commercial clients.
         Our experienced technicians are dedicated to ensuring your comfort all year round.
@@ -12,7 +12,7 @@
     </section>
 
     <section class="py-12 bg-gray-100 rounded-lg shadow-md mt-8">
-        <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Why Choose Us?</h2>
+        <h2 class="text-2xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-6">Why Choose Us?</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="text-center">
             <UIcon name="i-heroicons-cog-6-tooth" class="text-primary-500 text-4xl mx-auto mb-2" />
@@ -34,14 +34,14 @@
 
     <section class="py-12 mt-8 bg-secondary-500 text-white rounded-lg shadow-md">
         <div class="text-center font-bold">
-        <h2 class="text-3xl mb-4">Schedule an Appointment Today!</h2>
+        <h2 class="text-3xl text-shadow-lg text-shadow-cyan-500 mb-4">Schedule an Appointment Today!</h2>
         <p class="text-lg mb-6">Get your HVAC system checked by a professional. Book your appointment today.</p>
         <UButton to="/booking" label="Book Appointment" color="white" size="lg" />
         </div>
     </section>
 
     <section v-if="!showTable && scheduledServices && scheduledServices.length > 0" class="py-12 mt-8 bg-white rounded-lg shadow-md">
-        <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Upcoming Appointments</h2>
+        <h2 class="text-2xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-6">Upcoming Appointments</h2>
         <UTable :data="scheduledServices" :columns="serviceColumns" />
     </section>
 </template>

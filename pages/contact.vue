@@ -1,6 +1,7 @@
   <template>
     <section class="pt-6 pb-3">
-        <h2 class="text-3xl font-bold text-gray-800 text-center mb-8">Contact Us</h2>
+        <h2 class="text-3xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500
+ mb-8">Contact Us</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 font-bold bg-gray-100 ml-0 p-4 rounded">
           <div>
             <h3 class="text-xl font-semibold text-gray-700 mb-4">Get in Touch</h3>
@@ -34,7 +35,7 @@
       </section>
 
       <section class="py-6 mb-8">
-        <h2 class="text-3xl font-bold text-gray-900 text-center mb-6">Our Location</h2>
+        <h2 class="text-3xl font-bold text-gray-900 text-center text-shadow-lg text-shadow-cyan-500 mb-6">Our Location</h2>
         <div class="aspect-w-16 aspect-h-9 bg-gray-100 rounded-lg shadow-md">
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3021.716780802983!2d-74.00597312373348!3d40.7127753713898!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25a2e1ddb5d05%3A0xcf469f26915f761!2sWall%20Street!5e0!3m2!1sen!2sus!4v1715165487838!5m2!1sen!2sus"
