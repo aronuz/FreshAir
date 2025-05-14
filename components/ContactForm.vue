@@ -18,12 +18,6 @@
         <UTextarea v-model="emailState.message" placeholder="Your Message" />
       </UFormField>
       <UButton type="submit" label="Send Message" color="primary" :loading="loading" />
-      <div v-if="submissionSuccess" class="mt-4 text-green-500">
-        Message sent successfully! We'll get back to you soon.
-      </div>
-      <div v-if="submissionError" class="mt-4 text-red-500">
-        There was an error sending your message. Please try again later.
-      </div>
     </UForm>
   </div>
 </template>
@@ -92,23 +86,26 @@
       Object.assign(emailState, contactInitState)
       emailform.value.clear()
       submissionSuccess.value = true
+      toastBar('success', `Message sent successfully! We'll get back to you soon.`)
     } else {
-      submissionError.value = true
+      showError(`There was an error sending your message. Please try again later.\n${resp.error}`, '500')
     }
   } catch (error) {
-    console.error("Error:", error.message);
-    submissionError.value = true
+    console.error("error:", error.message);
+    showError(`There was an error sending your message. Please try again later.\n${error.message}`, '500')
   }
-
-
+  
   loading.value = false
 }
 
   const onError = async (event: FormErrorEvent) => {
-    if (event?.errors.length)
+    if (event?.errors.length){
+      let fieldName: string
     for(const error of event.errors){
-      setTimeout(() => showError(error.message), 1000)
-    }
+      fieldName = error.name!.charAt(0).toUpperCase() + error.name!.slice(1)
+      showError(`${fieldName} is missing`, error.message)
+      await nextTick()
+    }}
     if (event.errors[0]?.id) {
       const element = document.getElementById(event.errors[0].id)
       element?.focus()
