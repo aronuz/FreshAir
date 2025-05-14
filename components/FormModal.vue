@@ -11,50 +11,54 @@
     class="mb-6"
   >
     <template #body>
-        <UForm class="grid grid-rows-5 gap-y-0 relative bottom-7" :state=appointment :schema="schema" ref="appform" @submit.prevent="saveAppointment" @error="onError">
-          <div class="flex justify-evenly">
-            <UFormField required label="Name" name="title" class="mb=4">
+        <UForm class="grid grid-rows-8 gap-y-0 relative bottom-1" :state=appointment :schema="schema" ref="appform" @submit.prevent="saveAppointment" @error="onError">
+          <div class="grid grid-cols-2">
+            <UFormField required label="Name" name="title">
               <UInput placeholder="Name" v-model="appointment.title"/>
             </UFormField>
-            <UFormField label="Email" name="email" class="mb=4">
+            <UFormField label="Email" name="email">
               <UInput placeholder="Email" v-model="appointment.email"/>
             </UFormField>
           </div>
-          <div class="flex justify-between">
-            <UFormField required label="Phone" name="phone" class="mb=4">
+          <div class="grid grid-cols-3">
+            <UFormField required label="Phone" name="phone">
               <UInput placeholder="Phone" v-model="appointment.phone"/>
             </UFormField>
-            <UFormField required label="Address" name="address" class="mb=4">
+            <UFormField required label="Address" name="address">
               <UInput type="address" v-model="appointment.address" placeholder="Address" />
             </UFormField>
-            <UFormField required label="Zip" name="zip" class="mb=4">
+            <UFormField required label="Zip" name="zip">
               <UInput v-model="appointment.zip" placeholder="Zip Code" />
             </UFormField>
           </div>          
-          <div class="flex justify-around mr-6">
-            <UFormField required label="Start Date" name="start_date" class="mr-12">
+          <div class="grid grid-cols-3">
+            <UFormField required label="Start Date" name="start_date">
               <UInput type="date" v-model="formattedStartDate" @update:modelValue="updateStartDate"/>
             </UFormField>
             <UFormField required label="Start Time" name="start_time">
               <UInput type="time" v-model="appointment.start_time" />
             </UFormField>
           </div>
-          <div class="flex justify-around mr-6">
-            <UFormField label="End Date" name="end_date" class="mr-12">
+          <div class="grid grid-cols-3">
+            <UFormField label="End Date" name="end_date">
               <UInput type="date" v-model="formattedEndDate" @update:modelValue="updateEndDate"/>
             </UFormField>
             <UFormField label="End Time" name="end_time" :required="!!appointment.end_date">
               <UInput type="time" v-model="appointment.end_time" />
             </UFormField>
           </div>
-          <div class="flex justify-around mr-6">
-            <UFormField label="Service" name="service" class="mr-10">
+          <div class="grid grid-cols-2">
+            <UFormField label="Service" name="service">
               <USelect v-model="servicePicked" :items="services" value-key="id" arrow class="w-48" />
             </UFormField>
-            <UFormField label="Notes" name="notes" class="mr-10">
+            <UFormField label="Notes" name="notes">
               <UTextarea variant="outline" v-model="appointment.notes" placeholder="Notes" />
             </UFormField>
-            <UButton class="h-1/2 w-25 pl-8 mt-8" type="submit" color="primary" variant="solid" :label="saveLabel" :loading="pending" @onClick="" />
+          </div>
+          <div class="grid grid-cols-3 justify-around">
+            <div class="col-span-3 flex justify-center">
+              <UButton class="w-25" type="submit" color="primary" variant="solid" :label="saveLabel" :loading="pending" @onClick="" />
+            </div>
           </div>
         </UForm>
     </template>
