@@ -48,6 +48,9 @@
             </UFormField>
           </div>
           <div class="flex justify-around mr-6">
+            <UFormField label="Service" name="service" class="mr-10">
+              <USelect v-model="servicePicked" :items="services" value-key="id" arrow class="w-48" />
+            </UFormField>
             <UFormField label="Notes" name="notes" class="mr-10">
               <UTextarea variant="outline" v-model="appointment.notes" placeholder="Notes" />
             </UFormField>
@@ -75,6 +78,7 @@
     start_time: string | undefined,
     end_date: Date | string | undefined,
     end_time: string | undefined,
+    service: string | undefined,
     notes: string | undefined
   }
   
@@ -90,6 +94,7 @@
     start_time: undefined,
     end_date: undefined,
     end_time: undefined,
+    service: undefined,
     notes: undefined
   }
   const blankState: Ref<stateType> = useState('selectedAppointment', () => initState)
@@ -194,6 +199,8 @@
     appform.value.clear()
   } 
 
+  const services = ref([{label: 'Select service:', id: 0}, {label: 'Air Conditioning', id: 1}, {label: 'Heat Systems', id: 2}, {label: 'Ventilation', id: 3}, {label: 'Ductwork', id: 4}, {label: 'Maintenance', id: 5}, {label: 'Emergency', id: 6}])
+  const servicePicked = ref('Select service:')
   // A computed property or watcher to format the Date object
   const formattedStartDate = ref(appointment.start_date ? (appointment.start_date as Date).toISOString().split('T')[0]: null)
 
