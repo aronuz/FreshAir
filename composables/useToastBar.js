@@ -4,7 +4,7 @@ export const useToastBar = () => {
   const toast = useToast()
 
   const icons = { success: 'check-circle', error: 'exclamation-circle' }
-  const colors = { success: 'green', error: 'red' }
+  const colors = { success: 'primary', error: 'error' }
 
   const toastBar = (type, title, message = '') => {
     const icon = icons[type]

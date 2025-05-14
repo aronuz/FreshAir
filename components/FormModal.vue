@@ -219,7 +219,7 @@
       for (const error in appform.value.errors) {
         errors += `${error} `
       }
-      showError('500', errors)
+      showError(errors, '500')
     } else {
       console.log(appointment)
       const sanitizedAppointment = Object.fromEntries(
