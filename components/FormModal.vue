@@ -8,10 +8,9 @@
       class: 'rounded-full',
       onClick: () => isOpen = false
     }"
-    class="mb-6"
   >
     <template #body>
-        <UForm class="grid grid-rows-8 gap-y-0 relative bottom-1" :state=appointment :schema="schema" ref="appform" @submit.prevent="saveAppointment" @error="onError">
+        <UForm class="grid bg-linear-to-b from-white to-blue-300 -m-4 sm:-m-6 p-4 pt-6" style="grid-template-rows: repeat(6, minmax(0, .99fr));" :state=appointment :schema="schema" ref="appform" @submit.prevent="saveAppointment" @error="onError">
           <div class="grid grid-cols-2">
             <UFormField required label="Name" name="title">
               <UInput placeholder="Name" v-model="appointment.title"/>
@@ -47,17 +46,21 @@
               <UInput type="time" v-model="appointment.end_time" />
             </UFormField>
           </div>
-          <div class="grid grid-cols-2">
-            <UFormField label="Service" name="service">
-              <USelect v-model="servicePicked" :items="services" value-key="id" arrow class="w-48" />
-            </UFormField>
-            <UFormField label="Notes" name="notes">
-              <UTextarea variant="outline" v-model="appointment.notes" placeholder="Notes" />
-            </UFormField>
+          <div class="grid grid-cols-3 gap-4">
+            <div class="flex justify-start">
+              <UFormField label="Service" name="service" class="w-full">
+                <USelect v-model="servicePicked" :items="services" value-key="id" class="w-full" placeholder="Service reason" arrow />
+              </UFormField>
+            </div>
+            <div class="col-span-2">
+              <UFormField label="Notes" name="notes">
+                <UTextarea class="w-[100%]" :rows="2" :maxrows="2" resize="none" :autoresize="false" variant="outline" v-model="appointment.notes" placeholder="Request details" />
+              </UFormField>
+            </div>
           </div>
-          <div class="grid grid-cols-3 justify-around">
+          <div class="grid grid-cols-3 content-around">
             <div class="col-span-3 flex justify-center">
-              <UButton class="w-25" type="submit" color="primary" variant="solid" :label="saveLabel" :loading="pending" @onClick="" />
+              <UButton class="px-8" type="submit" color="primary" variant="solid" :label="saveLabel" :loading="pending" @onClick="" />
             </div>
           </div>
         </UForm>
@@ -203,8 +206,8 @@
     appform.value.clear()
   } 
 
-  const services = ref([{label: 'Select service:', id: 0}, {label: 'Air Conditioning', id: 1}, {label: 'Heat Systems', id: 2}, {label: 'Ventilation', id: 3}, {label: 'Ductwork', id: 4}, {label: 'Maintenance', id: 5}, {label: 'Emergency', id: 6}])
-  const servicePicked = ref('Select service:')
+  const services = ref([{label: 'Air Conditioning', id: 1}, {label: 'Heat Systems', id: 2}, {label: 'Ventilation', id: 3}, {label: 'Ductwork', id: 4}, {label: 'Maintenance', id: 5}, {label: 'Emergency', id: 6}])
+  const servicePicked = ref(0)
   // A computed property or watcher to format the Date object
   const formattedStartDate = ref(appointment.start_date ? (appointment.start_date as Date).toISOString().split('T')[0]: null)
 
@@ -268,7 +271,7 @@
   watch(updatedAppointment as Ref<stateType>, (value) => {
     if (value){
       // appointment = {...value, email: value.email ?? '', end_time: value.end_time ?? '', notes: value.notes ?? ''}
-      Object.assign(appointment, {...value, email: value.email ?? '', end_time: value.end_time ?? '', notes: value.notes ?? ''})
+      Object.assign(appointment, {...value, email: value.email ?? undefined, end_time: value.end_time ?? undefined, notes: value.notes ?? undefined})
       appointment.start_date = new Date(value.start_date as string)
       if(value.end_date) appointment.end_date = new Date(value.end_date as string)
       else appointment.end_date = undefined
