@@ -1,7 +1,7 @@
 <template>
   <UModal
     v-model:open="isOpen"
-    :title="!updatedAppointment ? 'New Appointment' : 'Reschedule Service'"
+    :title="!updatedAppointment ? 'New Appointment' : 'Make a change'"
     :close="{
       color: 'info',  
       variant: 'outline',
@@ -49,7 +49,7 @@
           <div class="grid grid-cols-3 gap-4">
             <div class="flex justify-start">
               <UFormField label="Service" name="service" class="w-full">
-                <USelect v-model="servicePicked" :items="services" value-key="id" class="w-full" placeholder="Service reason" arrow />
+                <USelect v-model="servicePicked" :items="services" value-key="id" class="w-full" placeholder="Service reason" arrow @update:modelValue="updateService"/>
               </UFormField>
             </div>
             <div class="col-span-2">
@@ -85,7 +85,7 @@
     start_time: string | undefined,
     end_date: Date | string | undefined,
     end_time: string | undefined,
-    service: string | undefined,
+    service: number | undefined,
     notes: string | undefined
   }
   
@@ -208,6 +208,7 @@
 
   const services = ref([{label: 'Air Conditioning', id: 1}, {label: 'Heat Systems', id: 2}, {label: 'Ventilation', id: 3}, {label: 'Ductwork', id: 4}, {label: 'Maintenance', id: 5}, {label: 'Emergency', id: 6}])
   const servicePicked = ref(0)
+
   // A computed property or watcher to format the Date object
   const formattedStartDate = ref(appointment.start_date ? (appointment.start_date as Date).toISOString().split('T')[0]: null)
 
@@ -215,6 +216,11 @@
   function updateStartDate(newDateString: string) {
     appointment.start_date = new Date(newDateString)
     formattedStartDate.value = newDateString // Keep the formatted string in sync
+  }
+
+  // To handle changes from USelect and update service
+  function updateService(service: number) {
+    appointment.service = service
   }
 
   // A computed property or watcher to format the Date object
@@ -226,7 +232,15 @@
     formattedEndDate.value = newDateString // Keep the formatted string in sync
   }
 
+  // const disabled = computed(() => {
+  //   const disabled = updatedAppointment.value && JSON.stringify(appointment) === JSON.stringify(updatedAppointment.value)
+  //   console.log('is eq:',JSON.stringify(appointment) === JSON.stringify(updatedAppointment.value))
+  //   return disabled
+  // })
+
   const saveAppointment = async (event: FormSubmitEvent<typeof appointment>) => {
+    const noChange = updatedAppointment.value && JSON.stringify(appointment) === JSON.stringify(updatedAppointment.value)
+    if(noChange) return
     console.log('Form Data:', event)
     if (appform.value.errors.length) {
       let errors = ''
@@ -273,9 +287,18 @@
       // appointment = {...value, email: value.email ?? '', end_time: value.end_time ?? '', notes: value.notes ?? ''}
       Object.assign(appointment, {...value, email: value.email ?? undefined, end_time: value.end_time ?? undefined, notes: value.notes ?? undefined})
       appointment.start_date = new Date(value.start_date as string)
-      if(value.end_date) appointment.end_date = new Date(value.end_date as string)
-      else appointment.end_date = undefined
+      formattedStartDate.value = value.start_date as string
+      if(value.end_date) {
+        appointment.end_date = new Date(value.end_date as string)
+        formattedEndDate.value = value.end_date as string
+      }
+      else {
+        appointment.end_date = undefined
+        formattedEndDate.value = null
+      }
+      servicePicked.value = value.service ?? 0
       saveLabel.value = 'Update'
+      console.log(value.service)
       try{
         const val = schema.parse(appointment)
         console.log('Parsed User Data:', val)
@@ -311,6 +334,11 @@
   }
 
   const isTimeOverlap = (newStartDate: Date, newStartTime: string) => {
+    if(updatedAppointment) {
+      const appt = {...updatedAppointment.value}
+      const newDate = newStartDate.toISOString().split('T')[0]
+      if(appt.start_date === newDate && appt.start_time === newStartTime) return true
+    }
     const diffInMs = 2 * 3600 * 1000 // Two hours in milliseconds
 
     const newAppointmentDay = newStartDate.toDateString()

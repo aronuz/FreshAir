@@ -59,7 +59,7 @@ const { fetchAppointments,
 
 watch(() => selectedAppointment.value, (value) => {
   addIcon.value = value ? 'pencil-square': 'plus-circle'
-  addLabel.value = value ? 'Reschedule Service' : 'Schedule Service'
+  addLabel.value = value ? 'Make a change' : 'Schedule Service'
 })  
 
 const onError = (status, message = 'An unknown error has occured.') => {
