@@ -1,27 +1,35 @@
 <template>
   <div class="grid grid-cols-12 grid-rows-1 gap-2">
+    
     <UCard class="col-span-12 md:col-span-3">
-      <div v-if="eventsParsed.length">
-        <UButton v-if="!isOpen" class="flex flex-row justify-between text-4xl md:text-xl p-4" block :icon="`i-heroicons-${addIcon}`" size="2xl" color="secondary" variant="solid" :label="addLabel" @click="setValues">{{ addLabel }}</UButton>
-        <UButton v-if="!isOpen && selectedAppointment" class="flex flex-row justify-between text-4xl md:text-xl mt-4 p-4 pr-11" block icon="i-heroicons-x-circle" size="2xl" color="error" variant="solid" label="Remove" @click="handleRemove">Remove</UButton>
-      </div>
-      <div v-else>
-        <USkeleton class="h=4 w-full mb-2" />
-      </div>
+      <USwitch
+        unchecked-icon="i-lucide-x"
+        checked-icon="i-lucide-check"
+        v-model="isCalendar"
+        label="Calendar"
+        class="flex justify-end mb-4"
+      />
+      <ClientOnly>
+        <div v-if="Object.keys(grouppedEvents).length || eventsParsed.length">
+          <UButton v-if="!isOpen" class="flex flex-row justify-between text-4xl md:text-xl p-4" block :icon="`i-heroicons-${addIcon}`" size="2xl" color="secondary" variant="solid" :label="addLabel" @click="setValues">{{ addLabel }}</UButton>
+          <UButton v-if="!isOpen && selectedAppointment" class="flex flex-row justify-between text-4xl md:text-xl mt-4 p-4 pr-11" block icon="i-heroicons-x-circle" size="2xl" color="error" variant="solid" label="Remove" @click="handleRemove">Remove</UButton>
+        </div>
+        <div v-else>
+          <USkeleton class="h=4 w-full mb-2" />
+        </div>
+      </ClientOnly>
     </UCard>
     <FormModal v-model="isOpen" :existing-records="existingRecords" @saved="reload"/>
-      
-    <UCard class="col-span-12 md:col-span-9 hidden md:flex">
-      <ClientOnly>
-        <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendarReady="isReady = true" @select="selectAppointment" @deselect="deselectAppointment"/>
-      </ClientOnly>
-      <div v-if="!isReady">
-        <USkeleton class="h=4 w-full mb-2" />
-      </div>
-    </UCard>
+    <ClientOnly>
+      <UCard v-if="showCalendar" class="md:flex md:col-span-9"  :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
+          <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendarReady="isReady = true" @select="selectAppointment" @deselect="deselectAppointment"/> 
+        <div v-if="!isReady">
+          <USkeleton class="h=4 w-full mb-2" />
+        </div>
+      </UCard>
 
-    <UCard class="col-span-12 md:hidden text-4xl w-100 mx-auto">
-        <section v-if="eventsParsed.length">
+      <UCard v-else class="col-span-12 text-4xl w-100 mx-auto w-full" :class="{'md:hidden': showCalendar, 'md:col-span-9': !showCalendar }">
+        <section v-if="Object.keys(grouppedEvents).length">
           <div v-for="(group, key) in grouppedEvents" :key="key">
             <div>{{ key }}</div>
             <UCard v-for="event in group" :key="event.id" class="flex flex-col odd:bg-white even:bg-gray-100">
@@ -32,14 +40,17 @@
         <section v-if="pending">
           <USkeleton class="h=4 w-full mb-2" />
         </section>
-    </UCard>
+      </UCard>
+    </ClientOnly>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 
 const { toastBar } = useToastBar()
+const isCalendar = ref(true)
 const pending = ref(false)
 const isOpen = ref(false)
 const isReady = ref(false)
@@ -56,6 +67,17 @@ const { fetchAppointments,
         updateAppointment,
         deleteAppointment,
       } = useFetchQueries()
+
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const isMD = breakpoints.greaterOrEqual('md')
+console.log('isMD', isMD.value)
+
+watch(() => isMD, (value) => isCalendar.value = value)
+
+const showCalendar = computed(() => {
+  console.log('ic: ', isCalendar.value, 'bp: ', breakpoints.greaterOrEqual('md').value)
+  return isCalendar.value && isMD.value
+})
 
 watch(() => selectedAppointment.value, (value) => {
   addIcon.value = value ? 'pencil-square': 'plus-circle'
@@ -91,7 +113,7 @@ const reload = async () => {
 
 const eventsParsed = computed(() => {
   const list = appointments.value
-  if(!list) return []
+  if(!showCalendar.value || !list) return []
   const eventsObject = list.map(item => {
     const { id, title, start_date: start, end_date: end } = item
 
@@ -108,13 +130,15 @@ const eventsParsed = computed(() => {
     return event
     }
   )
+  console.log(eventsObject.length)
   return eventsObject
   // eventsObject.forEach(event => eventsParsed.value.push({...event}))
 })
 
 const grouppedEvents = computed( () => {
-    let group = {}
     const list = appointments.value
+    let group = {}
+    if (showCalendar.value || !list) return group
     for (const entry of list){
         const date = entry.start_date
         if(!group[date]){
