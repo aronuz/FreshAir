@@ -76,7 +76,7 @@ const reload = async () => {
   }
   appointments.value = data
   existingRecords.value = timesData
-  // events.splice(0)
+  events.splice(0)
   for (const key in data) {
     if (Object.hasOwnProperty.call(data, key)) {
       events.push(data[key]);
@@ -90,9 +90,9 @@ const reload = async () => {
 }
 
 const eventsParsed = computed(() => {
-  const events = appointments.value
-  if(!events) return []
-  const eventsObject = events.map(item => {
+  const list = appointments.value
+  if(!list) return []
+  const eventsObject = list.map(item => {
     const { id, title, start_date: start, end_date: end } = item
 
     const startTime = `${item.start_date}T${item.start_time}`
@@ -114,8 +114,8 @@ const eventsParsed = computed(() => {
 
 const grouppedEvents = computed( () => {
     let group = {}
-    const events = appointments.value
-    for (const entry of events){
+    const list = appointments.value
+    for (const entry of list){
         const date = entry.start_date
         if(!group[date]){
             group[date] = []
