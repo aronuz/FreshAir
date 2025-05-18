@@ -30,7 +30,7 @@
         <nav class="flex shrink justify-between p-3 md:text-lg lg:text-xl xl:text-2xl font-bold text-white rounded-sm">
           <NuxtLink to="/" class="w-fit h-10 bg-gray-400 px-5 rounded-lg">Home</NuxtLink>
           <NuxtLink to="/gallery" class="w-fit h-10 bg-gray-400 px-5 rounded-lg">Services</NuxtLink>
-          <NuxtLink to="/booking" class="w-fit h-10 bg-gray-400 px-5 rounded-lg">Schedule a Service</NuxtLink>
+          <NuxtLink to="/booking" class="w-fit h-10 bg-gray-400 px-5 rounded-lg">Schedule Service</NuxtLink>
           <NuxtLink to="/contact" class="w-fit h-10 bg-gray-400 px-5 rounded-lg">Contact Us</NuxtLink>
           <NuxtLink to="/about" class="w-fit h-10 bg-gray-400 px-5 rounded-lg">About Us</NuxtLink>
         </nav>
@@ -39,7 +39,7 @@
         <nav class="flex flex-col gap-4 text-4xl">
           <NuxtLink to="/" @click="isMobileMenuOpen = false">Home</NuxtLink>
           <NuxtLink to="/gallery" @click="isMobileMenuOpen = false">Services</NuxtLink>
-          <NuxtLink to="/booking" @click="isMobileMenuOpen = false">Schedule a Service</NuxtLink>
+          <NuxtLink to="/booking" @click="isMobileMenuOpen = false">Schedule Service</NuxtLink>
           <NuxtLink to="/contact" @click="isMobileMenuOpen = false">Contact Us</NuxtLink>
           <NuxtLink to="/about" @click="isMobileMenuOpen = false">About Us</NuxtLink>
           <NuxtLink v-if="isAdmin" to="/admin" label="Admin" @click="isMobileMenuOpen = false" />
