@@ -8,6 +8,7 @@
   import interactionPlugin from '@fullcalendar/interaction'
   import timegrid from '@fullcalendar/timegrid'
   import list from '@fullcalendar/list'
+  import dayjs from 'dayjs'
 
   const props = defineProps({
     dataSet: {
@@ -63,11 +64,11 @@
   
   let setId: number | null = null
 
-  const handleDateClick = (arg: { dateStr: string }) => {
+  const handleDateClick = (arg: { date: Date, dateStr: string }) => {
     // alert('date click! ' + arg.dateStr)
-    const dateClicked = new Date(arg.dateStr).setHours(0,0,0,0)
-    const today = new Date().setHours(0,0,0,0)
-    emit('dateClicked', dateClicked > today ? arg.dateStr : null)
+    const dateClicked = dayjs(arg.date)
+    const today = dayjs(new Date()).hour(0).minute(0).second(0)
+    emit('dateClicked', dateClicked.diff(today) > 0 ? arg.dateStr : null)
   }
 
   const handleEventClick = (arg: { el: any; event: any }) => {
