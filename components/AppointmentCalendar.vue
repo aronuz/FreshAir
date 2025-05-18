@@ -19,10 +19,10 @@
         </div>
       </ClientOnly>
     </UCard>
-    <FormModal v-model="isOpen" :existing-records="existingRecords" @saved="reload"/>
+    <FormModal v-model="isOpen" :selected-date="selectedDate" :existing-records="existingRecords" @saved="reload"/>
     <ClientOnly>
       <UCard v-if="showCalendar" class="md:flex md:col-span-9"  :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
-          <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendarReady="isReady = true" @select="selectAppointment" @deselect="deselectAppointment"/> 
+          <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendarReady="isReady = true" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
         <div v-if="!isReady">
           <USkeleton class="h=4 w-full mb-2" />
         </div>
@@ -62,6 +62,7 @@ const existingRecords = ref([])
 // let eventsParsed = ref([])
 const selectedAppointment = useState('selectedAppointment', () => null)
 const updatedAppointment =  useState('updatedAppointment', () => null)
+const selectedDate = ref(null)
 
 const { fetchAppointments,
         updateAppointment,
@@ -77,6 +78,10 @@ watch(() => isMD, (value) => isCalendar.value = value)
 const showCalendar = computed(() => {
   console.log('ic: ', isCalendar.value, 'bp: ', breakpoints.greaterOrEqual('md').value)
   return isCalendar.value && isMD.value
+})
+
+watch(() => isOpen.value, (value) => {
+  if(!value) selectedDate.value = null
 })
 
 watch(() => selectedAppointment.value, (value) => {
@@ -151,6 +156,15 @@ const grouppedEvents = computed( () => {
 })
 
 reload()
+
+const createEvent = (event) => {
+  if(event){
+    selectedDate.value = event
+    isOpen.value = true
+  } else {
+    onError('400', 'Please select a future date for your appointment.')
+  }
+}
 
 const selectAppointment = (id) => {
   try {

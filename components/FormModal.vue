@@ -115,7 +115,8 @@
 
   const props = defineProps({
     modelValue: Boolean,
-    existingRecords: Object
+    existingRecords: Object,
+    selectedDate: String as PropType<string|null>,
   })
   const emit = defineEmits(['update:modelValue', 'saved'])
 
@@ -281,6 +282,8 @@
       element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
   }
+
+  watch(() => props.selectedDate, (value) => formattedStartDate.value = value as string | null)
 
   watch(updatedAppointment as Ref<stateType>, (value) => {
     if (value){

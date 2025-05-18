@@ -52,7 +52,7 @@
     }
   })
 
-  const emit = defineEmits(['select', 'deselect', 'calendarReady'])
+  const emit = defineEmits(['select', 'deselect', 'calendarReady', 'dateClicked'])
   
   const events = ref([])
   watch(() => props.dataSet, (dataSet) => {
@@ -64,7 +64,10 @@
   let setId: number | null = null
 
   const handleDateClick = (arg: { dateStr: string }) => {
-    alert('date click! ' + arg.dateStr)
+    // alert('date click! ' + arg.dateStr)
+    const dateClicked = new Date(arg.dateStr).setHours(0,0,0,0)
+    const today = new Date().setHours(0,0,0,0)
+    emit('dateClicked', dateClicked > today ? arg.dateStr : null)
   }
 
   const handleEventClick = (arg: { el: any; event: any }) => {
