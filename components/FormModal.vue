@@ -263,7 +263,7 @@
       if(error){const action = type === 'create' ? 'create a new': 'update'
         showError(status as string, `Unable to ${action} appoinment record.\n${JSON.stringify(error)}`)
       } else {
-        toastBar('success', `Service ${type === 'update' ? 're':''}scheduled`)
+        toastBar('success', `Service ${type === 'update' ? 'updated':'scheduled'}`)
         isOpen.value = false
         emit('saved')
       }
