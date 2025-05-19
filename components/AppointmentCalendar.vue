@@ -1,7 +1,7 @@
 <template>
   <div class="grid grid-cols-12 grid-rows-1 gap-2">
     
-    <UCard class="col-span-12 md:col-span-3">
+    <UCard class="col-span-12 md:col-span-3 bg-linear-to-b from-sky-100 to-sky-300 h-fit">
       <USwitch
         unchecked-icon="i-lucide-x"
         checked-icon="i-lucide-check"
@@ -21,14 +21,14 @@
     </UCard>
     <FormModal v-model="isOpen" :existing-records="existingRecords" @saved="reload"/>
     <ClientOnly>
-      <UCard v-if="showCalendar" class="md:flex md:col-span-9"  :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
+      <UCard v-if="showCalendar" class="md:flex md:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
           <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendarReady="isReady = true" @select="selectAppointment" @deselect="deselectAppointment"/> 
         <div v-if="!isReady">
           <USkeleton class="h=4 w-full mb-2" />
         </div>
       </UCard>
 
-      <UCard v-else class="col-span-12 text-4xl w-100 mx-auto w-full" :class="{'md:hidden': showCalendar, 'md:col-span-9': !showCalendar }">
+      <UCard v-else class="col-span-12 text-4xl w-100 mx-auto bg-linear-to-b from-sky-100 to-sky-400 w-full" :class="{'md:hidden': showCalendar, 'md:col-span-9': !showCalendar }">
         <section v-if="Object.keys(grouppedEvents).length">
           <div v-for="(group, key) in grouppedEvents" :key="key">
             <div>{{ key }}</div>

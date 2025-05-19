@@ -40,6 +40,6 @@
 .router-link-active {
   background-color: rgb(62, 194, 113);
   color: #fff;
-  box-shadow: 10px 10px rgb(168, 207, 168);
+  box-shadow: 0px 5px rgb(88, 121, 212);
 }
 </style>
