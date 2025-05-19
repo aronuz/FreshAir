@@ -6,7 +6,7 @@
       color: 'info',  
       variant: 'outline',
       class: 'rounded-full',
-      onClick: () => isOpen = false
+      onClick: () => {isOpen = false; hasErrors = false}
     }"
   >
     <template #body>
@@ -58,9 +58,12 @@
               </UFormField>
             </div>
           </div>
-          <div class="grid grid-cols-3 content-around">
-            <div class="col-span-3 flex justify-center">
+          <div class="grid grid-rows-2 grid-cols-3 content-around"> 
+            <div class="col-span-3 flex justify-center self-center">      
               <UButton class="px-8" type="submit" color="primary" variant="solid" :label="saveLabel" :loading="pending" @onClick="" />
+            </div>
+            <div v-show="hasErrors" class="col-span-3">          
+              <UFormField name="errors"/>
             </div>
           </div>
         </UForm>
@@ -71,6 +74,7 @@
 <script lang="ts" setup>
   import type { FormErrorEvent, FormSubmitEvent } from '@nuxt/ui'
   import { z } from 'zod'
+  import dayjs from 'dayjs'
   
   import { useFetchQueries} from '~/composables/useFetchQueries'
 
@@ -115,35 +119,43 @@
 
   const props = defineProps({
     modelValue: Boolean,
-    existingRecords: Object
+    existingRecords: Object,
+    selectedDate: String as PropType<string|null>,
   })
   const emit = defineEmits(['update:modelValue', 'saved'])
 
   const schema = z.object({
     title: z.string(),
-    email: z.string().email("Please provide a valide email address").optional(),
-    phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, {
-      message: "Please provide a valid phone number",
-    }),
+    email: z.string().email("Invalide email address").optional(),
+    phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid Phone number'),
     address: z.string().min(1, "Address is required").max(255, "Address is too long"),
     zip: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid zip code'),
-    start_date: z.coerce.date().refine((date) => date > new Date(), {
-      message: 'Date must be in the future.',
+    start_date: z.coerce.date().refine((date) => {
+      const datePicked = dayjs(date)
+      const today = dayjs(new Date()).hour(0).minute(0).second(0)
+      return datePicked.diff(today) > 0
+    }, {
+      message: 'Pick a future date", //must be in the future.',
     }),
     start_time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)/, {
-      message: "Invalid time format (expected HH:mm)",
+      message: "Invalid format", // (expected HH:mm)",
     }), 
     end_date: z.coerce.date().optional(),
     end_time: z.string().optional(),
     notes: z.string().max(255, "Text is too long").optional(),
-  }).refine(
+  }).refine((data) => {
+    return /^\+?[1-9]\d{1,14}$/.test(data.phone)
+  }, {
+    message: "Please provide a valid phone number",
+    path: ['errors'],
+  },
+  ).refine(
     (data) => {
       const hasCoverage = isCoveredZip(data.zip)
       return hasCoverage
     },
     {
       message: 'Unfortunately, we do not service this zip code at this time.',
-      path: ['zip'],
     }
 
   ).refine(
@@ -153,7 +165,7 @@
     },
     {
       message: 'Selected time is not available. Please choose a different time.',
-      path: ['start_time'],
+      path: ['errors'],
     }
   ).refine(
     (data) => {
@@ -164,7 +176,7 @@
     },
     {
       message: 'End date must be after the start date.',
-      path: ['end_date'],
+      path: ['errors'],
     }
   )
   .refine(
@@ -176,7 +188,7 @@
     },
     {
       message: 'End time is required if end date is provided.',
-      path: ['end_time'],
+      path: ['errors'],
     }
   ).refine(
     (data) => {
@@ -189,7 +201,7 @@
     },
     {
       message: "Invalid time format (expected HH:mm)",
-      path: ['end_time'],
+      path: ['errors'],
     }
   )
 
@@ -198,6 +210,8 @@
   const saveLabel = ref('Save')
 
   const appointment = reactive({...initState})
+
+  const hasErrors = ref(false)
 
   const blankForm = () => {
     formattedStartDate.value = null
@@ -263,7 +277,7 @@
       if(error){const action = type === 'create' ? 'create a new': 'update'
         showError(status as string, `Unable to ${action} appoinment record.\n${JSON.stringify(error)}`)
       } else {
-        toastBar('success', `Service ${type === 'update' ? 're':''}scheduled`)
+        toastBar('success', `Service ${type === 'update' ? 'updated':'scheduled'}`)
         isOpen.value = false
         emit('saved')
       }
@@ -271,16 +285,20 @@
   }
 
   const onError = async (event: FormErrorEvent) => {
-    if (event?.errors.length)
-    for(const error of event.errors){
-      setTimeout(() => showError(error.message), 1000)
-    }
-    if (event.errors[0]?.id) {
-      const element = document.getElementById(event.errors[0].id)
-      element?.focus()
-      element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    if (event?.errors.length){
+      hasErrors.value = true
+      for(const error of event.errors){
+        setTimeout(() => showError(error.message), 1000)
+      }
+      if (event.errors[0]?.id) {
+        const element = document.getElementById(event.errors[0].id)
+        element?.focus()
+        element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
     }
   }
+
+  watch(() => props.selectedDate, (value) => formattedStartDate.value = value as string | null)
 
   watch(updatedAppointment as Ref<stateType>, (value) => {
     if (value){
