@@ -40,10 +40,12 @@
         </div>
     </section>
 
-    <section v-if="!showTable && scheduledServices && scheduledServices.length > 0" class="py-12 mt-8 bg-white rounded-lg shadow-md">
+    <section v-if="showTable" class="py-12 mt-8 bg-white rounded-lg shadow-md">
         <h2 class="text-2xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-6">Upcoming Appointments</h2>
-        <UTable :data="scheduledServices" :columns="serviceColumns" />
+         <UTable v-if="scheduledServices && scheduledServices.length > 0" :data="scheduledServices" :columns="serviceColumns" />
+         <USkeleton v-else v-for="i in 3" class="mt-8 h-8 w-full" as="div"/>
     </section>
+
 </template>
   
 <script setup>
@@ -72,9 +74,9 @@
     const pending = ref([])
     const limit = 3
     const loadAppointments = async () => {
-        const { data, isPending, error } = await fetchAppointments(pending, false, null, limit)
+        const { data, isPending, error } = await fetchAppointments(pending, limit)
         pending.value = isPending.value
-        showTable.value = !!error
+        showTable.value = !error
         appointments.value = data
     }
 

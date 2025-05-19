@@ -6,7 +6,7 @@ export const useFetchQueries = () => {
     const selectedAppointment = useState('selectedAppointment')
     const updatedAppointment = useState('updatedAppointment') //ref(blankState.value)
 
-    const fetchAppointments = async (pending, list = false, dateRange = null, limit = null) => {
+    const fetchAppointments = async (pending, limit = null, list = false, dateRange = null) => {
         pending.value = true
         let saveError = null
         let saveStatus = null
@@ -29,21 +29,24 @@ export const useFetchQueries = () => {
         .or(`end_date.lt.${dateTo},end_date.is.null`).order('start_date', { ascending: true }).order('start_time', { ascending: true })
         if (limit) {
             query.limit(limit)
-            prefix = 'short'
+            prefix = 'limit'
         }
         
-        const { data } = await useAsyncData(`${prefix}-${dateFrom}-${dateTo}`, async () => {
-            const { data, error } = await query
-            if (error) {
-                saveError = error
-                saveStatus = '500'
-                return null; // Or throw an error to be caught by useAsyncData
-            } 
-            return { data };
-        })
         let dataSet = []
-        if (data && data.value) {
-            dataSet = list ? groupByDate(data.value.data) : data.value.data
+        for(let i = 0; i < 2; i++){    
+            const { data } = await useAsyncData(`${prefix}-${dateFrom}-${dateTo}`, async () => {
+                const { data, error } = await query
+                if (error) {
+                    saveError = error
+                    saveStatus = '500'
+                    return null; // Or throw an error to be caught by useAsyncData
+                } 
+                return { data };
+            })
+            if(data && data.value) dataSet = data.value
+        }
+        if (dataSet) {
+            dataSet = list ? groupByDate(dataSet.data) : dataSet.data
         } else if (error){
             saveError = error
             saveStatus = '500'
