@@ -52,10 +52,12 @@
     const appointments = ref([]);
     const showTable = ref([false])
 
+    const services = [{label: 'Air Conditioning', id: 1}, {label: 'Heat Systems', id: 2}, {label: 'Ventilation', id: 3}, {label: 'Ductwork', id: 4}, {label: 'Maintenance', id: 5}, {label: 'Emergency', id: 6}]
+  
     const serviceColumns = [
         { accessorKey: 'date', header: 'Date' },
         { accessorKey: 'time', header: 'Time' },
-        { accessorKey: 'note', header: 'Service' },
+        { accessorKey: 'service', header: 'Service' },
     ];
 
     const scheduledServices = computed(() => {
@@ -63,7 +65,7 @@
             id: appt.id,
             date: appt.start_date,
             time: appt.start_time,
-            note: appt.notes
+            service: appt.service ? services.find(item => item.id === appt.service).label : 'Unspecified'
         }));
     });
   
