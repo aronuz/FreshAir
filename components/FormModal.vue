@@ -194,7 +194,7 @@
     (data) => {
       if (data.end_time) {
         const regex = /^([01]\d|2[0-3]):([0-5]\d)$/
-        const time = data.end_time!.toString()
+        const time = data.end_time
         return regex.test(time)
       }
       return true
