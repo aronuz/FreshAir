@@ -14,20 +14,14 @@
           <UButton v-if="!isOpen" class="flex flex-row justify-between text-4xl md:text-xl p-4" block :icon="`i-heroicons-${addIcon}`" size="2xl" color="secondary" variant="solid" :label="addLabel" @click="setValues">{{ addLabel }}</UButton>
           <UButton v-if="!isOpen && selectedAppointment" class="flex flex-row justify-between text-4xl md:text-xl mt-4 p-4 pr-11" block icon="i-heroicons-x-circle" size="2xl" color="error" variant="solid" label="Remove" @click="handleRemove">Remove</UButton>
         </div>
-        <div v-else>
-          <USkeleton class="h=4 w-full mb-2" />
-        </div>
       </ClientOnly>
+      <USkeleton v-if="!Object.keys(grouppedEvents).length && !eventsParsed.length" class="mx-auto mt-8 h-8 w-5/6 bg-gray-600" as="div"/>
     </UCard>
     <FormModal v-model="isOpen" :selected-date="selectedDate" :existing-records="existingRecords" @saved="reload"/>
     <ClientOnly>
       <UCard v-if="showCalendar" class="md:flex md:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
-          <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendarReady="isReady = true" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
-        <div v-if="!isReady">
-          <USkeleton class="h=4 w-full mb-2" />
-        </div>
+        <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendar-ready="isReady=true" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
       </UCard>
-
       <UCard v-else class="col-span-12 text-4xl w-100 mx-auto bg-linear-to-b from-sky-100 to-sky-400 w-full" :class="{'md:hidden': showCalendar, 'md:col-span-9': !showCalendar }">
         <section v-if="Object.keys(grouppedEvents).length">
           <div v-for="(group, key) in grouppedEvents" :key="key">
@@ -36,12 +30,12 @@
               <div @click="updateEventEl($event, event.id)">{{ event.title }}</div>
             </UCard>
           </div>
-        </section>
-        <section v-if="pending">
-          <USkeleton class="h=4 w-full mb-2" />
-        </section>
+        </section>        
       </UCard>
     </ClientOnly>
+    <UCard v-if="(!showCalendar && !Object.keys(grouppedEvents).length) || (showCalendar && !isReady)" class="w-[50vw] bg-linear-to-b from-sky-100 to-sky-400">
+      <USkeleton v-for="i in 3" class="mx-auto my-4 h-8 w-5/6 bg-gray-600" as="div"/>
+    </UCard>
   </div>
 </template>
 

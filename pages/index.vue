@@ -42,13 +42,17 @@
 
     <section v-if="showTable" class="py-12 mt-8 bg-white rounded-lg shadow-md">
         <h2 class="text-2xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-6">Upcoming Appointments</h2>
-         <UTable v-if="scheduledServices && scheduledServices.length > 0" :data="scheduledServices" :columns="serviceColumns" />
-         <USkeleton v-else v-for="i in 3" class="mt-8 h-8 w-full" as="div"/>
+         <UTable v-if="scheduledServices?.length > 0" class="mx-auto w-5/6" :data="scheduledServices" :columns="serviceColumns" />
+         <USkeleton v-else v-for="i in 3" class="mx-auto mt-8 h-8 w-5/6 bg-gray-600" as="div"/>
     </section>
 
 </template>
   
 <script setup>
+    import dayjs from 'dayjs'
+    import customParseFormat from 'dayjs/plugin/customParseFormat'
+    dayjs.extend(customParseFormat)
+    
     const { fetchAppointments } = useFetchQueries()
 
     const appointments = ref([]);
@@ -60,13 +64,13 @@
         { accessorKey: 'date', header: 'Date' },
         { accessorKey: 'time', header: 'Time' },
         { accessorKey: 'service', header: 'Service' },
-    ];
+    ]
 
     const scheduledServices = computed(() => {
         return appointments.value.map(appt => ({
             id: appt.id,
             date: appt.start_date,
-            time: appt.start_time,
+            time: dayjs(appt.start_time, 'HH:mm:ss').format('h:mm A'),
             service: appt.service ? services.find(item => item.id === appt.service).label : 'Unspecified'
         }));
     });
