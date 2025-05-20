@@ -1,35 +1,39 @@
 <template>
-  <div class="grid grid-cols-12 grid-rows-1 gap-2">
-    
-    <UCard class="col-span-12 md:col-span-3 bg-linear-to-b from-sky-100 to-sky-300 h-fit">
-      <USwitch
-        unchecked-icon="i-lucide-x"
-        checked-icon="i-lucide-check"
-        v-model="isCalendar"
-        label="Calendar"
-        class="flex justify-end mb-4"
-      />
-      <ClientOnly>
-        <div v-if="Object.keys(grouppedEvents).length || eventsParsed.length">
-          <UButton v-if="!isOpen" class="flex flex-row justify-between text-4xl md:text-xl p-4" block :icon="`i-heroicons-${addIcon}`" size="2xl" color="secondary" variant="solid" :label="addLabel" @click="setValues">{{ addLabel }}</UButton>
-          <UButton v-if="!isOpen && selectedAppointment" class="flex flex-row justify-between text-4xl md:text-xl mt-4 p-4 pr-11" block icon="i-heroicons-x-circle" size="2xl" color="error" variant="solid" label="Remove" @click="handleRemove">Remove</UButton>
-        </div>
-      </ClientOnly>
-      <USkeleton v-if="!Object.keys(grouppedEvents).length && !eventsParsed.length" class="mx-auto mt-8 h-8 w-5/6 bg-gray-600" as="div"/>
-    </UCard>
+  <div class="grid grid-cols-12 grid-rows-1 gap-2 w-[98vw]">
+    <div class="col-span-12 md:col-span-3 h-full">
+      <UCard class="fixed bg-linear-to-b from-sky-100 to-sky-300 h-fit ">
+        <USwitch
+          unchecked-icon="i-lucide-x"
+          checked-icon="i-lucide-check"
+          v-model="isCalendar"
+          label="Calendar"
+          class="flex justify-end mb-4"
+        />
+        <ClientOnly>
+          <div v-if="Object.keys(grouppedEvents).length || eventsParsed.length">
+            <UButton v-if="!isOpen" class="flex flex-row justify-between text-4xl md:text-xl p-4" block :icon="`i-heroicons-${addIcon}`" size="2xl" color="secondary" variant="solid" :label="addLabel" @click="setValues">{{ addLabel }}</UButton>
+            <UButton v-if="!isOpen && selectedAppointment" class="flex flex-row justify-between text-4xl md:text-xl mt-4 p-4 pr-11" block icon="i-heroicons-x-circle" size="2xl" color="error" variant="solid" label="Remove" @click="handleRemove">Remove</UButton>
+          </div>
+        </ClientOnly>
+        <USkeleton v-if="!Object.keys(grouppedEvents).length && !eventsParsed.length" class="mx-auto mt-8 h-8 w-5/6 bg-gray-600" as="div"/>
+      </UCard>
+    </div>
     <FormModal v-model="isOpen" :selected-date="selectedDate" :existing-records="existingRecords" @saved="reload"/>
     <ClientOnly>
-      <UCard v-if="showCalendar" class="md:flex md:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
+      <UCard v-if="showCalendar" class="md:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
         <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendar-ready="isReady=true" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
       </UCard>
-      <UCard v-else class="col-span-12 text-4xl w-100 mx-auto bg-linear-to-b from-sky-100 to-sky-400 w-full" :class="{'md:hidden': showCalendar, 'md:col-span-9': !showCalendar }">
-        <section v-if="Object.keys(grouppedEvents).length">
-          <div v-for="(group, key) in grouppedEvents" :key="key">
-            <div>{{ key }}</div>
-            <UCard v-for="event in group" :key="event.id" class="flex flex-col odd:bg-white even:bg-gray-100">
-              <div @click="updateEventEl($event, event.id)">{{ event.title }}</div>
-            </UCard>
+      <UCard v-else class="col-span-12 text-4xl w-full mx-auto bg-linear-to-b from-sky-100 to-sky-400" :class="{'md:hidden': showCalendar, 'md:col-span-9': !showCalendar }">
+        <section>
+          <div v-if="Object.keys(grouppedEvents).length">
+            <div v-for="(group, key) in grouppedEvents" :key="key">
+              <div>{{ key }}</div>
+              <UCard v-for="event in group" :key="event.id" class="flex flex-col odd:bg-white even:bg-gray-400">
+                <div @click="updateEventEl($event, event.id)">{{ event.title }}</div>
+              </UCard>
+            </div>
           </div>
+          <div v-else>No Appointments</div>
         </section>        
       </UCard>
     </ClientOnly>
