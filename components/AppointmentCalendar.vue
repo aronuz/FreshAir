@@ -1,7 +1,7 @@
 <template>
   <div class="grid grid-cols-12 grid-rows-1 gap-2 w-[98vw]">
-    <div class="col-span-12 md:col-span-3 h-full">
-      <UCard class="fixed bg-linear-to-b from-sky-100 to-sky-300 h-fit ">
+    <div class="col-span-12 lg:col-span-3 h-full">
+      <UCard class="fixed bg-linear-to-b from-sky-100 to-sky-300 h-fit ms-4">
         <USwitch
           unchecked-icon="i-lucide-x"
           checked-icon="i-lucide-check"
@@ -11,8 +11,8 @@
         />
         <ClientOnly>
           <div v-if="Object.keys(grouppedEvents).length || eventsParsed.length">
-            <UButton v-if="!isOpen" class="flex flex-row justify-between text-4xl md:text-xl p-4" block :icon="`i-heroicons-${addIcon}`" size="2xl" color="secondary" variant="solid" :label="addLabel" @click="setValues">{{ addLabel }}</UButton>
-            <UButton v-if="!isOpen && selectedAppointment" class="flex flex-row justify-between text-4xl md:text-xl mt-4 p-4 pr-11" block icon="i-heroicons-x-circle" size="2xl" color="error" variant="solid" label="Remove" @click="handleRemove">Remove</UButton>
+            <UButton v-if="!isOpen" class="flex flex-wrap flex-row justify-between text-4xl md:text-lg p-3" block :icon="`i-heroicons-${addIcon}`" size="xl" color="secondary" variant="solid" :label="addLabel" @click="setValues"/>
+            <UButton v-if="!isOpen && selectedAppointment" class="flex flex-row justify-between text-4xl md:text-lg mt-4 p-3 pr-11" block icon="i-heroicons-x-circle" size="xl" color="error" variant="solid" label="Remove" @click="handleRemove"/>
           </div>
         </ClientOnly>
         <USkeleton v-if="!Object.keys(grouppedEvents).length && !eventsParsed.length" class="mx-auto mt-8 h-8 w-5/6 bg-gray-600" as="div"/>
@@ -20,10 +20,10 @@
     </div>
     <FormModal v-model="isOpen" :selected-date="selectedDate" :existing-records="existingRecords" @saved="reload"/>
     <ClientOnly>
-      <UCard v-if="showCalendar" class="md:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
+      <UCard v-if="showCalendar" class="lg:col-span-9 bg-linear-to-b from-sky-100 to-sky-400 mr-[10%]" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
         <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendar-ready="isReady=true" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
       </UCard>
-      <UCard v-else class="col-span-12 text-4xl w-full mx-auto bg-linear-to-b from-sky-100 to-sky-400" :class="{'md:hidden': showCalendar, 'md:col-span-9': !showCalendar }">
+      <UCard v-else class="col-span-12 text-4xl w-full bg-linear-to-b from-sky-100 to-sky-400 mr-[10%]" :class="{'lg:hidden': showCalendar, 'lg:col-span-9': !showCalendar }">
         <section>
           <div v-if="Object.keys(grouppedEvents).length">
             <div v-for="(group, key) in grouppedEvents" :key="key">
