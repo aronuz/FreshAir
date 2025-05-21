@@ -5,8 +5,8 @@
       <div class="absolute inset-0 opacity-30"></div>
     </div>
     <div class="relative z-10">
-    <UContainer class="grid place-content-around mb-8 pb-8 z-10 select-none"> 
-      <Header :user="user" :is-admin="isAdmin" />
+    <UContainer class="w-full grid place-content-around mx-0 mb-8 pb-8 z-10 select-none"> 
+      <Header class="w-fit" :user="user" :is-admin="isAdmin" />
       <NuxtPage />
       <Footer />
     </UContainer>
