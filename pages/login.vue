@@ -20,6 +20,10 @@
 
             <UButton type="submit" variant="solid" color="black" :loading="pending">Sign in</UButton>
         </UForm>
+
+        <template #footer>
+            <NuxtLink to="/register">Don't have an account? Register here.</NuxtLink>
+        </template>
     </UCard>
 </template>
 

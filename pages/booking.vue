@@ -13,7 +13,8 @@ import AppointmentCalendar from '../components/AppointmentCalendar.vue'
 // });
 
 definePageMeta({
-  layout: "default"
+  layout: "default",
+  middleware: ['auth']
 })
 
 useHead({

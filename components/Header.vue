@@ -14,6 +14,7 @@
           <NuxtLink v-if="isAdmin" to="/admin">Admin</NuxtLink>
           <UButton v-if="user" color="secondary" variant="ghost" @click="handleLogout" label="Log Out" />
           <UButton v-else color="secondary" variant="ghost" @click="handleLogin" label="Log In" />
+          <UButton v-else color="secondary" variant="ghost" @click="handleRegister" label="Log In" />
       </div>
       <UButton
         icon="i-heroicons-bars-3-bottom-left"
@@ -43,8 +44,8 @@
           <NuxtLink to="/contact" @click="isMobileMenuOpen = false">Contact Us</NuxtLink>
           <NuxtLink to="/about" @click="isMobileMenuOpen = false">About Us</NuxtLink>
           <NuxtLink v-if="isAdmin" to="/admin" label="Admin" @click="isMobileMenuOpen = false" />
-          <UButton v-if="user" class="text-4xl m-auto" color="info" variant="ghost" @click="handleSignout; isMobileMenuOpen = false" label="Log Out" />
-          <UButton v-else class="text-4xl m-auto" color="info" variant="ghost" @click="handleSignin; isMobileMenuOpen = false" label="Log In" />
+          <UButton v-if="user" class="text-4xl m-auto" color="info" variant="ghost" @click="handleLogout; isMobileMenuOpen = false" label="Log Out" />
+          <UButton v-else class="text-4xl m-auto" color="info" variant="ghost" @click="handleLogin; isMobileMenuOpen = false" label="Log In" />
         </nav>
             
         <!-- <div class="grid drid-cols-6 gap-8">
@@ -58,6 +59,7 @@
   const user = useSupabaseUser();
   const supabase = useSupabaseClient();
   const router = useRouter(); 
+  const { toastBar } = useToastBar()
   // const props = defineProps({
   //   user: Boolean, //Object,
   //   isAdmin: Boolean
@@ -85,15 +87,17 @@
       toastBar('error', 'Logout failed.', JSON.stringify(error))
     } else {
       toastBar('success', `You have been logged out.`)
-      await router.push('/login');
+      await router.push('/');
     }
   }
 
   const handleLogin = () => {
-    // supabase.auth.signOut()
     navigateTo('/login', )
   }
 
+  const handleRegister = () => {
+    navigateTo('/registration', )
+  }
 </script>
 
 <style>
