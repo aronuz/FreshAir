@@ -14,14 +14,12 @@
   </div>
 </template>
 
-<script setup>    
+<script setup>
   const links = [
     {label: '',
       to: '/'
     },
   ]
-  const user = ref(false) //= false; useSupabaseUser()
-  const isAdmin = ref(false)
 
   useHead({
     link: [{

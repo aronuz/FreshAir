@@ -12,8 +12,8 @@
 
       <div class="justify-between align-center hidden md:flex">
           <NuxtLink v-if="isAdmin" to="/admin">Admin</NuxtLink>
-          <UButton v-if="isUser" color="secondary" variant="ghost" @click="handleSignout" label="Log Out" />
-          <UButton v-else color="secondary" variant="ghost" @click="handleSignin" label="Log In" />
+          <UButton v-if="user" color="secondary" variant="ghost" @click="handleLogout" label="Log Out" />
+          <UButton v-else color="secondary" variant="ghost" @click="handleLogin" label="Log In" />
       </div>
       <UButton
         icon="i-heroicons-bars-3-bottom-left"
@@ -43,7 +43,7 @@
           <NuxtLink to="/contact" @click="isMobileMenuOpen = false">Contact Us</NuxtLink>
           <NuxtLink to="/about" @click="isMobileMenuOpen = false">About Us</NuxtLink>
           <NuxtLink v-if="isAdmin" to="/admin" label="Admin" @click="isMobileMenuOpen = false" />
-          <UButton v-if="isUser" class="text-4xl m-auto" color="info" variant="ghost" @click="handleSignout; isMobileMenuOpen = false" label="Log Out" />
+          <UButton v-if="user" class="text-4xl m-auto" color="info" variant="ghost" @click="handleSignout; isMobileMenuOpen = false" label="Log Out" />
           <UButton v-else class="text-4xl m-auto" color="info" variant="ghost" @click="handleSignin; isMobileMenuOpen = false" label="Log In" />
         </nav>
             
@@ -54,13 +54,15 @@
   </UContainer>
 </template>
 
-<script lang="ts" setup>  
+<script lang="ts" setup>
+  const user = useSupabaseUser();
+  const supabase = useSupabaseClient();
+  const router = useRouter(); 
   // const props = defineProps({
   //   user: Boolean, //Object,
   //   isAdmin: Boolean
   // })
 
-  const isUser = ref(true) //useSupabaseUser()
   const isAdmin = ref(false)
 
   // watch (user, (user: User | null) => {
@@ -76,11 +78,18 @@
     isMobileMenuOpen.value = !isMobileMenuOpen.value;
   };
 
-  const handleSignout = () => {
-    // supabase.auth.signOut()
-    navigateTo('/login', )
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toastBar('error', 'Logout failed.', JSON.stringify(error))
+    } else {
+      toastBar('success', `You have been logged out.`)
+      await router.push('/login');
+    }
   }
-  const handleSignin = () => {
+
+  const handleLogin = () => {
     // supabase.auth.signOut()
     navigateTo('/login', )
   }
