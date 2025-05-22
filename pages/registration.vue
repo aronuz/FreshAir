@@ -42,7 +42,7 @@
   }
 
   const { toastBar } = useToastBar()
-  const supabase = useSupabaseAuthClient();
+  const supabase = useSupabaseClient();
   const pending = ref(false);
   const regform = ref()
   const regLabel = ref('Register')

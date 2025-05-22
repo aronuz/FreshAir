@@ -6,7 +6,7 @@
     </div>
     <div class="relative z-10">
     <UContainer class="w-full grid place-content-around mx-0 mb-8 pb-8 z-10 select-none"> 
-      <Header class="w-fit" :user="user" :is-admin="isAdmin" />
+      <Header class="w-fit" />
       <NuxtPage />
       <Footer />
     </UContainer>

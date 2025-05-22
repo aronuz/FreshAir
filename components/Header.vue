@@ -12,9 +12,11 @@
 
       <div class="justify-between align-center hidden md:flex">
           <NuxtLink v-if="isAdmin" to="/admin">Admin</NuxtLink>
-          <UButton v-if="user" color="secondary" variant="ghost" @click="handleLogout" label="Log Out" />
-          <UButton v-else color="secondary" variant="ghost" @click="handleLogin" label="Log In" />
-          <UButton v-else color="secondary" variant="ghost" @click="handleRegister" label="Log In" />
+          <UButton v-if="user" class="h-fit" color="secondary" variant="ghost" @click="handleLogout" label="Log Out" />
+          <div v-else class="flex h-fit flex-row gap-2">
+            <UButton color="secondary" variant="solid" to="/login" label="Log In" />
+            <UButton color="secondary" variant="solid" to="/registration" label="Register" />
+          </div>
       </div>
       <UButton
         icon="i-heroicons-bars-3-bottom-left"
@@ -45,7 +47,10 @@
           <NuxtLink to="/about" @click="isMobileMenuOpen = false">About Us</NuxtLink>
           <NuxtLink v-if="isAdmin" to="/admin" label="Admin" @click="isMobileMenuOpen = false" />
           <UButton v-if="user" class="text-4xl m-auto" color="info" variant="ghost" @click="handleLogout; isMobileMenuOpen = false" label="Log Out" />
-          <UButton v-else class="text-4xl m-auto" color="info" variant="ghost" @click="handleLogin; isMobileMenuOpen = false" label="Log In" />
+          <UButtonGroup v-else class="m-auto">
+            <UButton class="text-4xl/15 pb-4" color="info" variant="outline" @click="handleLogin; isMobileMenuOpen = false" label="Log In" />
+            <UButton class="text-4xl/15 pb-4" color="info" variant="outline" @click="handleRegister; isMobileMenuOpen = false" label="Register" />
+          </UButtonGroup>
         </nav>
             
         <!-- <div class="grid drid-cols-6 gap-8">
@@ -94,9 +99,8 @@
   const handleLogin = () => {
     navigateTo('/login', )
   }
-
   const handleRegister = () => {
-    navigateTo('/registration', )
+    navigateTo('/registraition', )
   }
 </script>
 

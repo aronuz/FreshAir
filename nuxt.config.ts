@@ -41,11 +41,11 @@ export default defineNuxtConfig({
     middleware: ['errorMiddleware']
   },
   supabase: {
-    redirect: true,
-    redirectOptions: {
-      login: '/login', // Redirect unauthenticated users
-      callback: '/confirm', // Supabase callback page after OAuth
-      exclude: ['/'], // Pages to exclude from redirect
-    },
+    redirect: false,
+    // redirectOptions: {
+    //   login: '/login', // Redirect unauthenticated users
+    //   callback: '/confirm', // Supabase callback page after OAuth
+    //   // exclude: ['/'], // Pages to exclude from redirect
+    // },
   }
 })

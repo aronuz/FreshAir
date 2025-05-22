@@ -13,12 +13,12 @@
             Welcome!
         </template>
 
-        <UForm @submit="handleLogin">
+        <UForm @submit="handleOTPLogin">
             <UFormField label="Email" name="email" class="mb-4" required help="A confirmation link will be emailed to your email.">
                 <UInput v-model="email" type="email" placeholder="Email" required />
             </UFormField>
 
-            <UButton type="submit" variant="solid" color="black" :loading="pending">Sign in</UButton>
+            <UButton type="submit" variant="solid" color="black" :label="sendLabel" :loading="pending"/>
         </UForm>
 
         <template #footer>
@@ -32,10 +32,13 @@
     const supabase = useSupabaseClient()
     const success = ref(false)
     const email = ref('')
+    const sendLabel = ref('Send Link')
     const pending = ref(false)
 
-    const handleLogin = async () => {
-        pending.value = true
+    watch(() => pending.value, (value) => sendLabel.value = value ? 'Sending link...' : 'Send Link')
+
+    const handleOTPLogin = async () => {
+        pending.value = true  
 
         try {
             const { error } = await supabase.auth.signInWithOtp({
@@ -48,10 +51,10 @@
             if(error) {
                 throw(error)
             } else {
-                success.value = true
+                toastBar('success', 'The link has been successfuly sent. Please check your email.')
             }
         } catch (e) {
-            toastBar('Error', 'Authientication Error', 'Failed to Authienticate. Please try again.')
+            toastBar('error', 'Authientication Error', 'Failed to Authienticate. Please try again.')
         } finally {
             pending.value = false
         }
