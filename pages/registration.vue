@@ -33,12 +33,14 @@
 <script lang="ts" setup>
   import type { FormErrorEvent } from '@nuxt/ui'
   import { z } from 'zod'
+  import { useGuestUser } from '~/composables/useGuestUser'
 
   const origin = useState('origin')
     
   watch(() => document, (value) => {
       if (value) {
-          document.querySelector(`#${origin}`)!.classList.add('router-link-active')
+          document.querySelectorAll('.router-link-active')[0]!.classList.remove('router-link-active')
+          document.querySelector(`#${origin.value}`)!.classList.add('router-link-active')
       }
   }, {immediate: true})
 
