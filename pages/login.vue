@@ -22,7 +22,7 @@
         </UForm>
 
         <template #footer>
-            <NuxtLink to="/register">Don't have an account? Register here.</NuxtLink>
+            Don't have an account? Enter as <UButton variant="ghost" @click="setUser">guest</UButton> or register <NuxtLink to="/register">here.</NuxtLink>
         </template>
     </UCard>
 </template>
@@ -59,7 +59,13 @@
             pending.value = false
         }
     }
-
+    
+    const setUser = () => {
+        globalUser.value = {
+            id: 0,
+            email: ''        }
+    }
+    
     definePageMeta({
         layout: "default"
     })

@@ -53,6 +53,7 @@
     import customParseFormat from 'dayjs/plugin/customParseFormat'
     dayjs.extend(customParseFormat)
     
+    const globalUser = useState('globalUser', () => null)
     const { fetchAppointments } = useFetchQueries()
 
     const appointments = ref([]);
