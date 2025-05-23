@@ -12,7 +12,7 @@
 
       <div class="justify-between align-center hidden md:flex">
           <NuxtLink v-if="isAdmin" to="/admin">Admin</NuxtLink>
-          <UButton v-if="user" class="h-fit" color="secondary" variant="ghost" @click="handleLogout" label="Log Out" />
+          <UButton v-if="user && !gustUser" class="h-fit" color="secondary" variant="ghost" @click="handleLogout" label="Log Out" />
           <div v-else class="flex h-fit flex-row gap-2">
             <UButton color="secondary" variant="solid" to="/login" label="Log In" />
             <UButton color="secondary" variant="solid" to="/registration" label="Register" />
@@ -31,11 +31,11 @@
   
       <div class="hidden md:block">
         <nav class="flex shrink justify-between p-3 md:text-lg lg:text-xl xl:text-2xl font-bold text-white rounded-sm">
-          <NuxtLink to="/" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">Home</NuxtLink>
-          <NuxtLink to="/gallery" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">Services</NuxtLink>
-          <NuxtLink to="/booking" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">Schedule Service</NuxtLink>
-          <NuxtLink to="/contact" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">Contact Us</NuxtLink>
-          <NuxtLink to="/about" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">About Us</NuxtLink>
+          <NuxtLink to="/" ref="/" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">Home</NuxtLink>
+          <NuxtLink to="/gallery" ref="/gallery" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">Services</NuxtLink>
+          <NuxtLink to="/booking" ref="/booking" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">Schedule Service</NuxtLink>
+          <NuxtLink to="/contact" ref="/contact" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">Contact Us</NuxtLink>
+          <NuxtLink to="/about" ref="/about" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">About Us</NuxtLink>
         </nav>
       </div>
       <UCard v-if="isMobileMenuOpen" class="md:hidden absolute z-100 right-10" variant="outline" :ui="{root: 'bg-default text-default'}">
@@ -46,7 +46,7 @@
           <NuxtLink to="/contact" @click="isMobileMenuOpen = false">Contact Us</NuxtLink>
           <NuxtLink to="/about" @click="isMobileMenuOpen = false">About Us</NuxtLink>
           <NuxtLink v-if="isAdmin" to="/admin" label="Admin" @click="isMobileMenuOpen = false" />
-          <UButton v-if="user" class="text-4xl m-auto" color="info" variant="ghost" @click="handleLogout; isMobileMenuOpen = false" label="Log Out" />
+          <UButton v-if="user && !gustUser" class="text-4xl m-auto" color="info" variant="ghost" @click="handleLogout; isMobileMenuOpen = false" label="Log Out" />
           <UButtonGroup v-else class="m-auto">
             <UButton class="text-4xl/15 pb-4" color="info" variant="outline" @click="handleLogin; isMobileMenuOpen = false" label="Log In" />
             <UButton class="text-4xl/15 pb-4" color="info" variant="outline" @click="handleRegister; isMobileMenuOpen = false" label="Register" />
@@ -61,7 +61,8 @@
 </template>
 
 <script lang="ts" setup>
-  const user = useSupabaseUser();
+  const gustUser = ref(useGuestUser().value) 
+  const user = gustUser.value ?? useSupabaseUser();
   const supabase = useSupabaseClient();
   const router = useRouter(); 
   const { toastBar } = useToastBar()

@@ -1,26 +1,31 @@
 <template>
-  <UCard>
+  <UCard class="w-fit mx-auto">
     <template #header>
-      <h1>Registration</h1>
+      <div class="text-lg">Client registration form</div>
     </template>
-    <UForm :state=reg :schema="schema" @submit.prevent="handleRegister" @error="onError">
-      <div class="grid grid-rows-3">
+    <UForm :state=regState :schema="schema" @submit.prevent="handleRegister" @error="onError">
+      <div class="grid grid-cols-2">
         <UFormField required label="Email" name="email">
-          <UInput placeholder="Email" v-model="reg.email"/>
+          <UInput placeholder="Email" v-model="regState.email"/>
         </UFormField>
-        <UFormField required label="Password" name="password1">
-          <UInput type="password" placeholder="password" v-model="reg.password1"/>
-        </UFormField>
-        <UFormField required label="Confirm Password" name="password2">
-          <UInput type="password" placeholder="password" v-model="reg.password2"/>
-        </UFormField>
+        <div class="grid grid-rows-2">
+          <UFormField required label="Password" name="password1">
+            <UInput type="password" placeholder="password" v-model="regState.password1"/>
+          </UFormField>
+          <UFormField required label="Confirm Password" name="password2">
+            <UInput type="password" placeholder="password" v-model="regState.password2"/>
+          </UFormField>
+        </div>
       </div>
-      <div class="flex justify-center self-center">      
-        <UButton class="px-8" type="submit" color="primary" variant="solid" :label="regLabel" :loading="pending" />
+      <div class="flex justify-center self-center m-4">      
+        <UButton class="px-8" type="submit" color="info" variant="solid" :label="regLabel" :loading="pending" />
       </div>
     </UForm>
     <template #footer>
-      <NuxtLink to="/login">Already have an account? Login here.</NuxtLink>
+      <div class="grid grid-rows-2 gap-2">
+        <div>Click <UButton to="/login">here</UButton> to add or update your appointment.</div>
+        <div>Click <UButton variant="ghost" @click="setUser">here</UButton> to continue as guest to add a new appointment.</div>
+      </div>
     </template>
   </UCard>
 </template>
@@ -28,6 +33,14 @@
 <script lang="ts" setup>
   import type { FormErrorEvent } from '@nuxt/ui'
   import { z } from 'zod'
+
+  const origin = useState('origin')
+    
+  watch(() => document, (value) => {
+      if (value) {
+          document.querySelector(`#${origin}`)!.classList.add('router-link-active')
+      }
+  }, {immediate: true})
 
   interface regType {
     email: string | undefined,
@@ -43,10 +56,18 @@
 
   const { toastBar } = useToastBar()
   const supabase = useSupabaseClient();
+  const guestUser = useGuestUser()
   const pending = ref(false);
   const regform = ref()
   const regLabel = ref('Register')
-  const reg = reactive({...initState})
+  const regState = reactive({...initState})
+
+  const setUser = () => {
+    guestUser.value = {
+      id: 0,
+      email: ''
+    }
+  }
 
   const passwordSchema = z.string()
     .min(8, 'Password must be at least 8 characters long.')
@@ -73,16 +94,17 @@
     pending.value = true
     try {
       const { error } = await supabase.auth.signUp({
-        email: reg.email,
-        password: reg.password1,
-      });
-      if (error) throw error;
+        email: regState.email as string,
+        password: regState.password1 as string,
+      })
+      if (error) throw error
+      guestUser.value = null
       toastBar('success', 'Registration successful!', 'Please check your email to confirm your account.')
       await navigateTo('/login');
     } catch (error) {
       toastBar('error', 'Registration failed.', JSON.stringify(error))
       console.error('Registration error:', error);
-      Object.assign(reg, initState)
+      Object.assign(regState, initState)
       regform.value.clear()
     } finally {
       pending.value = false;
@@ -101,5 +123,10 @@
       }
     }
   }
+      
+  definePageMeta({
+      layout: "default",
+      middleware: ['origin']
+  })
 </script>
 
