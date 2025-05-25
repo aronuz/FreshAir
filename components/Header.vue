@@ -61,8 +61,8 @@
 </template>
 
 <script lang="ts" setup>
-  const gustUser = ref(useGuestUser().value) 
-  const user = gustUser.value ?? useSupabaseUser();
+  const gustUser = ref(useGuestUser()) 
+  const user = gustUser ?? useSupabaseUser();
   const supabase = useSupabaseClient();
   const router = useRouter(); 
   const { toastBar } = useToastBar()

@@ -48,7 +48,7 @@
 
 </template>
   
-<script setup>
+<script lang="ts" setup>
     import dayjs from 'dayjs'
     import customParseFormat from 'dayjs/plugin/customParseFormat'
     dayjs.extend(customParseFormat)
@@ -87,9 +87,16 @@
 
     onMounted(async () => {
         loadAppointments()
-    });
+        const unlink = useState('unlink')
+        if(unlink.value) document.querySelector(`#${unlink.value}`)!.classList.remove('router-link-active')
+    })
 
     import { useHead } from '#imports'
+
+    definePageMeta({
+        layout: "default",
+        middleware: ['origin']
+    })
 
     useHead({
     title: 'Fresh Air | HVAC Experts - Installation, Maintenance & Repairs',

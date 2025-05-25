@@ -57,10 +57,17 @@
   </section>
 </template>
 
-<script setup>
+<script lang="ts" setup>
+    onMounted(async () => {
+      const unlink = useState('unlink')
+      if(unlink.value) document.querySelector(`#${unlink.value}`)!.classList.remove('router-link-active')
+    })
+
   definePageMeta({
-    layout: "default"
+    layout: "default",
+    middleware: ['origin']
   })
+
   useHead({
   title: 'About Us - Fresh Air',
   meta: [

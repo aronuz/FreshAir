@@ -24,7 +24,7 @@
     <template #footer>
       <div class="grid grid-rows-2 gap-2">
         <div>Click <UButton to="/login">here</UButton> to add or update your appointment.</div>
-        <div>Click <UButton variant="ghost" @click="setUser">here</UButton> to continue as guest to add a new appointment.</div>
+        <div>Click <UButton variant="ghost" @click="setGuestUser">here</UButton> to continue as guest to add a new appointment.</div>
       </div>
     </template>
   </UCard>
@@ -38,8 +38,7 @@
   const origin = useState('origin')
     
   watch(() => document, (value) => {
-      if (value) {
-          document.querySelectorAll('.router-link-active')[0]!.classList.remove('router-link-active')
+      if (value && origin.value) {
           document.querySelector(`#${origin.value}`)!.classList.add('router-link-active')
       }
   }, {immediate: true})
@@ -64,7 +63,7 @@
   const regLabel = ref('Register')
   const regState = reactive({...initState})
 
-  const setUser = () => {
+  const setGuestUser = () => {
     guestUser.value = {
       id: 0,
       email: ''

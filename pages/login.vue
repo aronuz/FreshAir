@@ -21,7 +21,8 @@
                 <UInput v-model="loginState.email" type="email" placeholder="Email" />
             </UFormField>
 
-            <UButton type="submit" variant="solid" color="info" :label="sendLabel" :loading="pending"/>
+            <UButton type="submit" variant="solid" color="info" :label="sendLabel" :loading="pending" :disabled="pending"/>
+            <UButton :to="fromPage" variant="outline" color="warning" label="Cancel" :disabled="pending"/>
         </UForm>
 
         <template #footer>
@@ -39,11 +40,14 @@
     import { useGuestUser } from '~/composables/useGuestUser'
 
     const origin = useState('origin')
+    const fromPage = ref('')
     console.log('we: ', origin.value)
+    fromPage.value = `/${origin.value === 'index' ? '' : origin.value}?l=1`
+    let fromPageLink: HTMLElement | null
     watch(() => document, (value) => {
-        if (value) {
-            document.querySelectorAll('.router-link-active')[0]!.classList.remove('router-link-active')
-            document.querySelector(`#${origin.value}`)!.classList.add('router-link-active')
+        if (value && origin.value) {
+            fromPageLink = document.querySelector(`#${origin.value}`)
+           fromPageLink!.classList.add('router-link-active')
         }
     }, {immediate: true})
 
@@ -62,7 +66,6 @@
     const { toastBar } = useToastBar()
     const supabase = useSupabaseClient()
     const success = ref(false)
-    const email = ref('')
     const sendLabel = ref('Send Link')
     const loginState = reactive({...initState})
     const pending = ref(false)
@@ -75,7 +78,7 @@
 
         try {
             const { error } = await supabase.auth.signInWithOtp({
-                email: email.value,
+                email: loginState.email as string,
                 options: {
                     emailRedirectTo: 'http://localhost:3000'
                 }
