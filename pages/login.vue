@@ -3,7 +3,7 @@
         <template #header>
             <div class="text-lg">Confirmation link has been sent to:</div>
         </template>
-        <div class="text-center">{{ email }}</div>
+        <div class="text-center">{{ loginState.email }}</div>
         <template #footer>
             Please check your email.
         </template>
@@ -22,7 +22,7 @@
             </UFormField>
 
             <UButton type="submit" variant="solid" color="info" :label="sendLabel" :loading="pending" :disabled="pending"/>
-            <UButton :to="fromPage" variant="outline" color="warning" label="Cancel" :disabled="pending"/>
+            <UButton v-if="fromPage" :to="fromPage" variant="outline" color="warning" label="Cancel" :disabled="pending"/>
         </UForm>
 
         <template #footer>
@@ -39,13 +39,17 @@
     import { z } from 'zod'
     import { useGuestUser } from '~/composables/useGuestUser'
 
+    const router = useRouter()
+
     const origin = useState('origin')
-    const fromPage = ref('')
+    const fromPage = ref<string | null>(null)
     console.log('we: ', origin.value)
-    fromPage.value = `/${origin.value === 'index' ? '' : origin.value}?l=1`
+    if(origin.value !== 'login'){
+        fromPage.value = `/${origin.value === 'index' ? '' : origin.value}?l=1`
+    }
     let fromPageLink: HTMLElement | null
     watch(() => document, (value) => {
-        if (value && origin.value) {
+        if (value && origin.value && origin.value !== 'login') {
             fromPageLink = document.querySelector(`#${origin.value}`)
            fromPageLink!.classList.add('router-link-active')
         }
@@ -80,7 +84,7 @@
             const { error } = await supabase.auth.signInWithOtp({
                 email: loginState.email as string,
                 options: {
-                    emailRedirectTo: 'http://localhost:3000'
+                    emailRedirectTo: 'http://localhost:3000/booking'
                 }
             })
 
@@ -115,6 +119,8 @@
             id: 0,
             email: ''
         }
+        
+        router.push({ path: "/booking" })
     }
 
     definePageMeta({

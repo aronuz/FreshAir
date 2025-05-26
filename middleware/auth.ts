@@ -1,11 +1,18 @@
 import { useGuestUser } from "~/composables/useGuestUser"
 
-export default defineNuxtRouteMiddleware((to, from) => {
+export default defineNuxtRouteMiddleware(async (to, from) => {
+    console.log('to', to, 'from', from)
     const user = useGuestUser() ?? useSupabaseUser()
-    if(!user.value) {
+    await new Promise((resolve) => {
+        setTimeout(resolve, 1000)
+    })
+    console.log('user', user.value)
+    if(to.fullPath.includes('code')) {
+        console.log('-fp-', to.fullPath)
+        return navigateTo(to.path)
+    } else {
+    // if(!user.value) {
         if(!['/login','/registration'].includes(from.path)) {
-            const dest = useState<string | null>('destRoute', () => null)
-            dest.value = to.path
             return navigateTo('/login')
         } else {
             return abortNavigation()
