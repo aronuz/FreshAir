@@ -8,9 +8,12 @@ export default defineNuxtRouteMiddleware((to, from) => {
     if(!user.value) {
       if(to.path === '/booking') abortNavigation()
       else {
-        if(document) {
-          const id = document.querySelectorAll('.router-link-active')[0].getAttribute('id')
-          if(!to.query.l && id) unlink.value = id
+        if(document && !to.query.l) {
+          const idList = document.querySelectorAll('.router-link-active')
+          if(idList.length) {
+            const id = idList[0].getAttribute('id')
+            if(id) unlink.value = id
+          }
         }
       }
     }
