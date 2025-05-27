@@ -12,8 +12,12 @@
 
       <div class="justify-between align-center hidden md:flex">
           <NuxtLink v-if="isAdmin" to="/admin">Admin</NuxtLink>
-          <UButton v-if="user && !gustUser" class="h-fit" color="secondary" variant="ghost" @click="handleLogout" label="Log Out" />
+          <UButton v-if="user" class="h-fit" color="secondary" variant="ghost" @click="handleLogout" label="Log Out" />
           <div v-else class="flex h-fit flex-row gap-2">
+            <div v-if="guestUser">Guest User</div>
+            <template>
+              <UBadge color="success" size="xl">Guest User</UBadge>
+            </template>
             <UButton color="secondary" variant="solid" to="/login" label="Log In" />
             <UButton color="secondary" variant="solid" to="/registration" label="Register" />
           </div>
@@ -46,7 +50,7 @@
           <NuxtLink to="/contact" @click="isMobileMenuOpen = false">Contact Us</NuxtLink>
           <NuxtLink to="/about" @click="isMobileMenuOpen = false">About Us</NuxtLink>
           <NuxtLink v-if="isAdmin" to="/admin" label="Admin" @click="isMobileMenuOpen = false" />
-          <UButton v-if="user && !gustUser" class="text-4xl m-auto" color="info" variant="ghost" @click="handleLogout; isMobileMenuOpen = false" label="Log Out" />
+          <UButton v-if="user" class="text-4xl m-auto" color="info" variant="ghost" @click="handleLogout; isMobileMenuOpen = false" label="Log Out" />
           <UButtonGroup v-else class="m-auto">
             <UButton class="text-4xl/15 pb-4" color="info" variant="outline" @click="handleLogin; isMobileMenuOpen = false" label="Log In" />
             <UButton class="text-4xl/15 pb-4" color="info" variant="outline" @click="handleRegister; isMobileMenuOpen = false" label="Register" />
@@ -61,9 +65,9 @@
 </template>
 
 <script lang="ts" setup>
-  const gustUser = ref(useGuestUser()) 
-  const user = gustUser ?? useSupabaseUser();
-  const supabase = useSupabaseClient();
+  const guestUser = useGuestUser()
+  const user = useSupabaseUser()
+  const supabase = useSupabaseClient()
   const router = useRouter(); 
   const { toastBar } = useToastBar()
   // const props = defineProps({
