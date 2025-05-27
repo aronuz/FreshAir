@@ -6,6 +6,7 @@
         <div class="text-center">{{ loginState.email }}</div>
         <template #footer>
             Please check your email.
+            <UButton :to="fromPage" variant="solid" color="success" label="OK" />
         </template>
     </UCard>
     <UCard v-else class="w-fit mx-auto"> 
@@ -42,16 +43,14 @@
     const router = useRouter()
 
     const origin = useState('origin')
-    const fromPage = ref<string>('/')
+    const fromPage = ref<string>('/') //useRouter().options.history.state.back
     console.log('we: ', origin.value)
-    if(origin.value !== 'login'){
-        fromPage.value = `/${origin.value === 'index' ? '' : origin.value}?l=1`
-    }
+    if(origin.value) fromPage.value+=${origin.value}
     let fromPageLink: HTMLElement | null
     watch(() => document, (value) => {
-        if (value && origin.value && origin.value !== 'login') {
+        if (value && origin.value && !['login', 'registration'].includes(origin.value) {
             fromPageLink = document.querySelector(`#${origin.value}`)
-           fromPageLink!.classList.add('router-link-active')
+            fromPageLink!.classList.add('router-link-active')
         }
     }, {immediate: true})
 
@@ -91,6 +90,7 @@
             if(error) {
                 throw(error)
             } else {
+                success.value = true
                 guestUser.value = null
                 toastBar('success', 'The link has been successfuly sent. Please check your email.')
             }

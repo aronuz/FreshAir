@@ -18,9 +18,9 @@
         </div>
       </div>
       <div class="flex justify-center self-center m-4">      
-        <UButton class="px-8" type="submit" color="info" variant="solid" :label="loginLabel" :loading="pending" />
+        <UButton class="px-8" color="info" variant="solid" :label="loginLabel" :loading="pending" @click="handleLogin"/>
         <UButton class="px-8" type="submit" color="info" variant="solid" :label="regLabel" :loading="pending" />
-        <UButton to="\" variant="outline" color="warning" label="Cancel" :disabled="pending"/>
+        <UButton :to="fromPage" variant="outline" color="warning" label="Cancel" :disabled="pending"/>
       </div>
     </UForm>
     <template #footer>
@@ -38,10 +38,12 @@
   import { useGuestUser } from '~/composables/useGuestUser'
 
   const origin = useState('origin')
-    
+  const fromPage = ref<string>('/')
+  console.log('we: ', origin.value)
+  if(origin.value && origin.value !== 'index') fromPage.value+=${origin.value}
   let fromPageLink: HTMLElement | null
   watch(() => document, (value) => {
-      if (value && origin.value && origin.value !== 'login') {
+      if (value && origin.value &&  && !['login', 'registration'].includes(origin.value)) {
           fromPageLink = document.querySelector(`#${origin.value}`)
           fromPageLink!.classList.add('router-link-active')
       }
