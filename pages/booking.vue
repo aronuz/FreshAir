@@ -8,13 +8,23 @@
 <script lang="ts" setup>
 import AppointmentCalendar from '../components/AppointmentCalendar.vue'
 
+const supabase = useSupabaseClient()
+const guestUser = useGuestUser()
+
+onMounted(async () => {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!guestUser.value && (!session || !session.user)) {
+    return navigateTo('/login')
+  }
+})
+
 // definePageMeta({
 //   middleware: 'errorMiddleware'
 // });
 
 definePageMeta({
   layout: "default",
-  middleware: ['auth']
+  // middleware: ['auth']
 })
 
 useHead({
