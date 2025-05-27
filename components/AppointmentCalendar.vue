@@ -12,12 +12,13 @@
             class="flex justify-end mb-4" 
             :ui="{ root: 'items-center', label: 'md:lg:text-xl lg:text-2xl align-top' }"
           />
-          <div v-if="Object.keys(grouppedEvents).length || eventsParsed.length">
+          <div v-if="!loadingList">
             <UButton v-if="!isOpen" class="flex flex-wrap flex-row justify-between text-4xl md:text-lg p-3" block :icon="`i-heroicons-${addIcon}`" size="xl" color="secondary" variant="solid" :label="addLabel" @click="setValues"/>
             <UButton v-if="!isOpen && selectedAppointment" class="flex flex-row justify-between text-4xl md:text-lg mt-4 p-3 pr-11" block icon="i-heroicons-x-circle" size="xl" color="error" variant="solid" label="Remove" @click="handleRemove"/>
           </div>
         </ClientOnly>
-        <USkeleton v-if="!Object.keys(grouppedEvents).length && !eventsParsed.length" class="mx-auto mt-8 h-8 w-[5vw] bg-gray-600" as="div"/>
+        <!-- !Object.keys(grouppedEvents).length && !eventsParsed.length -->
+        <USkeleton v-if="loadingList" class="mx-auto mt-8 h-8 w-[5vw] bg-gray-600" as="div"/>
       </UCard>
     </div>
     <FormModal v-model="isOpen" :selected-date="selectedDate" :existing-records="existingRecords" @saved="reload"/>
@@ -27,7 +28,8 @@
       </UCard>
       <UCard v-else class="col-span-12 text-4xl w-full bg-linear-to-b from-sky-100 to-sky-400" :class="{'lg:hidden': showCalendar, 'lg:col-span-9': !showCalendar }">
         <section>
-          <div v-if="Object.keys(grouppedEvents).length">
+          <!-- Object.keys(grouppedEvents).length ||  -->
+          <div v-if="!loadingList && grouppedEvents && Object.keys(grouppedEvents).length">
             <div class="flex justify-center">Appointments</div>
             <div v-for="(group, key) in grouppedEvents" :key="key">
               <div class="flex justify-end">{{ key }}</div>
@@ -40,7 +42,7 @@
         </section>        
       </UCard>
     </ClientOnly>
-    <UCard v-if="(!showCalendar && !Object.keys(grouppedEvents).length) || (showCalendar && !isReady)" class="w-[50vw] bg-linear-to-b from-sky-100 to-sky-400">
+    <UCard v-if="loadingList" class="w-[50vw] bg-linear-to-b from-sky-100 to-sky-400">
       <USkeleton v-for="i in 3" class="mx-auto my-4 h-8 w-5/6 bg-gray-600" as="div"/>
     </UCard>
   </div>
@@ -79,6 +81,10 @@ watch(() => isMD.value, (value) => isCalendar.value = value, {immediate: true})
 const showCalendar = computed(() => {
   console.log('ic: ', isCalendar.value, 'bp: ', breakpoints.greaterOrEqual('md').value)
   return isCalendar.value && isMD.value
+})
+
+const loadingList = computed(() => {
+  return (!showCalendar && !grouppedEvents) || (showCalendar && !isReady)
 })
 
 watch(() => isOpen.value, (value) => {
@@ -143,8 +149,8 @@ const eventsParsed = computed(() => {
 
 const grouppedEvents = computed( () => {
     const list = appointments.value
+    if (showCalendar.value || !list) return null
     let group = {}
-    if (showCalendar.value || !list) return group
     for (const entry of list){
         const date = entry.start_date
         if(!group[date]){
