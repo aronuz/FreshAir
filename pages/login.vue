@@ -22,12 +22,12 @@
             </UFormField>
 
             <UButton type="submit" variant="solid" color="info" :label="sendLabel" :loading="pending" :disabled="pending"/>
-            <UButton v-if="fromPage" :to="fromPage" variant="outline" color="warning" label="Cancel" :disabled="pending"/>
+            <UButton :to="fromPage" variant="outline" color="warning" label="Cancel" :disabled="pending"/>
         </UForm>
 
         <template #footer>
             <div class="grid grid-rows-2 gap-2">
-                <div>Click <UButton to="/registration">here</UButton> to register with an email and password.</div>
+                <div>Click <UButton to="/registration">here</UButton> to use an email and password.</div>
                 <div>Click <UButton variant="ghost" @click="setUser">here</UButton> to continue as guest to add an appointment.</div>
             </div>
         </template>
@@ -42,7 +42,7 @@
     const router = useRouter()
 
     const origin = useState('origin')
-    const fromPage = ref<string | null>(null)
+    const fromPage = ref<string>('/')
     console.log('we: ', origin.value)
     if(origin.value !== 'login'){
         fromPage.value = `/${origin.value === 'index' ? '' : origin.value}?l=1`

@@ -12,13 +12,15 @@
           <UFormField required label="Password" name="password1">
             <UInput type="password" placeholder="password" v-model="regState.password1"/>
           </UFormField>
-          <UFormField required label="Confirm Password" name="password2">
+          <UFormField label="Confirm Password" name="password2">
             <UInput type="password" placeholder="password" v-model="regState.password2"/>
           </UFormField>
         </div>
       </div>
       <div class="flex justify-center self-center m-4">      
+        <UButton class="px-8" type="submit" color="info" variant="solid" :label="loginLabel" :loading="pending" />
         <UButton class="px-8" type="submit" color="info" variant="solid" :label="regLabel" :loading="pending" />
+        <UButton to="\" variant="outline" color="warning" label="Cancel" :disabled="pending"/>
       </div>
     </UForm>
     <template #footer>
@@ -37,9 +39,11 @@
 
   const origin = useState('origin')
     
+  let fromPageLink: HTMLElement | null
   watch(() => document, (value) => {
-      if (value && origin.value) {
-          document.querySelector(`#${origin.value}`)!.classList.add('router-link-active')
+      if (value && origin.value && origin.value !== 'login') {
+          fromPageLink = document.querySelector(`#${origin.value}`)
+          fromPageLink!.classList.add('router-link-active')
       }
   }, {immediate: true})
 
@@ -60,6 +64,7 @@
   const guestUser = useGuestUser()
   const pending = ref(false);
   const regform = ref()
+  const loginLabel = ref('Login')
   const regLabel = ref('Register')
   const regState = reactive({...initState})
 
@@ -85,14 +90,21 @@
   const schema = z.object({
     email: z.string().email("Invalide email address"),
     password1: passwordSchema,
-    password2: passwordSchema,
+    password2: passwordSchema.optional(),
   }).refine((data) => data.password1 === data.password2, {
     message: "Passwords don't match.",
     path: ['password2'],
   });
 
   const handleRegister = async () => {
+    if(!regState.password2) {
+      const element: HTMLElement | null = document.querySelector("[name='password2']")
+      element?.focus()
+      toastBar('error', 'Registration failed.', 'Please confirm your password!')
+      return
+    }
     pending.value = true
+    regLabel.value = "Waiting..."
     try {
       const { error } = await supabase.auth.signUp({
         email: regState.email as string,
@@ -101,13 +113,37 @@
       if (error) throw error
       guestUser.value = null
       toastBar('success', 'Registration successful!', 'Please check your email to confirm your account.')
-      await navigateTo('/login');
+      await navigateTo('/booking');
     } catch (error) {
       toastBar('error', 'Registration failed.', JSON.stringify(error))
       console.error('Registration error:', error);
       Object.assign(regState, initState)
       regform.value.clear()
-    } finally {
+    } finally {      
+      regLabel.value = "Register"
+      pending.value = false;
+    }
+  }
+
+  const handleLogin = async () => {
+    pending.value = true    
+    loginLabel.value = "Waiting..."
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: regState.email as string,
+        password: regState.password1 as string,
+      })
+      if (error) throw error
+      guestUser.value = null
+      toastBar('success', 'Login successful!', 'Welcome back!')
+      await navigateTo('/booking');
+    } catch (error) {
+      toastBar('error', 'Login failed.', JSON.stringify(error))
+      console.error('Login error:', error);
+      Object.assign(regState, initState)
+      regform.value.clear()
+    } finally {      
+      loginLabel.value = "Login"
       pending.value = false;
     }
   }
