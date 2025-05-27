@@ -4,6 +4,7 @@
       <UCard class="lg:fixed bg-linear-to-b from-sky-100 to-sky-300 h-fit">
         <ClientOnly>
           <USwitch
+            v-if="!guestUser"
             unchecked-icon="i-lucide-x"
             checked-icon="i-lucide-check"
             v-model="isCalendar"
@@ -23,10 +24,10 @@
     </div>
     <FormModal v-model="isOpen" :selected-date="selectedDate" :existing-records="existingRecords" @saved="reload"/>
     <ClientOnly>
-      <UCard v-if="showCalendar" class="lg:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
+      <UCard v-if="!guestUser && showCalendar" class="lg:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
         <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendar-ready="isReady=true" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
       </UCard>
-      <UCard v-else class="col-span-12 text-4xl w-full bg-linear-to-b from-sky-100 to-sky-400" :class="{'lg:hidden': showCalendar, 'lg:col-span-9': !showCalendar }">
+      <UCard v-else-if="!guestUser" class="col-span-12 text-4xl w-full bg-linear-to-b from-sky-100 to-sky-400" :class="{'lg:hidden': showCalendar, 'lg:col-span-9': !showCalendar }">
         <section>
           <!-- Object.keys(grouppedEvents).length ||  -->
           <div v-if="!loadingList && grouppedEvents && Object.keys(grouppedEvents).length">
@@ -53,6 +54,7 @@ import { ref } from 'vue';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 
 const { toastBar } = useToastBar()
+const guestUser = useGuestUser()
 const isCalendar = ref(true)
 const pending = ref(false)
 const isOpen = ref(false)
@@ -102,6 +104,7 @@ const onError = (status, message = 'An unknown error has occured.') => {
 }
 
 const reload = async () => {
+  if(guestUser.value) return
   const {data, timesData, isPending, error, status} = await fetchAppointments(pending)
   pending.value = isPending.value
   if(error){
