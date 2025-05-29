@@ -9,10 +9,10 @@
             <UButton :to="fromPage" variant="solid" color="success" label="OK" />
         </template>
     </UCard>
-    <UCard v-else class="w-fit mx-auto"> 
+    <UCard v-else class="w-fit mx-auto max-w-lg"> 
         <template #header>
-            <div class="grid grid-rows-2 text-lg">
-               <div>Please use your email to add or update your appointment,</div>
+            <div class="grid grid-rows-2 text-lg/6">
+               <div>Welcome! Please sign in using a confirmation link,</div>
                <div>or enter as guest to schedule a new appointment!</div>
             </div>
         </template>
@@ -23,12 +23,12 @@
             </UFormField>
 
             <UButton type="submit" variant="solid" color="info" :label="sendLabel" :loading="pending" :disabled="pending"/>
-            <UButton :to="fromPage" variant="outline" color="warning" label="Cancel" :disabled="pending"/>
+            <UButton :to="fromPage" class="ml-2" variant="outline" color="warning" label="Cancel" :disabled="pending"/>
         </UForm>
 
         <template #footer>
             <div class="grid grid-rows-2 gap-2">
-                <div>Click <UButton to="/registration">here</UButton> to use an email and password.</div>
+                <div>Click <UButton to="/registration">here</UButton> to sign in or register using an email and password.</div>
                 <div>Click <UButton variant="ghost" @click="setUser">here</UButton> to continue as guest to add an appointment.</div>
             </div>
         </template>
@@ -45,11 +45,15 @@
     const origin = useState('origin')
     const fromPage = ref<string>('/') //useRouter().options.history.state.back
     console.log('we: ', origin.value)
-    if(origin.value) fromPage.value+=${origin.value}
+    let origin_value = origin.value as string
+    if (origin_value && origin_value.includes('_')) {
+        origin_value = origin_value.slice(0, origin_value.indexOf('_')) 
+    }
+    if(origin_value && origin_value !== 'index') fromPage.value+=origin_value
     let fromPageLink: HTMLElement | null
     watch(() => document, (value) => {
-        if (value && origin.value && !['login', 'registration'].includes(origin.value) {
-            fromPageLink = document.querySelector(`#${origin.value}`)
+        if (value && origin_value && !['login', 'registration'].includes(origin_value)) {
+            fromPageLink = document.querySelector(`#${origin_value}`)
             fromPageLink!.classList.add('router-link-active')
         }
     }, {immediate: true})
@@ -119,7 +123,8 @@
             id: 0,
             email: ''
         }
-        
+        const idList = document.querySelectorAll('.router-link-active')
+        if(idList.length) idList[0].classList.remove('router-link-active')
         router.push({ path: "/booking" })
     }
 

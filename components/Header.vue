@@ -15,8 +15,8 @@
           <UButton v-if="user" class="h-fit" color="secondary" variant="ghost" @click="handleLogout" label="Log Out" />
           <div v-else class="flex h-fit flex-row gap-2">
             <UBadge v-if="guestUser" color="success" size="xl">Guest User</UBadge>
-            <UButton color="secondary" variant="solid" to="/login" label="Log In" />
-            <UButton color="secondary" variant="solid" to="/registration" label="Register" />
+            <UButton v-if="notOnLogin" color="secondary" variant="solid" to="/login" label="Log In" />
+            <UButton v-if="notOnLogin" color="secondary" variant="solid" to="/registration" label="Register" />
           </div>
       </div>
       <UButton
@@ -49,8 +49,8 @@
           <NuxtLink v-if="isAdmin" to="/admin" label="Admin" @click="isMobileMenuOpen = false" />
           <UButton v-if="user" class="text-4xl m-auto" color="info" variant="ghost" @click="handleLogout; isMobileMenuOpen = false" label="Log Out" />
           <UButtonGroup v-else class="m-auto">
-            <UButton class="text-4xl/15 pb-4" color="info" variant="outline" @click="handleLogin; isMobileMenuOpen = false" label="Log In" />
-            <UButton class="text-4xl/15 pb-4" color="info" variant="outline" @click="handleRegister; isMobileMenuOpen = false" label="Register" />
+            <UButton v-if="notOnLogin" class="text-4xl/15 pb-4" color="info" variant="outline" @click="handleLogin; isMobileMenuOpen = false" label="Log In" />
+            <UButton v-if="notOnLogin" class="text-4xl/15 pb-4" color="info" variant="outline" @click="handleRegister; isMobileMenuOpen = false" label="Register" />
           </UButtonGroup>
         </nav>
             
@@ -65,12 +65,14 @@
   const guestUser = useGuestUser()
   const user = useSupabaseUser()
   const supabase = useSupabaseClient()
+  const route = useRoute()
   const router = useRouter(); 
   const { toastBar } = useToastBar()
   // const props = defineProps({
   //   user: Boolean, //Object,
   //   isAdmin: Boolean
   // })
+  
 
   const isAdmin = ref(false)
 
@@ -87,6 +89,18 @@
     isMobileMenuOpen.value = !isMobileMenuOpen.value;
   };
 
+  let notOnLogin = ref(true)
+  // watch(() => )
+  // const notOnLogin = computed(() => {
+  //   const { history } = useRouter().options
+  //   const currentPage = history.state.current as string
+  //   return !['/login', '/registraition'].includes(currentPage)
+  // })
+  watch(
+      () => route.path, (currentPage) => {
+        notOnLogin.value = !['/login', '/registration'].includes(currentPage)
+      }, {immediate: true}
+    )
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();

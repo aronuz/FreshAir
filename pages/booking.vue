@@ -8,12 +8,17 @@
 <script lang="ts" setup>
 import AppointmentCalendar from '../components/AppointmentCalendar.vue'
 
+const origin = useState('origin')
 const supabase = useSupabaseClient()
 const guestUser = useGuestUser()
 
 onMounted(async () => {
   const { data: { session } } = await supabase.auth.getSession()
   if (!guestUser.value && (!session || !session.user)) {
+    const { history } = useRouter().options
+    const stateBack = history.state.back as string
+    const fromPage = stateBack === '/' ? 'index' : stateBack.slice(1)
+    origin.value = `${fromPage}_booking`
     return navigateTo('/login')
   }
 })

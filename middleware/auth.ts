@@ -1,4 +1,3 @@
-import { promise } from "zod"
 import { useGuestUser } from "~/composables/useGuestUser"
 
 export default defineNuxtRouteMiddleware(async (to, from) => {

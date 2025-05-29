@@ -1,7 +1,10 @@
 <template>
   <UCard class="w-fit mx-auto">
     <template #header>
-      <div class="text-lg">Client registration form</div>
+      <div class="grid grid-rows-2 text-lg">
+        <div>Welcome! Please sign in with an email and password,</div>
+        <div>or enter as guest to schedule a new appointment!</div>
+      </div>
     </template>
     <UForm :state=regState :schema="schema" @submit.prevent="handleRegister" @error="onError">
       <div class="grid grid-cols-2">
@@ -17,7 +20,7 @@
           </UFormField>
         </div>
       </div>
-      <div class="flex justify-center self-center m-4">      
+      <div class="flex justify-center self-center m-4 gap-2">      
         <UButton class="px-8" color="info" variant="solid" :label="loginLabel" :loading="pending" @click="handleLogin"/>
         <UButton class="px-8" type="submit" color="info" variant="solid" :label="regLabel" :loading="pending" />
         <UButton :to="fromPage" variant="outline" color="warning" label="Cancel" :disabled="pending"/>
@@ -25,7 +28,7 @@
     </UForm>
     <template #footer>
       <div class="grid grid-rows-2 gap-2">
-        <div>Click <UButton to="/login">here</UButton> to add or update your appointment.</div>
+        <div>Click <UButton to="/login">here</UButton> to sign in or register using a confirmation link.</div>
         <div>Click <UButton variant="ghost" @click="setGuestUser">here</UButton> to continue as guest to add a new appointment.</div>
       </div>
     </template>
@@ -37,14 +40,20 @@
   import { z } from 'zod'
   import { useGuestUser } from '~/composables/useGuestUser'
 
+  const router = useRouter()
+
   const origin = useState('origin')
   const fromPage = ref<string>('/')
   console.log('we: ', origin.value)
-  if(origin.value && origin.value !== 'index') fromPage.value+=${origin.value}
+  let origin_value = origin.value as string
+  if (origin_value && origin_value.includes('_')) {
+        origin_value = origin_value.slice(0, origin_value.indexOf('_')) 
+    }
+  if(origin_value && origin_value !== 'index') fromPage.value+=origin_value
   let fromPageLink: HTMLElement | null
   watch(() => document, (value) => {
-      if (value && origin.value &&  && !['login', 'registration'].includes(origin.value)) {
-          fromPageLink = document.querySelector(`#${origin.value}`)
+      if (value && origin_value && !['login', 'registration'].includes(origin_value)) {
+          fromPageLink = document.querySelector(`#${origin_value}`)
           fromPageLink!.classList.add('router-link-active')
       }
   }, {immediate: true})
@@ -75,6 +84,9 @@
       id: 0,
       email: ''
     }
+    const idList = document.querySelectorAll('.router-link-active')
+    if(idList.length) idList[0].classList.remove('router-link-active')
+    router.push({ path: "/booking" })
   }
 
   const passwordSchema = z.string()
