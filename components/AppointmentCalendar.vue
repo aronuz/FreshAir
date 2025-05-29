@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-12 grid-rows-1 gap-2 w-fit lg:w-full">
+  <div class="grid grid-cols-12 grid-rows-1 gap-2 w-fit lg:w-full" :class="{'md:flex md:justify-center ml-[25%]': guestUser}">
     <div class="col-span-12 lg:col-span-3 h-full lg:flex lg:justify-end">
       <UCard class="lg:fixed bg-linear-to-b from-sky-100 to-sky-300 h-fit">
         <ClientOnly>
@@ -14,7 +14,7 @@
             :ui="{ root: 'items-center', label: 'md:lg:text-xl lg:text-2xl align-top' }"
           />
           <div v-if="!loadingList">
-            <UButton v-if="!isOpen" class="flex flex-wrap flex-row justify-between text-4xl md:text-lg p-3" block :icon="`i-heroicons-${addIcon}`" size="xl" color="secondary" variant="solid" :label="addLabel" @click="setValues"/>
+            <UButton v-if="!isOpen" class="flex flex-wrap flex-row justify-between text-4xl md:text-lg p-3" block :icon="`i-heroicons${addIcon}`" size="xl" color="secondary" variant="solid" :label="addLabel" @click="setValues"/>
             <UButton v-if="!isOpen && selectedAppointment" class="flex flex-row justify-between text-4xl md:text-lg mt-4 p-3 pr-11" block icon="i-heroicons-x-circle" size="xl" color="error" variant="solid" label="Remove" @click="handleRemove"/>
           </div>
         </ClientOnly>
@@ -94,9 +94,9 @@ watch(() => isOpen.value, (value) => {
 })
 
 watch(() => selectedAppointment.value, (value) => {
-  addIcon.value = value ? 'pencil-square': 'plus-circle'
+  addIcon.value = value ? '-pencil-square': '-plus-circle'
   addLabel.value = value ? 'Make a change' : 'Schedule Service'
-})  
+}, {immediate: true})  
 
 const onError = (status, message = 'An unknown error has occured.') => {
   toastBar('error', `Error ${status}`, message)
