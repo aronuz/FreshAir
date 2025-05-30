@@ -14,7 +14,7 @@
           <NuxtLink v-if="isAdmin" to="/admin">Admin</NuxtLink>
           <UButton v-if="user" class="h-fit" color="secondary" variant="ghost" @click="handleLogout" label="Log Out" />
           <div v-else class="flex h-fit flex-row gap-2">
-            <UBadge v-if="guestUser" color="success" size="xl">Guest User</UBadge>
+            <UBadge v-if="guestUser" color="success" size="xl">Guest</UBadge>
             <UButton v-if="notOnLogin" color="secondary" variant="solid" to="/login" label="Log In" />
             <UButton v-if="notOnLogin" color="secondary" variant="solid" to="/registration" label="Register" />
           </div>
