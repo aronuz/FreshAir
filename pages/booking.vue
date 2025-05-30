@@ -29,7 +29,7 @@ onMounted(async () => {
 
 definePageMeta({
   layout: "default",
-  // middleware: ['auth']
+  middleware: ['auth']
 })
 
 useHead({
