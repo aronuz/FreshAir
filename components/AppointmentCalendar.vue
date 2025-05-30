@@ -1,7 +1,7 @@
 <template>
-  <div class="grid grid-cols-12 grid-rows-1 gap-2 w-fit lg:w-full" :class="{'md:flex md:justify-center ml-[25%]': guestUser}">
-    <div class="col-span-12 lg:col-span-3 h-full lg:flex lg:justify-end">
-      <UCard class="lg:fixed bg-linear-to-b from-sky-100 to-sky-300 h-fit">
+  <div class="grid grid-cols-12 grid-rows-1 gap-2 w-fit lg:w-full" :class="{'md:flex md:justify-center': guestUser}">
+    <div class="col-span-12 h-full lg:flex" :class="{ 'lg:col-span-12 lg:justify-center': guestUser, 'lg:col-span-3 lg:justify-end': !guestUser }">
+      <UCard v-if="!isOpen" class="lg:fixed bg-linear-to-b from-sky-100 to-sky-300 h-fit">
         <ClientOnly>
           <USwitch
             v-if="!guestUser"
@@ -14,15 +14,15 @@
             :ui="{ root: 'items-center', label: 'md:lg:text-xl lg:text-2xl align-top' }"
           />
           <div v-if="!loadingList">
-            <UButton v-if="!isOpen" class="flex flex-wrap flex-row justify-between text-4xl md:text-lg p-3" block :icon="`i-heroicons${addIcon}`" size="xl" color="secondary" variant="solid" :label="addLabel" @click="setValues"/>
-            <UButton v-if="!isOpen && selectedAppointment" class="flex flex-row justify-between text-4xl md:text-lg mt-4 p-3 pr-11" block icon="i-heroicons-x-circle" size="xl" color="error" variant="solid" label="Remove" @click="handleRemove"/>
+            <UButton class="flex flex-wrap flex-row justify-between text-4xl md:text-lg p-3" block :icon="`i-heroicons${addIcon}`" size="xl" color="secondary" variant="solid" :label="addLabel" :ui="{leadingIcon: 'size-10'}" @click="setValues"/>
+            <UButton v-if="selectedAppointment" class="flex flex-row justify-between text-4xl md:text-lg mt-4 p-3 pr-11" block icon="i-heroicons-x-circle" size="xl" color="error" variant="solid" label="Remove" :ui="{leadingIcon: 'size-10'}" @click="handleRemove"/>
           </div>
         </ClientOnly>
         <!-- !Object.keys(grouppedEvents).length && !eventsParsed.length -->
         <USkeleton v-if="loadingList" class="mx-auto mt-8 h-8 w-[5vw] bg-gray-600" as="div"/>
       </UCard>
+      <FormModal v-model="isOpen" :selected-date="selectedDate" :existing-records="existingRecords" @saved="reload"/>
     </div>
-    <FormModal v-model="isOpen" :selected-date="selectedDate" :existing-records="existingRecords" @saved="reload"/>
     <ClientOnly>
       <UCard v-if="!guestUser && showCalendar" class="lg:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
         <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendar-ready="isReady=true" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
@@ -59,8 +59,8 @@ const isCalendar = ref(true)
 const pending = ref(false)
 const isOpen = ref(false)
 const isReady = ref(false)
-const addIcon = ref('plus-circle')
-const addLabel = ref('Schedule Service')
+const addIcon = ref('squares-plus')
+const addLabel = ref('Book Now')
 const appointments = ref(null)
 const events = []
 const existingRecords = ref([])
@@ -94,8 +94,8 @@ watch(() => isOpen.value, (value) => {
 })
 
 watch(() => selectedAppointment.value, (value) => {
-  addIcon.value = value ? '-pencil-square': '-plus-circle'
-  addLabel.value = value ? 'Make a change' : 'Schedule Service'
+  addIcon.value = value ? '-pencil-square': '-squares-plus'
+  addLabel.value = value ? 'Make a change' : 'Book Now'
 }, {immediate: true})  
 
 const onError = (status, message = 'An unknown error has occured.') => {

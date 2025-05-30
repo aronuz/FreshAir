@@ -8,6 +8,7 @@
       class: 'rounded-full',
       onClick: () => {isOpen = false; hasErrors = false}
     }"
+    :ui="{content: 'lg:left-[35%]'}"
   >
     <template #body>
         <UForm class="grid bg-linear-to-b from-white to-blue-300 -m-4 sm:-m-6 p-4 pt-6" style="grid-template-rows: repeat(6, minmax(0, .99fr));" :state=appointment :schema="schema" ref="appform" @submit.prevent="saveAppointment" @error="onError">
