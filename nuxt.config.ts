@@ -19,13 +19,18 @@ export default defineNuxtConfig({
         { hid: 'description', name: 'description', content: 'Expert HVAC Servicesfor residential and comercial clients.'}
       ],
       link: [
-        {rel: 'icon', type: 'image/x-icon', href: '/favicon'}
+        {rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'}
       ]
     }
   },
   modules: [// Install this module
-  '@nuxtjs/sitemap', '@nuxtjs/supabase', '@nuxt/ui'],
+  '@nuxtjs/sitemap', '@nuxtjs/supabase', '@nuxt/ui', '@nuxt/image'],
   css: ['~/assets/css/main.css'],
+  image: {
+    //domains: ['picsum.photos', 'www.google.com'],
+    format: ['webp', 'jpeg', 'jpg', 'png'],
+    provider: 'ipx',
+  },
   router: {
     extendRoutes(routes, resolve) {
       routes.push({
@@ -36,6 +41,11 @@ export default defineNuxtConfig({
     middleware: ['errorMiddleware']
   },
   supabase: {
-    redirect: false //Redirects to login
+    redirect: false,
+    // redirectOptions: {
+    //   login: '/login', // Redirect unauthenticated users
+    //   callback: '/confirm', // Supabase callback page after OAuth
+    //   // exclude: ['/'], // Pages to exclude from redirect
+    // },
   }
 })

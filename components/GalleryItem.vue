@@ -1,28 +1,27 @@
 <template>
-  <div>
-    <div class="gallery-item">
-      <img :src="imageSrc" :alt="altText">
-    </div>
+  <div class="gallery-item">
+    <NuxtImg :src="imagePath" :alt="altText" 
+      width="250px" height="250px" 
+      class="rounded-xl shadow-lg w-full"
+      sizes="sm:100px md:140px lg:200px xl:300px" 
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
-defineProps({
+const props = defineProps({
   imageSrc: String,
   altText: String
 })
-const imagePath = 'images/image.jpg';
-const imageUrl = useAssets().getURL(imagePath);
+const imagePath = ref(`/images/${props.imageSrc}.png`)
 </script>
 
 <style scoped>
   .gallery-item {
-    width: 300px;
     margin: 10px;
   }
-  .img {
+  /* .img {
     width: 100%;
     height: auto;
-    border-radius: 5px;
-  }
+  } */
 </style>

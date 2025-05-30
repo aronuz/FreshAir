@@ -5,10 +5,11 @@ export default defineNuxtRouteMiddleware((to, from) => {
     "booking",
     "contact",
     "gallery",
-    "login"
-  ];
+    "login",
+    "registration"
+  ]
 
   if (!availableRoutes.includes(to.name)) {
     throw createError({ statusCode: 404, message: `${to.name} Page not found` });
   }
-});
+})

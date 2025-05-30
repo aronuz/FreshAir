@@ -4,12 +4,12 @@ export const useToastBar = () => {
   const toast = useToast()
 
   const icons = { success: 'check-circle', error: 'exclamation-circle' }
-  const colors = { success: 'green', error: 'red' }
+  const colors = { success: 'primary', error: 'error' }
 
   const toastBar = (type, title, message = '') => {
     const icon = icons[type]
     const color = colors[type]
-    toast.add({ title, description: message ?? '', icon: `i-heroicons-${icon}, ${color}` })
+    toast.add({ title, description: message ?? '', icon: `i-heroicons-${icon}`, color: color })
   }
 
   return { toastBar }

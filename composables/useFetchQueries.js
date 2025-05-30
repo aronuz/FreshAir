@@ -6,7 +6,7 @@ export const useFetchQueries = () => {
     const selectedAppointment = useState('selectedAppointment')
     const updatedAppointment = useState('updatedAppointment') //ref(blankState.value)
 
-    const fetchAppointments = async (pending, list = false, dateRange = null) => {
+    const fetchAppointments = async (pending, limit = null, list = false, dateRange = null) => {
         pending.value = true
         let saveError = null
         let saveStatus = null
@@ -24,27 +24,50 @@ export const useFetchQueries = () => {
         const today = new Date()
         const dateFrom = dateRange?.value?.from ? dateRange.value.from : today.toISOString().split('T')[0]
         const dateTo = dateRange?.value?.to ? dateRange.value.to : new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0]
-        const { data, timeData } = await useAsyncData(`range-${dateFrom}-${dateTo}`, async () => {
-            const { data, error } = await supabase.from('appointments').select('*').gte('start_date', dateFrom)
-            .or(`end_date.lt.${dateTo},end_date.is.null`).order('created_at', { ascending: true })
-            if (error) {
-                saveError = error
-                saveStatus = '500'
-                return null; // Or throw an error to be caught by useAsyncData
-            } else if (data && Object.keys(data).length) {
-                const { data: timeData } = await supabase.from('times').select('*')
-            }
-            return { data, timeData };
-        })
+
+        let prefix = 'all'
+        const query = supabase.from('appointments').select('*').gte('start_date', dateFrom)
+        .or(`end_date.lt.${dateTo},end_date.is.null`).order('start_date', { ascending: true }).order('start_time', { ascending: true })
+        if (limit) {
+            query.limit(limit)
+            prefix = 'limit'
+        }
+        
         let dataSet = []
-        if (data && data.value) {
-            dataSet = list ? groupByDate(data.value) : data.value
-        } else if (!error){
+        for(let i = 0; i < 2; i++){    
+            const { data } = await useAsyncData(`${prefix}-${dateFrom}-${dateTo}`, async () => {
+                const { data, error } = await query
+                if (error) {
+                    saveError = error
+                    saveStatus = '500'
+                    return null; // Or throw an error to be caught by useAsyncData
+                } 
+                return { data };
+            })
+            if(data && data.value) dataSet = data.value
+        }
+        if (dataSet) {
+            dataSet = list ? groupByDate(dataSet.data) : dataSet.data
+        } else if (error){
             saveError = error
             saveStatus = '500'
         }
-        return { data: dataSet, timeData, isPending: pending, error: saveError, status: saveStatus }
-    };
+        let timesData = []
+        if(!limit) {
+            const response = await useAsyncData(`times-${dateFrom}-${dateTo}`, async () => {
+                const { data: timesData, error } = await supabase.from('times').select('*')
+                if (error) {
+                    saveError = error
+                    saveStatus = '500'
+                    return null; // Or throw an error to be caught by useAsyncData
+                }            
+                return { timesData }
+            })
+            const dataValue = response.data?.value?.timesData
+            if (dataValue && dataValue.length) timesData = dataValue
+        }
+        return { data: dataSet, timesData, isPending: pending, error: saveError, status: saveStatus }
+    }
 
     const submitAppointment = async (appointment) => {
         let saveError = null
