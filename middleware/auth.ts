@@ -3,18 +3,18 @@ import { useGuestUser } from "~/composables/useGuestUser"
 export default defineNuxtRouteMiddleware(async (to, from) => {
     console.log('to', to, 'from', from)
     const supabase = useSupabaseClient()
-    const user = useGuestUser()
+    const guestUser = useGuestUser()
 
     // Wait for the session to be retrieved from Supabase
     const { data: { session } } = await supabase.auth.getSession()
     // !user.value && 
     // If there is no session or no user, redirect to the login page
-    debugger
+    
     await new Promise((resolve) => {
         setTimeout(() => resolve('Success!'), 1000);
     })
     console.log('session:',session)
-    if (!session || !session.user) {
+    if (!guestUser.value && (!session || !session.user)) {
         return navigateTo('/login')
         // if(!['/login','/registration'].includes(from.path)) {
         //     return navigateTo('/login')
