@@ -1,6 +1,6 @@
 <template>
   <div class="grid grid-cols-12 grid-rows-1 gap-2 w-fit lg:w-full" :class="{'md:flex md:justify-center': guestUser}">
-    <div class="col-span-12 h-full lg:flex" :class="{ 'lg:col-span-12 lg:justify-center': guestUser, 'lg:col-span-3 lg:justify-end': !guestUser }">
+    <div v-if="user || guestUser" class="col-span-12 h-full lg:flex" :class="{ 'lg:col-span-12 lg:justify-center': guestUser, 'lg:col-span-3 lg:justify-end': !guestUser }">
       <UCard v-if="!isOpen" class="lg:fixed bg-linear-to-b from-sky-100 to-sky-300 h-fit">
         <ClientOnly>
           <USwitch
@@ -19,15 +19,15 @@
           </div>
         </ClientOnly>
         <!-- !Object.keys(grouppedEvents).length && !eventsParsed.length -->
-        <USkeleton v-if="loadingList" class="mx-auto mt-8 h-8 w-[5vw] bg-gray-600" as="div"/>
+        <USkeleton v-if="user && loadingList" class="mx-auto mt-8 h-8 w-[5vw] bg-gray-600" as="div"/>
       </UCard>
     </div>
     <FormModal v-model="isOpen" :selected-date="selectedDate" :existing-records="existingRecords" @saved="reload"/>
     <ClientOnly>
-      <UCard v-if="!guestUser && showCalendar" class="lg:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
+      <UCard v-if="user && showCalendar" class="lg:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
         <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendar-ready="isReady=true" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
       </UCard>
-      <UCard v-else-if="!guestUser" class="col-span-12 text-4xl w-full bg-linear-to-b from-sky-100 to-sky-400" :class="{'lg:hidden': showCalendar, 'lg:col-span-9': !showCalendar }">
+      <UCard v-else-if="user" class="col-span-12 text-4xl w-full bg-linear-to-b from-sky-100 to-sky-400" :class="{'lg:hidden': showCalendar, 'lg:col-span-9': !showCalendar }">
         <section>
           <!-- Object.keys(grouppedEvents).length ||  -->
           <div v-if="!loadingList && grouppedEvents && Object.keys(grouppedEvents).length">
@@ -43,7 +43,7 @@
         </section>        
       </UCard>
     </ClientOnly>
-    <UCard v-if="loadingList" class="w-[50vw] bg-linear-to-b from-sky-100 to-sky-400">
+    <UCard v-if="user && loadingList" class="w-[50vw] bg-linear-to-b from-sky-100 to-sky-400">
       <USkeleton v-for="i in 3" class="mx-auto my-4 h-8 w-5/6 bg-gray-600" as="div"/>
     </UCard>
   </div>
@@ -54,6 +54,7 @@ import { ref } from 'vue';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 
 const { toastBar } = useToastBar()
+const user = useSupabaseUser()
 const guestUser = useGuestUser()
 const isCalendar = ref(true)
 const pending = ref(false)
