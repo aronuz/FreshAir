@@ -32,21 +32,28 @@
   
       <div class="hidden md:block">
         <nav class="flex shrink justify-between p-3 md:text-lg lg:text-xl xl:text-2xl font-bold text-white rounded-sm">
-          <NuxtLink to="/" id="index" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">Home</NuxtLink>
+          <template v-for="(value, key) in siteLinks" :key="key">
+            <NuxtLink v-if="key !== 'admin' || userRole === 'admin'" :to="`/${key}`" :id="key" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">{{value}}</NuxtLink>
+          </template>        
+          
+          <!-- <NuxtLink to="/" id="index" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">Home</NuxtLink>
           <NuxtLink to="/gallery" id="gallery" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">Services</NuxtLink>
           <NuxtLink to="/booking" id="booking" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">Schedule Service</NuxtLink>
           <NuxtLink to="/contact" id="contact" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">Contact Us</NuxtLink>
-          <NuxtLink to="/about" id="about" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">About Us</NuxtLink>
+          <NuxtLink to="/about" id="about" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">About Us</NuxtLink> -->
         </nav>
       </div>
       <UCard v-if="isMobileMenuOpen" class="md:hidden absolute z-100 right-10" variant="outline" :ui="{root: 'bg-default text-default'}">
         <nav class="flex flex-col gap-4 text-4xl">
-          <NuxtLink to="/" @click="isMobileMenuOpen = false">Home</NuxtLink>
+          <template v-for="(value, key) in siteLinks" :key="key">
+            <NuxtLink v-if="key !== 'admin' || userRole === 'admin'" :to="`/${key}`" @click="isMobileMenuOpen = false">{{value}}</NuxtLink>
+          </template>  
+          <!-- <NuxtLink to="/" @click="isMobileMenuOpen = false">Home</NuxtLink>
           <NuxtLink to="/gallery" @click="isMobileMenuOpen = false">Services</NuxtLink>
           <NuxtLink to="/booking" @click="isMobileMenuOpen = false">Schedule Service</NuxtLink>
           <NuxtLink to="/contact" @click="isMobileMenuOpen = false">Contact Us</NuxtLink>
           <NuxtLink to="/about" @click="isMobileMenuOpen = false">About Us</NuxtLink>
-          <NuxtLink v-if="isAdmin" to="/admin" label="Admin" @click="isMobileMenuOpen = false" />
+          <NuxtLink v-if="isAdmin" to="/admin" label="Admin" @click="isMobileMenuOpen = false" /> -->
           <UButton v-if="user" class="text-4xl m-auto" color="info" variant="ghost" @click="handleLogout; isMobileMenuOpen = false" label="Log Out" />
           <UButtonGroup v-else class="m-auto">
             <UButton v-if="notOnLogin" class="text-4xl/15 pb-4" color="info" variant="outline" @click="handleLogin; isMobileMenuOpen = false" label="Log In" />
@@ -73,9 +80,10 @@
   //   isAdmin: Boolean
   // })
   
+  const userRole = useState('userRole')
+  const isAdmin = ref(userRole.value === 'admin')
 
-  const isAdmin = ref(false)
-
+  const siteLinks = {'': 'Home', 'gallery': 'Services', 'booking': 'Schedule Service', 'contact': 'Contact Us', 'about': 'About Us', 'admin': 'Site Settings'}
   // watch (user, (user: User | null) => {
   //   if (user) {
   //     //isAdmin.value = user.role = "admin"
