@@ -38,8 +38,7 @@
 <script lang="ts" setup>
   import type { FormErrorEvent } from '@nuxt/ui'
   import { z } from 'zod'
-  import { useGuestUser } from '~/composables/useGuestUser'
-
+  
   const router = useRouter()
 
   const origin = useState('origin')
@@ -123,12 +122,14 @@
       const { error } = await supabase.auth.signUp({
         email: regState.email as string,
         password: regState.password1 as string,
+        options: {
+          emailRedirectTo: 'http://localhost:3000/booking'
+        }
       })
       if (error) throw error
       guestUser.value = null
       toastBar('success', 'Registration successful!', 'Please check your email to confirm your account.')
-      await navigateTo('/booking');
-    } catch (error) {
+     } catch (error) {
       toastBar('error', 'Registration failed.', JSON.stringify(error))
       console.error('Registration error:', error);
       Object.assign(regState, initState)

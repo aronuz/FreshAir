@@ -38,7 +38,6 @@
 <script lang="ts" setup>
     import type { FormErrorEvent } from '@nuxt/ui'
     import { z } from 'zod'
-    import { useGuestUser } from '~/composables/useGuestUser'
 
     const router = useRouter()
 

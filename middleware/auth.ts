@@ -1,4 +1,4 @@
-import { useGuestUser } from "~/composables/useGuestUser"
+const userRole = useState<string | null>('userRole', () => null)
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
     console.log('to', to, 'from', from)
@@ -22,6 +22,14 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
         //     console.log('an')
         //     return abortNavigation()
         // }
+    } else if (session?.user) {
+        console.log('before cr')
+        const userId = session.user.id
+        userRole.value = await useCheckRole(userId)
+        if (!userRole.value) {
+            console.log('before sr')
+            await useSetRole(userId)
+        }
     }
 
     // // const user = useGuestUser() ?? useSupabaseUser()
