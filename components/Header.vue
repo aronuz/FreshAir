@@ -115,6 +115,7 @@
     if (error) {
       toastBar('error', 'Logout failed.', JSON.stringify(error))
     } else {
+      userRole.value = null
       toastBar('success', `You have been logged out.`)
       await router.push('/');
     }

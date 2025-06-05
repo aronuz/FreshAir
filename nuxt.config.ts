@@ -40,6 +40,9 @@ export default defineNuxtConfig({
     },
     middleware: ['errorMiddleware']
   },
+  plugins: [
+    '~/plugins/userRole.js'
+  ],
   supabase: {
     redirect: false,
     // redirectOptions: {

@@ -53,7 +53,7 @@
     watch(() => document, (value) => {
         if (value && origin_value && !['login', 'registration'].includes(origin_value)) {
             fromPageLink = document.querySelector(`#${origin_value}`)
-            fromPageLink!.classList.add('router-link-active')
+            fromPageLink?.classList.add('router-link-active')
         }
     }, {immediate: true})
 

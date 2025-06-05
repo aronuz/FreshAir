@@ -22,14 +22,13 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
         //     console.log('an')
         //     return abortNavigation()
         // }
-    } else if (session?.user) {
+    } else if (!userRole.value && session?.user) {
         console.log('before cr')
         const userId = session.user.id
         userRole.value = await useCheckRole(userId)
-        if (!userRole.value) {
-            console.log('before sr')
-            await useSetRole(userId)
-        }
+        console.log('before sr')
+        await useSetRole(userId, userRole.value!)
+        return navigateTo(from.path)
     }
 
     // // const user = useGuestUser() ?? useSupabaseUser()

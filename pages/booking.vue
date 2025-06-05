@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col items-center">
     <h2 class="text-3xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-8">Book your HVAC Service</h2>
-    <AppointmentCalendar/>
+    <AppointmentCalendar v-if="roleSet"/>
   </div>
 </template>
 
@@ -9,10 +9,13 @@
 import AppointmentCalendar from '../components/AppointmentCalendar.vue'
 
 const origin = useState('origin')
-const supabase = useSupabaseClient()
+const userRole = useState('userRole')
 const guestUser = useGuestUser()
 
+const roleSet = ref(false)
+console.log('in booking')
 onMounted(async () => {
+  const supabase = useSupabaseClient()
   const { data: { session } } = await supabase.auth.getSession()
   if (!guestUser.value && (!session || !session.user)) {
     const { history } = useRouter().options
@@ -20,7 +23,14 @@ onMounted(async () => {
     const fromPage = stateBack === '/' ? 'index' : stateBack.slice(1)
     origin.value = `${fromPage}_booking`
     return navigateTo('/login')
+  } else if (!userRole.value && session?.user) {
+    console.log('before cr')
+    const userId = session.user.id
+    userRole.value = await useCheckRole(userId)
+    console.log('before sr')
+    await useSetRole(userId, (userRole.value as string))
   }
+  roleSet.value = true
 })
 
 // definePageMeta({
@@ -29,7 +39,7 @@ onMounted(async () => {
 
 definePageMeta({
   layout: "default",
-  middleware: ['auth']
+  // middleware: ['auth']
 })
 
 useHead({
