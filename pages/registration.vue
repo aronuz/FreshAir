@@ -6,7 +6,7 @@
         <div>or enter as guest to schedule a new appointment!</div>
       </div>
     </template>
-    <UForm :state=regState :schema="schema" @submit.prevent="handleRegister" @error="onError">
+    <UForm :state=regState :schema="schema" @submit.prevent="regState.password2 ? handleRegister : handleLogin" @error="onError">
       <div class="grid grid-cols-2">
         <UFormField required label="Email" name="email">
           <UInput placeholder="Email" v-model="regState.email"/>
@@ -19,10 +19,13 @@
             <UInput type="password" placeholder="password" v-model="regState.password2"/>
           </UFormField>
         </div>
+        <div v-show="hasErrors" class="col-span-2">          
+          <UFormField name="errors"/>
+        </div>
       </div>
       <div class="flex justify-center self-center m-4 gap-2">      
-        <UButton class="px-8" color="info" variant="solid" :label="loginLabel" :loading="pending" @click="handleLogin"/>
-        <UButton class="px-8" type="submit" color="info" variant="solid" :label="regLabel" :loading="pending" />
+        <UButton v-if="!regState.password2" class="px-8" type="submit" color="info" variant="solid" :label="loginLabel" :loading="pending"/>
+        <UButton v-if="regState.password2" class="px-8" type="submit" color="info" variant="solid" :label="regLabel" :loading="pending" />
         <UButton :to="fromPage" variant="outline" color="warning" label="Cancel" :disabled="pending"/>
       </div>
     </UForm>
@@ -78,6 +81,8 @@
   const regLabel = ref('Register')
   const regState = reactive({...initState})
 
+  const hasErrors = ref(false)
+
   const setGuestUser = () => {
     guestUser.value = {
       id: 0,
@@ -97,7 +102,10 @@
     .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, 'Password must contain at least one special character.')
     .refine(
       (password) => !/\s/.test(password),
-      'Password cannot contain spaces or other whitespace.'
+      { 
+        message: 'Password cannot contain spaces or other whitespace.',
+        path: ['errors']
+      }
     )
 
   const schema = z.object({
@@ -106,7 +114,7 @@
     password2: passwordSchema.optional(),
   }).refine((data) => data.password1 === data.password2, {
     message: "Passwords don't match.",
-    path: ['password2'],
+    path: ['errors'],
   });
 
   const handleRegister = async () => {
@@ -118,6 +126,7 @@
     }
     pending.value = true
     regLabel.value = "Waiting..."
+    hasErrors.value = false
     try {
       const { error } = await supabase.auth.signUp({
         email: regState.email as string,
@@ -143,6 +152,7 @@
   const handleLogin = async () => {
     pending.value = true    
     loginLabel.value = "Waiting..."
+    hasErrors.value = false
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email: regState.email as string,
@@ -165,6 +175,7 @@
 
   const onError = async (event: FormErrorEvent) => {
     if (event?.errors.length){
+      hasErrors.value = true
       for(const error of event.errors){
         setTimeout(() => showError(error.message), 1000)
       }

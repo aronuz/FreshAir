@@ -12,7 +12,7 @@
 
       <div class="justify-between align-center hidden md:flex">
           <NuxtLink v-if="isAdmin" to="/admin">Admin</NuxtLink>
-          <UButton v-if="user" class="h-fit" color="secondary" variant="ghost" @click="handleLogout" label="Log Out" />
+          <UButton v-if="user" class="h-fit" color="secondary" variant="solid" @click="handleLogout" label="Log Out" />
           <div v-else class="flex h-fit flex-row gap-2">
             <UBadge v-if="guestUser" color="success" size="xl">Guest</UBadge>
             <UButton v-if="notOnLogin" color="secondary" variant="solid" to="/login" label="Log In" />
@@ -54,7 +54,7 @@
           <NuxtLink to="/contact" @click="isMobileMenuOpen = false">Contact Us</NuxtLink>
           <NuxtLink to="/about" @click="isMobileMenuOpen = false">About Us</NuxtLink>
           <NuxtLink v-if="isAdmin" to="/admin" label="Admin" @click="isMobileMenuOpen = false" /> -->
-          <UButton v-if="user" class="text-4xl m-auto" color="info" variant="ghost" @click="handleLogout; isMobileMenuOpen = false" label="Log Out" />
+          <UButton v-if="user" class="text-4xl/15 m-auto" color="info" variant="outline" @click="handleLogout; isMobileMenuOpen = false" label="Log Out" />
           <UButtonGroup v-else class="m-auto">
             <UButton v-if="notOnLogin" class="text-4xl/15 pb-4" color="info" variant="outline" @click="handleLogin; isMobileMenuOpen = false" label="Log In" />
             <UButton v-if="notOnLogin" class="text-4xl/15 pb-4" color="info" variant="outline" @click="handleRegister; isMobileMenuOpen = false" label="Register" />
