@@ -6,12 +6,18 @@
         <div>or enter as guest to schedule a new appointment!</div>
       </div>
     </template>
-    <UForm :state=regState :schema="schema" @submit.prevent="regState.password2 ? handleRegister : handleLogin" @error="onError">
-      <div class="grid grid-cols-2">
-        <UFormField required label="Email" name="email">
-          <UInput placeholder="Email" v-model="regState.email"/>
-        </UFormField>
-        <div class="grid grid-rows-2">
+    <UForm class="w-fit" :state=regState :schema="schema" @submit.prevent="regState.password2 ? handleRegister : handleLogin" @error="onError">
+      <div class="grid grid-cols-2 w-fit">
+        <div class="grid grid-rows-2 max-w-[30vw]">
+          <UFormField required label="Email" name="email">
+            <UInput placeholder="Email" v-model="regState.email"/>
+          </UFormField>
+          <div class="w-full h-full content-end">
+            <span class="inline-block">Logging in for the first time?</span>
+            <span class="inline-block">Please confirm your password:</span>
+          </div>
+        </div>
+        <div class="grid grid-rows-2 max-w-[30vw]">
           <UFormField required label="Password" name="password1">
             <UInput type="password" placeholder="password" v-model="regState.password1"/>
           </UFormField>
@@ -23,14 +29,14 @@
           <UFormField name="errors"/>
         </div>
       </div>
-      <div class="flex justify-center self-center m-4 gap-2">      
+      <div class="flex justify-center self-center m-4 gap-2 w-fit">      
         <UButton v-if="!regState.password2" class="px-8" type="submit" color="info" variant="solid" :label="loginLabel" :loading="pending"/>
         <UButton v-if="regState.password2" class="px-8" type="submit" color="info" variant="solid" :label="regLabel" :loading="pending" />
         <UButton :to="fromPage" variant="outline" color="warning" label="Cancel" :disabled="pending"/>
       </div>
     </UForm>
     <template #footer>
-      <div class="grid grid-rows-2 gap-2">
+      <div class="grid grid-rows-2 gap-2 w-fit">
         <div>Click <UButton to="/login">here</UButton> to sign in or register using a confirmation link.</div>
         <div>Click <UButton variant="ghost" @click="setGuestUser">here</UButton> to continue as guest to add a new appointment.</div>
       </div>
