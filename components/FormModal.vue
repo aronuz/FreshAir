@@ -127,7 +127,7 @@
 
   const schema = z.object({
     title: z.string(),
-    email: z.string().email("Invalide email address").optional(),
+    email: z.string().email("Invalid email address").optional(),
     phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid Phone number'),
     address: z.string().min(1, "Address is required").max(255, "Address is too long"),
     zip: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid zip code'),

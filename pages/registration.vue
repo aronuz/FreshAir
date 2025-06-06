@@ -131,7 +131,7 @@
     )
 
   const schema = z.object({
-    email: z.string().email("Invalide email address"),
+    email: z.string().email("Invalid email address"),
     password1: passwordSchema,
     password2: passwordSchema.optional(),
   }).refine((data) => data.password2 && data.password1 === data.password2, {

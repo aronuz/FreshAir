@@ -70,7 +70,7 @@
     }
 
     const schema = z.object({
-        email: z.string().email("Invalide email address"),
+        email: z.string().email("Invalid email address"),
     })
 
     const { toastBar } = useToastBar()
