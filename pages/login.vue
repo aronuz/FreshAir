@@ -1,12 +1,16 @@
 <template>
     <UCard v-if="success" class="w-fit mx-auto">
         <template #header>
-            <div class="text-lg">Confirmation link has been sent to:</div>
+            <div class="text-lg">Confirmation link has been sent to {{ loginState.email }}</div>
         </template>
-        <div class="text-center">{{ loginState.email }}</div>
+        <div class="text-center">
+            <label for="code">Use the link in the email or use the one time code:</label>
+            <input id="code" v-model="otpCode" placeholder="One Time Code" type="text" />
+        </div>
         <template #footer>
-            Please check your email.
-            <UButton :to="fromPage" variant="solid" color="success" label="OK" />
+            <div>Please check your email.</div>
+            <UButton v-if="!otpCode" :to="fromPage" variant="solid" color="success" label="OK" />
+            <UButton v-else variant="solid" color="success" label="Verify" @click="verifyOtpCode"/>
         </template>
     </UCard>
     <UCard v-else class="w-fit mx-auto max-w-lg"> 
@@ -76,6 +80,7 @@
     const loginState = reactive({...initState})
     const pending = ref(false)
     const guestUser = useGuestUser()
+    const otpCode = ref(null)
 
     watch(() => pending.value, (value) => sendLabel.value = value ? 'Sending link...' : 'Send Link')
 
@@ -125,6 +130,21 @@
         const idList = document.querySelectorAll('.router-link-active')
         if(idList.length) idList[0].classList.remove('router-link-active')
         router.push({ path: "/booking" })
+    }
+
+    const verifyOtpCode = async () => { 
+        const { error } = await supabase.auth.verifyOtp({
+            email: loginState.email as string,
+            token: otpCode.value ?? '',
+            type: 'email',
+        });
+
+        if (error) {
+            toastBar('error', 'Authientication Error', error.message)
+        } else {
+            toastBar('success', 'Welcome to Fresh Air!')
+            navigateTo('/booking');
+        }
     }
 
     definePageMeta({

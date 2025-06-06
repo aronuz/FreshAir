@@ -1,5 +1,19 @@
 <template>
-  <UCard class="w-fit mx-auto">
+  <UCard v-if="success" class="w-fit mx-auto">
+        <template #header>
+          <div class="text-lg">Confirmation link has been sent to {{ regState.email }}</div>
+        </template>
+        <div class="text-center">
+          <label for="code">Use the link in the email or use the one time code:</label>
+          <input id="code" v-model="otpCode" placeholder="One Time Code" type="text" />
+        </div>
+        <template #footer>
+          Please check your email.
+          <UButton v-if="!otpCode" :to="fromPage" variant="solid" color="success" label="OK" />
+          <UButton v-else variant="solid" color="success" label="Verify" @click="verifyOtpCode"/>
+        </template>
+  </UCard>
+  <UCard v-else class="w-fit mx-auto">
     <template #header>
       <div class="grid grid-rows-2 text-lg">
         <div>Welcome! Please sign in with an email and password,</div>
@@ -80,12 +94,14 @@
 
   const { toastBar } = useToastBar()
   const supabase = useSupabaseClient();
+  const success = ref(false)
   const guestUser = useGuestUser()
   const pending = ref(false);
   const regform = ref()
   const loginLabel = ref('Login')
   const regLabel = ref('Register')
   const regState = reactive({...initState})
+  const otpCode = ref(null)
 
   const hasErrors = ref(false)
 
@@ -118,7 +134,7 @@
     email: z.string().email("Invalide email address"),
     password1: passwordSchema,
     password2: passwordSchema.optional(),
-  }).refine((data) => data.password1 === data.password2, {
+  }).refine((data) => data.password2 && data.password1 === data.password2, {
     message: "Passwords don't match.",
     path: ['errors'],
   });
@@ -149,6 +165,7 @@
       console.error('Registration error:', error);
       Object.assign(regState, initState)
       regform.value.clear()
+      success.value = true
     } finally {      
       regLabel.value = "Register"
       pending.value = false;
@@ -192,7 +209,23 @@
       }
     }
   }
-      
+
+
+  const verifyOtpCode = async () => { 
+    const { error } = await supabase.auth.verifyOtp({
+        email: regState.email as string,
+        token: otpCode.value ?? '',
+        type: 'email',
+    });
+
+    if (error) {
+        toastBar('error', 'Authientication Error', error.message)
+    } else {
+        toastBar('success', 'Welcome to Fresh Air!')
+        navigateTo('/booking');
+    }
+  }
+
   definePageMeta({
       layout: "default",
       middleware: ['origin']
