@@ -1,18 +1,5 @@
 <template>
-    <UCard v-if="success" class="w-fit mx-auto">
-        <template #header>
-            <div class="text-lg">Confirmation link has been sent to {{ loginState.email }}</div>
-        </template>
-        <div class="text-center">
-            <label for="code">Use the link in the email or use the one time code:</label>
-            <input id="code" v-model="otpCode" placeholder="One Time Code" type="text" />
-        </div>
-        <template #footer>
-            <div>Please check your email.</div>
-            <UButton v-if="!otpCode" :to="fromPage" variant="solid" color="success" label="OK" />
-            <UButton v-else variant="solid" color="success" label="Verify" @click="verifyOtpCode"/>
-        </template>
-    </UCard>
+    <ConfirmationCard v-if="success" :type="type" :email="loginState.email" :from-page="fromPage"/>
     <UCard v-else class="w-fit mx-auto max-w-lg"> 
         <template #header>
             <div class="grid grid-rows-2 text-lg/6">
@@ -44,6 +31,8 @@
     import { z } from 'zod'
 
     const router = useRouter()
+
+    const type = 'Login'
 
     const origin = useState('origin')
     const fromPage = ref<string>('/') //useRouter().options.history.state.back
@@ -132,20 +121,20 @@
         router.push({ path: "/booking" })
     }
 
-    const verifyOtpCode = async () => { 
-        const { error } = await supabase.auth.verifyOtp({
-            email: loginState.email as string,
-            token: otpCode.value ?? '',
-            type: 'email',
-        });
+    // const verifyOtpCode = async () => { 
+    //     const { error } = await supabase.auth.verifyOtp({
+    //         email: loginState.email as string,
+    //         token: otpCode.value ?? '',
+    //         type: 'email',
+    //     });
 
-        if (error) {
-            toastBar('error', 'Authientication Error', error.message)
-        } else {
-            toastBar('success', 'Welcome to Fresh Air!')
-            navigateTo('/booking');
-        }
-    }
+    //     if (error) {
+    //         toastBar('error', 'Authientication Error', error.message)
+    //     } else {
+    //         toastBar('success', 'Welcome to Fresh Air!')
+    //         navigateTo('/booking');
+    //     }
+    // }
 
     definePageMeta({
         layout: "default",

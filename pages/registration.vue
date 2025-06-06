@@ -1,18 +1,5 @@
 <template>
-  <UCard v-if="success" class="w-fit mx-auto">
-        <template #header>
-          <div class="text-lg">Confirmation link has been sent to {{ regState.email }}</div>
-        </template>
-        <div class="text-center">
-          <label for="code">Use the link in the email or use the one time code:</label>
-          <input id="code" v-model="otpCode" placeholder="One Time Code" type="text" />
-        </div>
-        <template #footer>
-          Please check your email.
-          <UButton v-if="!otpCode" :to="fromPage" variant="solid" color="success" label="OK" />
-          <UButton v-else variant="solid" color="success" label="Verify" @click="verifyOtpCode"/>
-        </template>
-  </UCard>
+  <ConfirmationCard v-if="success" :type="type" :email="regState.email" :from-page="fromPage"/>
   <UCard v-else class="w-fit mx-auto">
     <template #header>
       <div class="grid grid-rows-2 text-lg">
@@ -20,7 +7,7 @@
         <div>or enter as guest to schedule a new appointment!</div>
       </div>
     </template>
-    <UForm class="w-fit" :state=regState :schema="schema" @submit.prevent="regState.password2 ? handleRegister : handleLogin" @error="onError">
+    <UForm class="w-fit" :state=regState :schema="schema" @submit.prevent="handleAuthentication" @error="onError">
       <div class="grid grid-cols-2 w-fit">
         <div class="grid grid-rows-2 max-w-[30vw]">
           <UFormField required label="Email" name="email">
@@ -44,8 +31,7 @@
         </div>
       </div>
       <div class="flex justify-center self-center m-4 gap-2 w-fit">      
-        <UButton v-if="!regState.password2" class="px-8" type="submit" color="info" variant="solid" :label="loginLabel" :loading="pending"/>
-        <UButton v-if="regState.password2" class="px-8" type="submit" color="info" variant="solid" :label="regLabel" :loading="pending" />
+        <UButton class="px-8" type="submit" color="info" variant="solid" :label="submitLabel" :loading="pending"/>
         <UButton :to="fromPage" variant="outline" color="warning" label="Cancel" :disabled="pending"/>
       </div>
     </UForm>
@@ -63,6 +49,8 @@
   import { z } from 'zod'
   
   const router = useRouter()
+
+  const type = 'Confirmation'
 
   const origin = useState('origin')
   const fromPage = ref<string>('/')
@@ -98,10 +86,10 @@
   const guestUser = useGuestUser()
   const pending = ref(false);
   const regform = ref()
+  const submitLabel = ref('Login')
   const loginLabel = ref('Login')
   const regLabel = ref('Register')
   const regState = reactive({...initState})
-  const otpCode = ref(null)
 
   const hasErrors = ref(false)
 
@@ -134,18 +122,27 @@
     email: z.string().email("Invalid email address"),
     password1: passwordSchema,
     password2: passwordSchema.optional(),
-  }).refine((data) => data.password2 && data.password1 === data.password2, {
+  }).refine((data) => regState.password2 && data.password1 === data.password2, {
     message: "Passwords don't match.",
     path: ['errors'],
   });
 
+  watch(() => regState.password2, (value) => {
+    submitLabel.value = value ? regLabel.value : loginLabel.value
+  })
+
+  const handleAuthentication = () => {
+    if (regState.password2) handleRegister()
+    else handleLogin()
+  }
+  
   const handleRegister = async () => {
-    if(!regState.password2) {
-      const element: HTMLElement | null = document.querySelector("[name='password2']")
-      element?.focus()
-      toastBar('error', 'Registration failed.', 'Please confirm your password!')
-      return
-    }
+    // if(!regState.password2) {
+    //   const element: HTMLElement | null = document.querySelector("[name='password2']")
+    //   element?.focus()
+    //   toastBar('error', 'Registration failed.', 'Please confirm your password!')
+    //   return
+    // }
     pending.value = true
     regLabel.value = "Waiting..."
     hasErrors.value = false
@@ -159,13 +156,13 @@
       })
       if (error) throw error
       guestUser.value = null
+      success.value = true
       toastBar('success', 'Registration successful!', 'Please check your email to confirm your account.')
      } catch (error) {
       toastBar('error', 'Registration failed.', JSON.stringify(error))
       console.error('Registration error:', error);
       Object.assign(regState, initState)
       regform.value.clear()
-      success.value = true
     } finally {      
       regLabel.value = "Register"
       pending.value = false;
@@ -211,20 +208,20 @@
   }
 
 
-  const verifyOtpCode = async () => { 
-    const { error } = await supabase.auth.verifyOtp({
-        email: regState.email as string,
-        token: otpCode.value ?? '',
-        type: 'email',
-    });
+  // const verifyOtpCode = async (optCode: string) => { 
+  //   const { error } = await supabase.auth.verifyOtp({
+  //       email: regState.email as string,
+  //       token: optCode ?? '',
+  //       type: 'email',
+  //   });
 
-    if (error) {
-        toastBar('error', 'Authientication Error', error.message)
-    } else {
-        toastBar('success', 'Welcome to Fresh Air!')
-        navigateTo('/booking');
-    }
-  }
+  //   if (error) {
+  //       toastBar('error', 'Authientication Error', error.message)
+  //   } else {
+  //       toastBar('success', 'Welcome to Fresh Air!')
+  //       navigateTo('/booking');
+  //   }
+  // }
 
   definePageMeta({
       layout: "default",
