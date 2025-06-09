@@ -8,29 +8,27 @@
       </div>
     </template>
     <UForm class="w-fit" :state=regState :schema="schema" @submit.prevent="handleAuthentication" @error="onError">
-      <div class="grid grid-cols-2 w-fit">
-        <div class="grid grid-rows-2 max-w-[30vw]">
+      <!-- <div class="flex"> -->
+        <div class="grid grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))] gap-2">
           <UFormField required label="Email" name="email">
             <UInput placeholder="Email" v-model="regState.email"/>
           </UFormField>
-          <div class="w-full h-full content-end">
-            <span class="inline-block">Logging in for the first time?</span>
-            <span class="inline-block">Please confirm your password:</span>
-          </div>
-        </div>
-        <div class="grid grid-rows-2 max-w-[30vw]">
           <UFormField required label="Password" name="password1">
             <UInput type="password" placeholder="password" v-model="regState.password1"/>
           </UFormField>
+          <div class="flex flex-wrap">
+            <span class="inline-block">Logging in for the first time?</span>
+            <span class="inline-block">Please confirm your password:</span>
+          </div>
           <UFormField label="Confirm Password" name="password2">
             <UInput type="password" placeholder="password" v-model="regState.password2"/>
           </UFormField>
         </div>
+      <!-- </div> -->
+      <div class="flex flex-wrap justify-center self-center m-4 gap-2 w-full">
         <div v-show="hasErrors" class="col-span-2">          
           <UFormField name="errors"/>
-        </div>
-      </div>
-      <div class="flex justify-center self-center m-4 gap-2 w-fit">      
+        </div>      
         <UButton class="px-8" type="submit" color="info" variant="solid" :label="submitLabel" :loading="pending"/>
         <UButton :to="fromPage" variant="outline" color="warning" label="Cancel" :disabled="pending"/>
       </div>
