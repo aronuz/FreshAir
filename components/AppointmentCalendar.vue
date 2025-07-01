@@ -56,6 +56,7 @@ import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 const { toastBar } = useToastBar()
 const user = useSupabaseUser()
 const guestUser = useGuestUser()
+const onError = useNuxtApp().$onError
 const isCalendar = ref(true)
 const pending = ref(false)
 const isOpen = ref(false)
@@ -99,10 +100,10 @@ watch(() => selectedAppointment.value, (value) => {
   addLabel.value = value ? 'Make a change' : 'Book Now'
 }, {immediate: true})  
 
-const onError = (status, message = 'An unknown error has occured.') => {
-  toastBar('error', `Error ${status}`, message)
-  throw createError({ statusCode: status, message: message});
-}
+// const onError = (status, message = 'An unknown error has occured.') => {
+//   toastBar('error', `Error ${status}`, message)
+//   throw createError({ statusCode: status, message: message});
+// }
 
 const reload = async () => {
   if(guestUser.value) return

@@ -31,9 +31,11 @@
     </div>
   
       <div class="hidden md:block">
-        <nav class="flex shrink justify-between p-3 md:text-lg lg:text-xl xl:text-2xl font-bold text-white rounded-sm">
+        <!-- md:text-lg lg:text-xl xl:text-2xl -->
+        <nav class="flex shrink justify-between p-3 font-bold text-white rounded-sm">
           <template v-for="(value, key) in siteLinks" :key="key">
-            <NuxtLink v-if="key !== 'admin' || userRole === 'admin'" :to="`/${key}`" :id="key" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">{{value}}</NuxtLink>
+             <!-- v-if="key !== 'admin' || userRole === 'admin'" -->
+            <NuxtLink :to="`/${key}`" :id="key" class="w-fit h-10 bg-gray-400 px-5 py-[5px] lg:py-[2px] xl:py-0 rounded-lg text-[clamp(.82rem,1vw+.34rem,1.5rem)] text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">{{value}}</NuxtLink>
           </template>        
           
           <!-- <NuxtLink to="/" id="index" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">Home</NuxtLink>

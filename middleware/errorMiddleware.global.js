@@ -6,7 +6,8 @@ export default defineNuxtRouteMiddleware((to, from) => {
     "contact",
     "gallery",
     "login",
-    "registration"
+    "registration",
+    "admin"
   ]
 
   if (!availableRoutes.includes(to.name)) {

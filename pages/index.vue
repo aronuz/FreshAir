@@ -36,7 +36,7 @@
         <div class="text-center font-bold">
         <h2 class="text-3xl text-shadow-lg text-shadow-cyan-500 mb-4">Schedule an Appointment Today!</h2>
         <p class="text-lg mb-6">Get your HVAC system checked by a professional. Book your appointment today.</p>
-        <UButton to="/booking" label="Book Appointment" color="white" size="lg" />
+        <UButton to="/booking" label="Book Appointment" color="neutral" size="lg" />
         </div>
     </section>
 
@@ -57,7 +57,7 @@
     const { fetchAppointments } = useFetchQueries()
 
     const appointments = ref([]);
-    const showTable = ref([false])
+    const showTable = ref(false)
 
     const services = [{label: 'Air Conditioning', id: 1}, {label: 'Heat Systems', id: 2}, {label: 'Ventilation', id: 3}, {label: 'Ductwork', id: 4}, {label: 'Maintenance', id: 5}, {label: 'Emergency', id: 6}]
   

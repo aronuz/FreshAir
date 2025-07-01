@@ -6,7 +6,100 @@ export const useFetchQueries = () => {
     const selectedAppointment = useState('selectedAppointment')
     const updatedAppointment = useState('updatedAppointment') //ref(blankState.value)
 
-    const fetchAppointments = async (pending, limit = null, list = false, dateRange = null) => {
+    const fetchUsers = async (userId = null) => {
+        const { data, error } = await supabase.rpc('get_user_data_and_role', { user_uuid: userId })
+
+        return { data, error }
+    }
+
+    const saveUser = async (user) => {
+        let saveError = null
+        let saveStatus = null
+        try {
+            const { error } = await supabase.from('users').insert([user])
+            
+            if (error) {
+                saveError = error.message ?? 'Uknown error'
+                saveStatus = error.code ?? ''
+            } 
+        } catch (error) {
+            saveError = error;
+            saveStatus = "500"
+        }
+        return { userError: saveError, userStatus: saveStatus }
+    };
+
+    const deleteUsers = async (pending, users) => {
+        let deleteUsers = null
+        let deleteError = null
+        let deleteStatus = null
+        if (!users || !users.length) {
+            deleteError = "Unable to remove selected user(s)"
+            deleteStatus = "500"
+        } else {
+            pending.value = true
+            try {
+                const { data, error } = await supabase.from('users').delete().in('id', users)
+                if (error) {
+                    deleteError = error.message ?? 'Uknown error'
+                    deleteStatus = error.code ?? ''
+                }
+                deleteUsers = data
+            } catch (error) {
+                deleteError = `${deleteError}\n${error}`;
+                deleteStatus = "500"
+            } finally {    
+                pending.value = false
+            }
+        }
+        return { data: deleteUsers, error: deleteError, isPending: pending, status: deleteStatus }
+    };
+
+    const updateUser = async (user) => {
+        let saveStatus = null
+        let saveError = null
+        try {
+            const userData = { title: user.title, address: user.address, zip: user.zip, email: user.email, phone: user.phone }
+            
+            const { data, error } = await supabase.from('users').select('*').eq('id', user.userId).single()
+            if (error) {
+                saveError = error.message ?? 'Unkown error'
+                saveStatus = error.code ?? ''
+            } else {
+                const isChanged = Object.keys(user).some(key => user[key] !== data[key])
+                if (isChanged) {
+                    const { error } = await supabase.from('users').upsert(data).eq('userId', user.id)
+                    if (error) {
+                        saveError = error.message ?? 'Unkown error while updating user data'
+                        saveStatus = error.code ?? ''
+                    }
+                } 
+            }
+        } catch (error) {
+            saveError = error;
+            saveStatus = "500"
+        } finally {;
+            pending.value = false
+        }
+        return { error: saveError, status: saveStatus }
+    }
+
+    const updatePageAccess = async (page) => {
+        const { error } = await supabase
+            .from('page_access')
+            .update({ allowed: page.allowed })
+            .eq('to', page.to)
+        return { error }
+    }
+
+    const getPageAccess = async (page) => {
+        const { data, error } = await supabase
+            .from('page_access')
+            .select('*')
+        return { data, error }
+    }
+
+    const fetchAppointments = async (pending, limit = 0, id = null, list = false, dateRange = null) => {
         pending.value = true
         let saveError = null
         let saveStatus = null
@@ -26,15 +119,23 @@ export const useFetchQueries = () => {
         const dateTo = dateRange?.value?.to ? dateRange.value.to : new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0]
 
         let prefix = 'all'
-        const query = supabase.from('appointments').select('*').gte('start_date', dateFrom)
+        const query = supabase.from('appointments').select('*')
+        
+        if(id){
+            query.eq('user_id', id)
+            prefix = `id_${id}`
+        }
+
+        query.gte('start_date', dateFrom)
         .or(`end_date.lt.${dateTo},end_date.is.null`).order('start_date', { ascending: true }).order('start_time', { ascending: true })
+        
         if (limit) {
             query.limit(limit)
-            prefix = 'limit'
+            prefix = `${prefix}_'limit'`
         }
         
         let dataSet = []
-        for(let i = 0; i < 2; i++){    
+        // for(let i = 0; i < 2; i++){    
             const { data } = await useAsyncData(`${prefix}-${dateFrom}-${dateTo}`, async () => {
                 const { data, error } = await query
                 if (error) {
@@ -45,7 +146,7 @@ export const useFetchQueries = () => {
                 return { data };
             })
             if(data && data.value) dataSet = data.value
-        }
+        // }
         if (dataSet) {
             dataSet = list ? groupByDate(dataSet.data) : dataSet.data
         } else if (error){
@@ -82,6 +183,7 @@ export const useFetchQueries = () => {
             try {
                 pending.value = true
                 const { data, error } = await supabase.from('appointments').insert([appointment]).select('id, start_date, start_time').single()
+               
                 // await $fetch('/api/appointments', {
                 // method: 'POST',
                 // body: appointment.value,
@@ -146,7 +248,7 @@ export const useFetchQueries = () => {
                     } catch (error) {
                         saveError = error;
                         saveStatus = "500"
-                    } finally {;
+                    } finally {
                         pending.value = false
                     }
                 }
@@ -184,6 +286,12 @@ export const useFetchQueries = () => {
     };
 
     return {
+        fetchUsers,
+        saveUser,
+        updateUser,
+        deleteUsers,
+        getPageAccess,
+        updatePageAccess,
         fetchAppointments,
         submitAppointment,
         updateAppointment,

@@ -5,7 +5,6 @@ export const useSetRole = async (userId, role = 'user') => {
   const addRoleRecord = useNuxtApp().$addRoleRecord
 
   const error = await addRoleRecord(userId, role)
-
   if (error) {
     toastBar('error', 'Failed to assign user role', error.toString())
     return null
@@ -22,8 +21,8 @@ export const useCheckRole = async (id) => {
     .from('user_roles')
     .select('role')
     .eq('user_id', id)
-
-  if(!error && !data.length) return 'user'
+    
+  if(!error && !data.length) return null
   else if (error) {
     toastBar('error', 'Failed to fetch user role', error.toString())
     return null

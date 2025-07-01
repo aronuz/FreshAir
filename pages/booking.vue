@@ -24,11 +24,12 @@ onMounted(async () => {
     origin.value = `${fromPage}_booking`
     return navigateTo('/login')
   } else if (!userRole.value && session?.user) {
+    console.log("User session:", session)
     console.log('before cr')
     const userId = session.user.id
     userRole.value = await useCheckRole(userId)
     console.log('before sr')
-    await useSetRole(userId, (userRole.value as string))
+    if(!userRole.value) await useSetRole(userId)
   }
   roleSet.value = true
 })
