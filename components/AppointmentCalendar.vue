@@ -113,14 +113,16 @@ const reload = async () => {
     onError(status, error)
     return
   }
-  appointments.value = data
+
+  const mergedData = data.map((item) => {
+    const { users, ...rest } = item
+    return { ...rest, ...users, id: rest.id, created_at: rest.created_at }
+  })
+
+  appointments.value = mergedData
+
   existingRecords.value = timesData
-  events.splice(0)
-  for (const key in data) {
-    if (Object.hasOwnProperty.call(data, key)) {
-      events.push(data[key]);
-    }
-  }
+  events.splice(0, events.length, ...mergedData);
   // eventsParsed.value.splice(0)
   // if(appointments.value) {
   //   setFullCalendar(appointments.value)

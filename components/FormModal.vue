@@ -11,7 +11,7 @@
     :ui="{content: 'lg:left-[35%]'}"
   >
     <template #body>
-        <UForm class="grid bg-linear-to-b from-white to-blue-300 -m-4 sm:-m-6 p-4 pt-6" style="grid-template-rows: repeat(6, minmax(0, .99fr));" :state=formdata :schema="schema" ref="appform" @submit.prevent="submitForm" @error="onError">
+        <UForm class="grid bg-gradient-to-b from-white to-blue-300 -m-4 sm:-m-6 p-4 pt-6" style="grid-template-rows: repeat(6, minmax(0, .99fr));" :state="formdata" :schema="schema" ref="appform" @submit.prevent="submitForm" @error="onError">
           <div class="grid grid-cols-2">
             <UFormField required label="Name" name="title">
               <UInput placeholder="Name" v-model="formdata.title"/>
@@ -25,7 +25,7 @@
               <UInput placeholder="Phone" v-model="formdata.phone"/>
             </UFormField>
             <UFormField required label="Address" name="address">
-              <UInput type="address" v-model="formdata.address" placeholder="Address" />
+              <UInput type="text" v-model="formdata.address" placeholder="Address" />
             </UFormField>
             <UFormField required label="Zip" name="zip">
               <UInput v-model="formdata.zip" placeholder="Zip Code" />
@@ -68,7 +68,7 @@
           </template>
           <div class="grid grid-rows-2 grid-cols-3 content-around"> 
             <div class="col-span-3 flex justify-center self-center">      
-              <UButton class="px-8" type="submit" color="primary" variant="solid" :label="saveLabel" :loading="pending" @onClick="" />
+              <UButton class="px-8" type="submit" color="primary" variant="solid" :label="saveLabel" :loading="pending" />
             </div>
             <div v-show="hasErrors" class="col-span-3">          
               <UFormField name="errors"/>
@@ -84,7 +84,7 @@
   import { z } from 'zod'
   import dayjs from 'dayjs'
   
-  import { useFetchQueries} from '~/composables/useFetchQueries'
+  import { useFetchQueries } from '~/composables/useFetchQueries'
 
   interface userType {
     id?: number,
@@ -95,19 +95,21 @@
   }
 
   interface stateType extends userType {
-    start_date: Date | string | undefined,
-    start_time: string | undefined,
-    end_date: Date | string | undefined,
-    end_time: string | undefined,
-    service: number | undefined,
-    notes: string | undefined,
-    zip: string | undefined,
+    start_date?: Date | string | undefined,
+    start_time?: string | undefined,
+    end_date?: Date | string | undefined,
+    end_time?: string | undefined,
+    service?: number | undefined,
+    notes?: string | undefined,
+    zip?: string | undefined,
   }
 
   interface roleType extends userType {
     role?: string | undefined
   }
   
+  interface formDataType extends stateType, roleType{}
+
   const { toastBar } = useToastBar()
   
   const props = defineProps({
@@ -118,28 +120,35 @@
   })
   const emit = defineEmits(['update:modelValue', 'saved'])
 
-  const initState: stateType | roleType = {
-    title: undefined,
-    email: undefined,
-    phone: undefined,
-    address: undefined,
-    zip: undefined,
+  const createInitState = (): formDataType => {
+    const baseState: userType = {
+      title: undefined,
+      email: undefined,
+      phone: undefined,
+      address: undefined,
+    }
+    
+    if (props.selectedUser) {
+      return {
+        ...baseState,
+        role: undefined
+      }
+    } else {
+      return {
+        ...baseState,
+        start_date: undefined,
+        start_time: undefined,
+        end_date: undefined,
+        end_time: undefined,
+        service: undefined,
+        notes: undefined,
+        zip: undefined,
+      }
+    }
   }
-  if (props.selectedUser) {
-    Object.assign(initState, {
-      role: undefined
-    })
-  } else {
-    Object.assign(initState, {
-      start_date: undefined,
-      start_time: undefined,
-      end_date: undefined,
-      end_time: undefined,
-      service: undefined,
-      notes: undefined
-    })
-  }
-  const blankState: Ref<stateType | roleType> = useState('selectedAppointment', () => initState)
+
+  const initState = createInitState()
+  const blankState: Ref<stateType> = useState('selectedAppointment', () => initState)
   const selectedAppointment = useState('selectedAppointment')
 
   const roles = ref(['User', 'Admin'])
@@ -175,10 +184,10 @@
         const today = dayjs(new Date()).hour(0).minute(0).second(0)
         return datePicked.diff(today) > 0
       }, {
-        message: 'Pick a future date", //must be in the future.',
+        message: 'Pick a future date, must be in the future.',
       }),
-      start_time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)/, {
-        message: "Invalid format", // (expected HH:mm)",
+      start_time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+        message: "Invalid format (expected HH:mm)",
       }), 
       end_date: z.coerce.date().optional(),
       end_time: z.string().optional(),
@@ -188,14 +197,14 @@
     }, {
       message: "Please provide a valid phone number",
       path: ['errors'],
-    },
-    ).refine(
+    }).refine(
       (data) => {
         const hasCoverage = isCoveredZip(data.zip)
         return hasCoverage
       },
       {
         message: 'Unfortunately, we do not service this zip code at this time.',
+        path: ['errors'],
       }
     ).refine(
       (data) => {
@@ -291,25 +300,19 @@
     formattedEndDate.value = newDateString // Keep the formatted string in sync
   }
 
-  // const disabled = computed(() => {
-  //   const disabled = updatedAppointment.value && JSON.stringify(formdata) === JSON.stringify(updatedAppointment.value)
-  //   console.log('is eq:',JSON.stringify(formdata) === JSON.stringify(updatedAppointment.value))
-  //   return disabled
-  // })
-
   const submitForm = (event: FormSubmitEvent<typeof formdata>) => {
     props.selectedUser ? saveUser() : saveAppointment(event)
   }
   
   const saveUser = async (user: roleType | null = null) => {
-    const {role, ...sanitizedUser} = Object.fromEntries(
+    const {role, ...userWithoutRole} = Object.fromEntries(
       Object.entries(formdata).map(([key, value]) => [key, value === undefined ? null : value])
     )
-    const { error, status } = await updateUser(sanitizedUser)
+    const { error, status } = await updateUser(userWithoutRole)
     if(error){
       showError(status as string, `Unable to update user record.\n${JSON.stringify(error)}`)
     } else {
-      if(role !== useState('userRole').value) await useSetRole(sanitizedUser.userId, role as string)
+      if(role !== useState('userRole').value) await useSetRole(userWithoutRole.userId, role as string)
       toastBar('success', 'User updated')
       isOpen.value = false
       emit('saved')
@@ -333,7 +336,7 @@
       )
 
       const user = {title, address, phone, email}
-      saveUser(user)
+      await saveUser(user)
 
       sanitizedAppointment.start_date = sanitizedAppointment.start_date
       ? sanitizedAppointment.start_date.toISOString().split('T')[0]
@@ -342,8 +345,9 @@
       ? sanitizedAppointment.end_date.toISOString().split('T')[0]
       : null
       const { error, status, type } = await submitAppointment(sanitizedAppointment) 
-      if(error){const action = type === 'create' ? 'create a new': 'update'
-        showError(status as string, `Unable to ${action} appoinment record.\n${JSON.stringify(error)}`)
+      if(error){
+        const action = type === 'create' ? 'create a new': 'update'
+        showError(status as string, `Unable to ${action} appointment record.\n${JSON.stringify(error)}`)
       } else {
         toastBar('success', `Service ${type === 'update' ? 'updated':'scheduled'}`)
         isOpen.value = false
@@ -379,7 +383,6 @@
 
     watch(updatedAppointment as Ref<stateType>, (value) => {
       if (value){
-        // formdata = {...value, email: value.email ?? '', end_time: value.end_time ?? '', notes: value.notes ?? ''}
         Object.assign(formdata, {...value, email: value.email ?? undefined, end_time: value.end_time ?? undefined, notes: value.notes ?? undefined})
         appointmentData.start_date = new Date(value.start_date as string)
         formattedStartDate.value = value.start_date as string
@@ -398,7 +401,8 @@
           const val = schema.parse(formdata)
           console.log('Parsed User Data:', val)
         }catch(error){
-          console.error('Validation Error:', error.errors)
+          const errorMessage = error instanceof z.ZodError ? error.errors : error
+          console.error('Validation Error:', errorMessage)
         }
       } else {
         saveLabel.value = 'Save'
@@ -407,7 +411,7 @@
 
     watch(isOpen, (value) => {
       if (!value && selectedAppointment.value) {
-        const selectedEl = document.querySelector('.selected-slot') //(`.fc-event[data-event-id="${selectedAppointment.value.id}"]`)
+        const selectedEl = document.querySelector('.selected-slot')
         if (selectedEl) selectedEl.classList.remove('selected-slot')
         selectedAppointment.value = null
         updatedAppointment.value = null 
@@ -422,7 +426,7 @@
   }
 
   const isTimeOverlap = (newStartDate: Date, newStartTime: string) => {
-    if(updatedAppointment) {
+    if(updatedAppointment.value) {
       const appt = {...updatedAppointment.value}
       const newDate = newStartDate.toISOString().split('T')[0]
       if(appt.start_date === newDate && appt.start_time === newStartTime) return true
@@ -432,6 +436,10 @@
     const newAppointmentDay = newStartDate.toDateString()
     const newStartDateISO = newStartDate.toISOString().split('T')[0]
     const newAppointmentTime = new Date(`${newStartDateISO}T${newStartTime}`).getTime()
+
+    if (!props.existingRecords || !Array.isArray(props.existingRecords)) {
+      return true
+    }
 
     for (const { start_date, start_time } of props.existingRecords) {
       const existingRecordDate = new Date(start_date) 
@@ -451,7 +459,6 @@
     return true // No overlap found
   }
 
-  //const onError = (status, message) => {throw createError({ statusCode: status, message: message || 'An unknown error has occured.'})}
   const showError = (error: string, status = 'Form Error') => {
     toastBar('error', status, error.trim())
   }
