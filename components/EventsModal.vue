@@ -11,11 +11,13 @@
     :ui="{content: 'lg:left-[35%]'}"
   >
     <ClientOnly>
-        <UCard v-if="grouppedEvents && Object.keys(grouppedEvents).length" class="col-span-12 text-4xl w-full bg-linear-to-b from-sky-100 to-sky-400" :class="{'lg:hidden': showCalendar, 'lg:col-span-9': !showCalendar }">
+        <UCard v-if="grouppedEvents && Object.keys(grouppedEvents).length" class="col-span-12 text-4xl w-full bg-linear-to-b from-sky-100 to-sky-400 lg:col-span-9">
             <div v-for="(group, key) in grouppedEvents" :key="key">
                 <div class="flex justify-end">{{ key }}</div>
                 <UCard v-for="event in group" :key="event.id" class="flex flex-col odd:bg-white even:bg-gray-400">
-                    {{ event.title }}
+                    <span v-if="event.service">{{ event.service }}</span>
+                    <span v-else>Service</span>
+                    @ {{ event.address }}
                 </UCard>
             </div>    
         </UCard>

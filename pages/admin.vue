@@ -1,8 +1,10 @@
 <template>
+
+  <FormModal v-model="isOpenUser" :selected-user="selectedUser" @saved="selectedUser=null; isOpenUser=false"/>
+  <EventsModal v-if="selectedUser && isOpenEvents" v-model="isOpenEvents" :groupped-events="appointments" :user="selectedUser.title"/>
+    
   <UCard>
     <template #header class="text-xl font-semibold">Admin Panel</template>
-    <FormModal v-model="isOpenUser" :selected-user="selectedUser" @saved="selectedUser=null; isOpenUser=false"/>
-    <EventsModal v-if="selectedUser && isOpenEvents" v-model="isOpenEvents" :groupped-events="appointments" :user="selectedUser.title"/>
     <UCard>
       <template #header class="text-xl font-semibold">User Management</template>
       <div v-if="!users.length">No Users</div>
