@@ -12,21 +12,21 @@ export const useFetchQueries = () => {
         return { data, error }
     }
 
-    const saveUser = async (user) => {
+    const createUser = async (user) => {
         let saveError = null
         let saveStatus = null
         try {
             const { error } = await supabase.from('users').insert([user])
             
             if (error) {
-                saveError = error.message ?? 'Uknown error'
+                saveError = error.message ?? 'Unkown error while creating user'
                 saveStatus = error.code ?? ''
             } 
         } catch (error) {
             saveError = error;
             saveStatus = "500"
         }
-        return { userError: saveError, userStatus: saveStatus }
+        return { error: saveError, status: saveStatus }
     };
 
     const deleteUsers = async (pending, users) => {
@@ -56,24 +56,41 @@ export const useFetchQueries = () => {
     };
 
     const updateUser = async (user) => {
+        let saveData = null
         let saveStatus = null
         let saveError = null
         try {
             const userData = { title: user.title, email: user.email, phone: user.phone }
             
-            const { data, error } = await supabase.from('users').select('*').eq('user_id', user.user_id).single()
+            let query = supabase.from('users').select('*')
+            if (user.id) {
+                query = query.eq('id', user.id)
+            } else if (user.user_id) {
+                query = query.eq('id', user.user_id)
+            }
+            const { data, error } = await query.single()
             if (error) {
                 saveError = error.message ?? 'Unkown error'
                 saveStatus = error.code ?? ''
             } else {
-                const isChanged = Object.keys(userData).some(key => userData[key] !== data[key])
-                if (isChanged) {
-                    const { error } = await supabase.from('users').upsert(data).eq('userId', user.id)
-                    if (error) {
-                        saveError = error.message ?? 'Unkown error while updating user data'
-                        saveStatus = error.code ?? ''
+                if (data) {
+                    const isChanged = Object.keys(userData).some(key => userData[key] !== data[key])
+                    if (isChanged) {
+                        const { error } = await supabase.from('users').upsert(data).eq('userId', data.user_id)
+                        if (error) {
+                            saveError = error.message ?? 'Unkown error while updating user data'
+                            saveStatus = error.code ?? ''
+                        } else {
+                            saveData = {id: data.id, user_id: data.user_id} 
+                        } 
                     }
-                } 
+                } else {
+                    const { error, status } = createUser(userData)
+                    if (error) {
+                        saveError = error
+                        saveStatus = status
+                    }
+                }
             }
         } catch (error) {
             saveError = error;
@@ -81,7 +98,7 @@ export const useFetchQueries = () => {
         } finally {;
             pending.value = false
         }
-        return { error: saveError, status: saveStatus }
+        return { data: saveData, error: saveError, status: saveStatus }
     }
 
     const updatePageAccess = async (page) => {
@@ -311,7 +328,7 @@ export const useFetchQueries = () => {
 
     return {
         fetchUsers,
-        saveUser,
+        createUser,
         updateUser,
         deleteUsers,
         getPageAccess,

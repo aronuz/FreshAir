@@ -305,14 +305,17 @@
   }
   
   const saveUser = async (user: roleType | null = null) => {
-    const {role, ...userWithoutRole} = Object.fromEntries(
-      Object.entries(formdata).map(([key, value]) => [key, value === undefined ? null : value])
-    )
-    const { error, status } = await updateUser(userWithoutRole)
+    const userData = user || Object.fromEntries(
+        Object.entries(formdata).map(([key, value]) => [key, value === undefined ? null : value])
+    );
+
+    const {role, ...userWithoutRole} = userData
+
+    const { data, error, status } = await updateUser(userWithoutRole)
     if(error){
       showError(status as string, `Unable to update user record.\n${JSON.stringify(error)}`)
     } else {
-      if(role !== useState('userRole').value) await useSetRole(userWithoutRole.userId, role as string)
+      if(role !== useState('userRole').value) await useSetRole(data!.id, role as string)
       toastBar('success', 'User updated')
       isOpen.value = false
       emit('saved')
