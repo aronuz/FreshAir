@@ -2,19 +2,19 @@
   <UCard>
     <template #header class="text-xl font-semibold">Admin Panel</template>
     <FormModal v-model="isOpenUser" :selected-user="selectedUser" @saved="selectedUser=null; isOpenUser=false"/>
-    <EventsModal v-if="selectedUser" v-model="isOpenEvents" :groupped-events="appointments" :user="selectedUser.title"/>
+    <EventsModal v-if="selectedUser && isOpenEvents" v-model="isOpenEvents" :groupped-events="appointments" :user="selectedUser.title"/>
     <UCard>
       <template #header class="text-xl font-semibold">User Management</template>
       <div v-if="!users.length">No Users</div>
       <div v-else>
-        <div v-for="user in users" :key="user.id" class="flex justify-between p-3 bg-gray-100 rounded">
-          <UCheckbox @changed="updateSelectedUsers($event, user.id)" />
-          <span>{{ user.name }} - {{ user.email }} - {{ user.role }} - Profile created on: {{ user.date_created }}</span>
+        <div v-for="user in users" :key="user.user_id" class="flex justify-between p-3 bg-gray-100 rounded">
+          <UCheckbox @changed="updateSelectedUsers($event, user.user_id)" />
+          <span>{{ user.title }} - {{ user.phone }}</span><span v-if="user.email">/{{ user.email }}</span><span>&nbsp;- {{ user.role }} - Profile created on: {{ user.created_at }}</span>
           <UButton @click="loadUserEvents(user)" label="See Appointments" />
         
           <div class="space-x-2">
             <UButton class="bg-blue-500 text-white px-2 py-1 rounded" @click="handleUpdateUser(user)" label="Edit" />
-            <UButton class="bg-red-500 text-white px-2 py-1 rounded" @click="handleDeleteUsers(user.id)" label="Remove" />
+            <UButton class="bg-red-500 text-white px-2 py-1 rounded" @click="handleDeleteUsers(user.user_id)" label="Remove" />
           </div>
         </div>
       </div>
@@ -82,19 +82,22 @@ const handleLoadUsers = async () => {
   }
 }
 
-const handleDeleteUsers = async (ids) => {
+const handleDeleteUsers = async (pending, ids) => {
   try {
-    const users = !typeof ids === array ? [ids] : ids
-    const { error } = await deleteUsers(users)
+    const user_ids = !typeof ids === array ? [ids] : ids
+    const { error, isPending } = await deleteUsers(pending, user_ids)
+    pending.value = isPending.value
     if (error) {
       onError(500, error)
       return
+    } else {
+      users.value = users.value.filter(user => !(user.user_id in user_ids))
     }
-    users.value = users.value.filter(user => user.id !== id)
   } catch (error) {
     onError(500, error)
-  }
+  } 
 }
+
 onMounted(() => {
   handleLoadUsers()
   
@@ -121,7 +124,7 @@ const handleUpdateUser = async (user) => {
 }
 
 const loadUserEvents = async (user) => {
-  const {data, isPending, error, status} = await fetchAppointments(pending, null, user.id, list)
+  const {data, isPending, error, status} = await fetchAppointments(pending, null, user.user_id, true)
   pending.value = isPending.value
   if(error){
     onError(status, error)
@@ -129,6 +132,7 @@ const loadUserEvents = async (user) => {
   }
   selectedUser.value = user
   appointments.value = data
+  isOpenEvents.value = true
 }
 
 watch(isOpenUser, (val) => {

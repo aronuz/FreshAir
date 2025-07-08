@@ -29,22 +29,20 @@ export const useFetchQueries = () => {
         return { error: saveError, status: saveStatus }
     };
 
-    const deleteUsers = async (pending, users) => {
-        let deleteUsers = null
+    const deleteUsers = async (pending, user_ids) => {
         let deleteError = null
         let deleteStatus = null
-        if (!users || !users.length) {
+        if (!user_ids || !user_ids.length) {
             deleteError = "Unable to remove selected user(s)"
             deleteStatus = "500"
         } else {
             pending.value = true
             try {
-                const { data, error } = await supabase.from('users').delete().in('id', users)
+                const { error } = await supabase.from('users').delete().in('user_id', user_ids)
                 if (error) {
                     deleteError = error.message ?? 'Uknown error'
                     deleteStatus = error.code ?? ''
                 }
-                deleteUsers = data
             } catch (error) {
                 deleteError = `${deleteError}\n${error}`;
                 deleteStatus = "500"
@@ -52,7 +50,7 @@ export const useFetchQueries = () => {
                 pending.value = false
             }
         }
-        return { data: deleteUsers, error: deleteError, isPending: pending, status: deleteStatus }
+        return { error: deleteError, isPending: pending, status: deleteStatus }
     };
 
     const updateUser = async (user) => {
@@ -171,7 +169,7 @@ export const useFetchQueries = () => {
             saveStatus = '500'
         }
         let timesData = []
-        if(!limit) {
+        if(!limit && !id) {
             const response = await useAsyncData(`times-${dateFrom}-${dateTo}`, async () => {
                 const { data: timesData, error } = await supabase.from('times').select('*')
                 if (error) {
