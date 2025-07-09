@@ -1,43 +1,47 @@
 <template>
-
-  <FormModal v-model="isOpenUser" :selected-user="selectedUser" @saved="selectedUser=null; isOpenUser=false"/>
-  <EventsModal v-if="selectedUser && isOpenEvents" v-model="isOpenEvents" :groupped-events="appointments" :user="selectedUser.title"/>
-    
-  <UCard>
-    <template #header class="text-xl font-semibold">Admin Panel</template>
+  <ClientOnly>
+    <FormModal v-model="isOpenUser" :selected-user="selectedUser" @saved="selectedUser=null; isOpenUser=false"/>
+    <EventsModal v-if="selectedUser && isOpenEvents" v-model="isOpenEvents" :groupped-events="appointments" :user="selectedUser.title"/>
+      
     <UCard>
-      <template #header class="text-xl font-semibold">User Management</template>
-      <div v-if="!users.length">No Users</div>
-      <div v-else>
-        <div v-for="user in users" :key="user.user_id" class="flex justify-between p-3 bg-gray-100 rounded">
-          <UCheckbox @changed="updateSelectedUsers($event, user.user_id)" />
-          <span>{{ user.title }} - {{ user.phone }}</span><span v-if="user.email">/{{ user.email }}</span><span>&nbsp;- {{ user.role }} - Profile created on: {{ user.created_at }}</span>
-          <UButton @click="loadUserEvents(user)" label="See Appointments" />
-        
-          <div class="space-x-2">
-            <UButton class="bg-blue-500 text-white px-2 py-1 rounded" @click="handleUpdateUser(user)" label="Edit" />
-            <UButton class="bg-red-500 text-white px-2 py-1 rounded" @click="handleDeleteUsers(user.user_id)" label="Remove" />
+      <template #header class="text-xl font-semibold">Admin Panel</template>
+      <UCard>
+        <template #header class="text-xl font-semibold">User Management</template>
+        <div v-if="!users.length && !pending">No Users</div>
+        <template v-else-if="!users.length && pending">
+          <USkeleton v-for="i in 3" class="mx-auto mt-1 h-2 w-full bg-gray-600" as="div"/>
+        </template>
+        <div v-else>
+          <div v-for="user in users" :key="user.user_id" class="flex justify-between p-3 bg-gray-100 rounded">
+            <UCheckbox @changed="updateSelectedUsers($event, user.user_id)" />
+            <span>{{ user.title }} - {{ user.phone }}</span><span v-if="user.email">/{{ user.email }}</span><span>&nbsp;- {{ user.role }} - Profile created on: {{ user.created_at }}</span>
+            <UButton @click="loadUserEvents(user)" label="See Appointments" />
+          
+            <div class="space-x-2">
+              <UButton class="bg-blue-500 text-white px-2 py-1 rounded" @click="handleUpdateUser(user)" label="Edit" />
+              <UButton class="bg-red-500 text-white px-2 py-1 rounded" @click="handleDeleteUsers(user.user_id)" label="Remove" />
+            </div>
           </div>
         </div>
-      </div>
-      <template #footer>
-        <UButton icon="i-heroicons-plus-circle" color="primary" variant="solid" label="Add" @click="isOpenUser = true"/>
-        <UButton icon="i-heroicons-plus-circle" color="primary" variant="solid" label="Remove" @click="handleDeleteUsers(selectedUsers)"/>
-      </template>
+        <template #footer>
+          <UButton icon="i-heroicons-plus-circle" color="primary" variant="solid" label="Add" @click="isOpenUser = true"/>
+          <UButton icon="i-heroicons-plus-circle" color="primary" variant="solid" label="Remove" @click="handleDeleteUsers(selectedUsers)"/>
+        </template>
+      </UCard>
+      <UserModal v-model="isOpenPages" @saved="handlePageUpdate" />
+      <UCard>
+        <template #header class="text-xl font-semibold">Page Access</template>
+        <div v-for="page in pages" :key="page.to" class="flex justify-between p-3 bg-gray-100 rounded">
+          <span>{{ page.name }}</span>
+          <UCheckbox v-model="page.allowed" :label="page.allowed ? 'Shown' : 'Hidden'"/>
+          <UFormField v-if="page.allowed" label="Page path">
+            <USelect v-model="pathPicked[page.name]" :items="[page.to, '/construction']" value-key="id" class="w-full" label="Path" arrow @update:modelValue="updateService(page)"/>
+          </UFormField>
+          <UButton class="bg-blue-500 text-white px-2 py-1 rounded" @click="updatePageAccess(page)" label="Edit" />
+        </div>
+      </UCard>
     </UCard>
-    <UserModal v-model="isOpenPages" @saved="handlePageUpdate" />
-    <UCard>
-      <template #header class="text-xl font-semibold">Page Access</template>
-      <div v-for="page in pages" :key="page.to" class="flex justify-between p-3 bg-gray-100 rounded">
-        <span>{{ page.name }}</span>
-        <UCheckbox v-model="page.allowed" :label="page.allowed ? 'Shown' : 'Hidden'"/>
-        <UFormField v-if="page.allowed" label="Page path">
-          <USelect v-model="pathPicked[page.name]" :items="[page.to, '/construction']" value-key="id" class="w-full" label="Path" arrow @update:modelValue="updateService(page)"/>
-        </UFormField>
-        <UButton class="bg-blue-500 text-white px-2 py-1 rounded" @click="updatePageAccess(page)" label="Edit" />
-      </div>
-  </UCard>
-  </UCard>
+  </ClientOnly>
 </template>
 
 <script setup>
@@ -73,7 +77,8 @@ const updateSelectedUsers = async (event, id) => {
 
 const handleLoadUsers = async () => {
   try {
-    const { data, error } = await fetchUsers()
+    const { data, error, isPending } = await fetchUsers(pending)
+    pending.value = isPending.value
     if (error) {
       onError(500, error)
       return
@@ -100,8 +105,8 @@ const handleDeleteUsers = async (pending, ids) => {
   } 
 }
 
-onMounted(() => {
-  handleLoadUsers()
+onMounted(async () => {
+  await handleLoadUsers()
   
   getPageAccess().then(({data, error}) => {
     if(error) {

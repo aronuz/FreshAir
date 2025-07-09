@@ -6,10 +6,27 @@ export const useFetchQueries = () => {
     const selectedAppointment = useState('selectedAppointment')
     const updatedAppointment = useState('updatedAppointment') //ref(blankState.value)
 
-    const fetchUsers = async (userId = null) => {
-        const { data, error } = await supabase.rpc('get_user_data_and_role', { user_uuid: userId })
+    const fetchUsers = async (pending, userId = null) => {
+        let fetchData = null
+        let fetchError = null
+        let fetchStatus = null
+        pending.value = true
 
-        return { data, error }
+        try {
+            const { data, error } = await supabase.rpc('get_user_data_and_role', { user_uuid: userId })
+            if (error) {
+                fetchError = error.message ?? 'Unkown error while creating user'
+                fetchStatus = error.code ?? ''                
+            }
+            if (data) fetchData = data
+        } catch (error) {
+            fetchError = error;
+            fetchStatus = "500"
+        } finally {    
+            pending.value = false
+        }
+        
+        return { data: fetchData, error: fetchError, status: fetchStatus, isPending: pending }
     }
 
     const createUser = async (user) => {
