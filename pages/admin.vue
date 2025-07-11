@@ -16,23 +16,45 @@
                 <USkeleton v-for="i in 3" class="mx-auto mt-1 h-2 w-full bg-gray-600" as="div"/>
               </template>
               <div v-else>
-                <div v-for="user in users" :key="user.user_id" class="flex justify-between p-3 bg-gray-100 rounded">
-                  <UCheckbox @changed="updateSelectedUsers($event, user.user_id)" />
-                  <span>{{ user.title }} - {{ user.phone }}</span><span v-if="user.email">/{{ user.email }}</span><span>&nbsp;- {{ user.role }} - Profile created on: {{ user.created_at }}</span>
-                  <UButton @click="loadUserEvents(user)" label="See Appointments" />
-                
-                  <div class="space-x-2">
-                    <UButton class="bg-blue-500 text-white px-2 py-1 rounded" @click="handleUpdateUser(user)" label="Edit" />
-                    <UButton class="bg-red-500 text-white px-2 py-1 rounded" @click="handleDeleteUsers(user.user_id)" label="Remove" />
+                <UTable v-if="isMD" ref="userTable" :data="users" :columns="columns" :ui="{
+                  wrapper: 'overflow-x-auto',
+                  thead: 'hidden md:table-header-group',
+                  tbody: 'block md:table-row-group'
+                }">
+                  <template #appointments-cell="{ row }">
+                    <UButton @click="loadUserEvents(row.original as userType)" label="See Appointments" />
+                  </template>
+                  <template #actions-cell="{ row }">
+                    <UButton class="bg-blue-500 text-white px-2 py-1 rounded" @click="handleUpdateUser(row.original as userType)" label="Edit" />
+                    <UButton class="bg-red-500 text-white px-2 py-1 rounded" @click="handleDeleteUsers((row.original as userType).user_id)" label="Remove" />
+                  </template>
+                </UTable>
+                <template v-else>
+                  <div v-for="user in users" :key="user.user_id" class="flex justify-between p-3 bg-gray-100 rounded">
+                    <div class="grid grid-cols-5 grid-rows-1 gap-4">
+                      <UCheckbox @changed="updateSelectedUsers($event, user.user_id)" />
+                      <div >{{ user.title }} - {{ user.phone }}<span v-if="user.email">/{{ user.email }}</span></div>
+                      <div >Profile created on: {{ user.created_at }}</div>
+                      <UButton @click="loadUserEvents(user)" label="See Appointments" />
+                      <div class="space-x-2">
+                        <UButton class="bg-blue-500 text-white px-2 py-1 rounded" @click="handleUpdateUser(user)" label="Edit" />
+                        <UButton class="bg-red-500 text-white px-2 py-1 rounded" @click="handleDeleteUsers(user.user_id)" label="Remove" />
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </template>
               </div>
             </template>
             <template v-else>
+              <div class="grid grid-cols-5 justify-between p-3 bg-white-100">
+                <div>Page</div>
+                <div class="col-span-2 flex justify-center">Show/Hide</div>
+                <div class="col-span-2 flex justify-center"">Path</div>
+              </div>
               <div v-for="page in pages" :key="page.to" class="flex justify-between p-3 bg-gray-100 rounded">
                 <span>{{ page.name }}</span>
                 <UCheckbox v-model="page.allowed" :label="page.allowed ? 'Shown' : 'Hidden'"/>
-                <UFormField v-if="page.allowed" label="Page path">
+                <UFormField v-if="page.allowed">
                   <USelect v-model="pathPicked[page.name]" :items="[page.to, '/construction']" value-key="id" class="w-full" label="Path" arrow @update:modelValue="updateService(page.name, pathPicked[page.name])"/>
                 </UFormField>
                 <UButton class="bg-blue-500 text-white px-2 py-1 rounded" @click="updatePageAccess(page)" label="Edit" />
@@ -41,7 +63,7 @@
             
             <template #footer v-if="item.label === 'User Management'">
               <UButton icon="i-heroicons-plus-circle" color="primary" variant="solid" label="Add" @click="isOpenUser = true"/>
-              <UButton icon="i-heroicons-plus-circle" color="primary" variant="solid" label="Remove" @click="handleDeleteUsers(selectedUsers)"/>
+              <UButton icon="i-heroicons-x-circle" color="error" variant="solid" label="Remove" @click="handleDeleteUsers(selectedUsers)"/>
             </template>
           </UCard>
         </template>
@@ -52,8 +74,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
-import type { TabsItem } from '@nuxt/ui'
+import { h, ref, resolveComponent } from 'vue'
+import type { TableColumn, TabsItem } from '@nuxt/ui'
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
+
+const UCheckbox = resolveComponent('UCheckbox')
+
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const isMD = breakpoints?.greaterOrEqual('md')
 
 interface userType {
   title: string,
@@ -98,12 +126,80 @@ const tabItems = ref<TabsItem[]>([
 
 const onError = useNuxtApp().$onError
 const users = ref<userType[]>([])
-const selectedUser = ref<userType | null>(null)
+const selectedUser = ref<userType | null | undefined>(null)
 const selectedUsers = ref<string[]>([])
 const appointments = ref<stateType[]>([])
 
 const isOpenUser = ref(false)
 const isOpenEvents = ref(false)
+
+const columns = ref<TableColumn<userType>[]>([
+  {
+    id: 'select',
+    header: ({ table }) =>
+      h(UCheckbox, {
+        modelValue: table.getIsSomePageRowsSelected()
+          ? 'indeterminate'
+          : table.getIsAllPageRowsSelected(),
+        'onUpdate:modelValue': (value: boolean | 'indeterminate') =>
+          table.toggleAllPageRowsSelected(!!value),
+        'aria-label': 'Select all'
+      }),
+    cell: ({ row }) =>
+      h(UCheckbox, {
+        modelValue: row.getIsSelected(),
+        'onUpdate:modelValue': (value: boolean | 'indeterminate') => {
+          row.toggleSelected(!!value)
+          const isSelected = typeof value === 'boolean' ? value : false
+          updateSelectedUsers(isSelected, row.getValue('user_id'))
+        },
+        'aria-label': 'Select user'
+      }),
+  },
+  {
+    accessorKey: 'title',
+    header: 'Name',
+    cell: ({ row }) => row.getValue('title')
+  },
+  {
+    accessorKey: 'phone',
+    header: 'Phone',
+    cell: ({ row }) => row.getValue('phone')
+  }, 
+  {
+    accessorKey: 'email',
+    header: 'Email',
+    cell: ({ row }) => {
+      const email = row.getValue('email')??'No Email'
+      return email
+    }
+  },
+  {
+    accessorKey: 'created_at',
+    header: 'Joined On',
+    cell: ({ row }) => {
+      return new Date(row.getValue('created_at')).toLocaleString('en-US', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        // hour: '2-digit',
+        // minute: '2-digit',
+        // hour12: true
+      })
+    }
+  },
+  {
+    accessorKey: 'role',
+    header: 'Role',
+    cell: ({ row }) => row.getValue('role')
+  },
+  {
+    id: 'appointments'
+  },
+  {
+    id: 'actions'
+  }
+])
 
 const pages = reactive([{ name: 'Home', to: '/index', allowed: true }, 
 { name: 'Services', to: '/services', allowed: true }, 

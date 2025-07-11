@@ -91,10 +91,11 @@
     title: string | undefined,
     email: string | undefined,
     phone: string | undefined,
-    address: string | undefined
+    user_id: string | undefined,
   }
 
   interface stateType extends userType {
+    address?: string | undefined,
     start_date?: Date | string | undefined,
     start_time?: string | undefined,
     end_date?: Date | string | undefined,
@@ -125,7 +126,7 @@
       title: undefined,
       email: undefined,
       phone: undefined,
-      address: undefined,
+      user_id: undefined,
     }
     
     if (props.selectedUser) {
@@ -136,6 +137,7 @@
     } else {
       return {
         ...baseState,
+        address: undefined,
         start_date: undefined,
         start_time: undefined,
         end_date: undefined,
