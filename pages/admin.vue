@@ -46,14 +46,14 @@
               </div>
             </template>
             <template v-else>
-              <div class="grid grid-cols-5 justify-between p-3 bg-white-100">
+              <div class="grid grid-cols-5 justify-evenly p-3 bg-white-100">
                 <div>Page</div>
-                <div class="col-span-2 flex justify-center">Show/Hide</div>
-                <div class="col-span-2 flex justify-center"">Path</div>
+                <div class="col-span-2">Show/Hide</div>
+                <div class="col-span-2">Path</div>
               </div>
               <div v-for="page in pages" :key="page.to" class="flex justify-between p-3 bg-gray-100 rounded">
                 <span>{{ page.name }}</span>
-                <UCheckbox v-model="page.allowed" :label="page.allowed ? 'Shown' : 'Hidden'"/>
+                <UCheckbox v-model="page.allowed" :label="isSM ? page.allowed ? 'Shown' : 'Hidden' : ''"/>
                 <UFormField v-if="page.allowed">
                   <USelect v-model="pathPicked[page.name]" :items="[page.to, '/construction']" value-key="id" class="w-full" label="Path" arrow @update:modelValue="updateService(page.name, pathPicked[page.name])"/>
                 </UFormField>
@@ -82,6 +82,7 @@ const UCheckbox = resolveComponent('UCheckbox')
 
 const breakpoints = useBreakpoints(breakpointsTailwind)
 const isMD = breakpoints?.greaterOrEqual('md')
+const isSM = breakpoints?.greaterOrEqual('sm')
 
 interface userType {
   title: string,
