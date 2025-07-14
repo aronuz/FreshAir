@@ -1,7 +1,7 @@
 <template>
   <UModal
     v-model:open="isOpen"
-    :title="!updatedAppointment ? 'New Appointment' : 'Make a change'"
+    :title="title"
     :close="{
       color: 'info',  
       variant: 'outline',
@@ -20,23 +20,23 @@
               <UInput placeholder="Email" v-model="formdata.email"/>
             </UFormField>
           </div>
-          <div class="grid grid-cols-3">
+          <div class="grid" :class="[props.selectedUser ? 'grid-cols-2': 'grid-cols-3']">
             <UFormField required label="Phone" name="phone">
               <UInput placeholder="Phone" v-model="formdata.phone"/>
             </UFormField>
-            <UFormField required label="Address" name="address">
-              <UInput type="text" v-model="formdata.address" placeholder="Address" />
-            </UFormField>
-            <UFormField required label="Zip" name="zip">
-              <UInput v-model="formdata.zip" placeholder="Zip Code" />
+            <template v-if="!props.selectedUser">
+              <UFormField required label="Address" name="address">
+                <UInput type="text" v-model="formdata.address" placeholder="Address" />
+              </UFormField>
+              <UFormField required label="Zip" name="zip">
+                <UInput v-model="formdata.zip" placeholder="Zip Code" />
+              </UFormField>
+            </template>
+            <UFormField v-else label="User Role" name="user_role">
+              <USelect class="w-full sm:w-9/12" v-model="rolePicked" :items="roles" placeholder="User Role" arrow />
             </UFormField>
           </div>
-          <template v-if="props.selectedUser">
-            <UFormField label="User Role" name="user_role">
-              <USelect v-model="rolePicked" :items="roles" placeholder="User Role" arrow @update:modelValue="updateRole" />
-            </UFormField>
-          </template>     
-          <template v-else>
+          <template v-if="!props.selectedUser">
             <div class="grid grid-cols-3">
               <UFormField required label="Start Date" name="start_date">
                 <UInput type="date" v-model="formattedStartDate" @update:modelValue="updateStartDate"/>
@@ -117,7 +117,7 @@
     modelValue: Boolean,
     existingRecords: Object,
     selectedDate: String as PropType<string|null>,
-    selectedUser: Object as PropType<userType|null>
+    selectedUser: Object as PropType<roleType|null>
   })
   const emit = defineEmits(['update:modelValue', 'saved'])
 
@@ -153,11 +153,12 @@
   const blankState: Ref<stateType> = useState('selectedAppointment', () => initState)
   const selectedAppointment = useState('selectedAppointment')
 
-  const roles = ref(['User', 'Admin'])
-  const rolePicked = ref(useState('userRole').value)
-  const updateRole = () => {
-    (formdata as roleType).role = rolePicked.value as string
-  }
+  const roles = ref([{label: 'User', value: 'user'}, {label: 'Admin', value: 'admin'}])
+  // const rolePicked = ref('useState('userRole').value')
+  const rolePicked = ref('user')
+  // const updateRole = () => {
+  //   (formdata as roleType).role = rolePicked.value as string
+  // }
 
   const {
         updateUser,
@@ -169,18 +170,19 @@
   const baseSchema = z.object({
     title: z.string(),
     email: z.string().email("Invalid email address").optional(),
-    phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid Phone number'),
+    phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid Phone number')    
+  })
+
+  const appointmentSchema = baseSchema.extend({
     address: z.string().min(1, "Address is required").max(255, "Address is too long"),
     zip: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid zip code')
   })
 
   const schema = props.selectedUser ? 
     baseSchema.extend({
-      role: z.string().refine((val) => roles.value.includes(val), {
-        message: 'Invalid role selected',
-      }),
+      role: z.enum(roles.value.map(role => role.label) as [string, ...string[]])
     }) 
-    : baseSchema.extend({
+    : appointmentSchema.extend({
       start_date: z.coerce.date().refine((date) => {
         const datePicked = dayjs(date)
         const today = dayjs(new Date()).hour(0).minute(0).second(0)
@@ -255,6 +257,10 @@
       }
     )
 
+  const title = computed(() => {
+    return props.selectedUser ? 'User Info' : !updatedAppointment ? 'New Appointment' : 'Make a change'
+  })
+
   const appform = ref()
 
   const saveLabel = ref('Save')
@@ -302,12 +308,12 @@
     formattedEndDate.value = newDateString // Keep the formatted string in sync
   }
 
-  const submitForm = (event: FormSubmitEvent<typeof formdata>) => {
-    props.selectedUser ? saveUser() : saveAppointment(event)
+  const submitForm = (event: FormSubmitEvent<stateType | roleType>) => {
+    props.selectedUser ? saveUser(event) : saveAppointment(event)
   }
   
-  const saveUser = async (user: roleType | null = null) => {
-    const userData = user || Object.fromEntries(
+  const saveUser = async (user: FormSubmitEvent<roleType>) => {
+    const userData = user?.data || Object.fromEntries(
         Object.entries(formdata).map(([key, value]) => [key, value === undefined ? null : value])
     );
 
@@ -324,7 +330,7 @@
     }
   }
 
-  const saveAppointment = async (event: FormSubmitEvent<typeof formdata>) => {
+  const saveAppointment = async (event: FormSubmitEvent<stateType>) => {
     const noChange = updatedAppointment.value && JSON.stringify(formdata) === JSON.stringify(updatedAppointment.value)
     if(noChange) return
     console.log('Form Data:', event)
@@ -383,47 +389,61 @@
     }
   })
 
-  if(!props.selectedUser) {
-    watch(() => props.selectedDate, (value) => formattedStartDate.value = value as string | null)
-
-    watch(updatedAppointment as Ref<stateType>, (value) => {
-      if (value){
-        Object.assign(formdata, {...value, email: value.email ?? undefined, end_time: value.end_time ?? undefined, notes: value.notes ?? undefined})
-        appointmentData.start_date = new Date(value.start_date as string)
-        formattedStartDate.value = value.start_date as string
-        if(value.end_date) {
-          appointmentData.end_date = new Date(value.end_date as string)
-          formattedEndDate.value = value.end_date as string
-        }
-        else {
-          appointmentData.end_date = undefined
-          formattedEndDate.value = null
-        }
-        servicePicked.value = value.service ?? 0
-        saveLabel.value = 'Update'
-        console.log(value.service)
-        try{
-          const val = schema.parse(formdata)
-          console.log('Parsed User Data:', val)
-        }catch(error){
-          const errorMessage = error instanceof z.ZodError ? error.errors : error
-          console.error('Validation Error:', errorMessage)
-        }
-      } else {
-        saveLabel.value = 'Save'
+  watch(() => props.selectedUser, (value) => {
+    if(value) {
+      try {
+        const {email, role, ...rest} = value as roleType
+        // rolePicked.value = role!
+        Object.assign(formdata, {...rest, email: email ?? undefined, role: role ?? undefined})
+        const val = schema.parse(formdata)
+        console.log('Parsed User Data:', val)
+      } catch(error) {
+        const errorMessage = error instanceof z.ZodError ? error.errors : error
+        console.error('Validation Error:', errorMessage)
       }
-    })
+    }
+  })
+    
 
-    watch(isOpen, (value) => {
-      if (!value && selectedAppointment.value) {
-        const selectedEl = document.querySelector('.selected-slot')
-        if (selectedEl) selectedEl.classList.remove('selected-slot')
-        selectedAppointment.value = null
-        updatedAppointment.value = null 
-        delete formdata.id
+  watch(() => props.selectedDate, (value) => formattedStartDate.value = value as string | null)
+
+  watch(updatedAppointment as Ref<stateType>, (value) => {
+    if (value){
+      Object.assign(formdata, {...value, email: value.email ?? undefined, end_time: value.end_time ?? undefined, notes: value.notes ?? undefined})
+      appointmentData.start_date = new Date(value.start_date as string)
+      formattedStartDate.value = value.start_date as string
+      if(value.end_date) {
+        appointmentData.end_date = new Date(value.end_date as string)
+        formattedEndDate.value = value.end_date as string
       }
-    })
-  }
+      else {
+        appointmentData.end_date = undefined
+        formattedEndDate.value = null
+      }
+      servicePicked.value = value.service ?? 0
+      saveLabel.value = 'Update'
+      console.log(value.service)
+      try{
+        const val = schema.parse(formdata)
+        console.log('Parsed User Data:', val)
+      }catch(error){
+        const errorMessage = error instanceof z.ZodError ? error.errors : error
+        console.error('Validation Error:', errorMessage)
+      }
+    } else {
+      saveLabel.value = 'Save'
+    }
+  })
+
+  watch(isOpen, (value) => {
+    if (!value && selectedAppointment.value) {
+      const selectedEl = document.querySelector('.selected-slot')
+      if (selectedEl) selectedEl.classList.remove('selected-slot')
+      selectedAppointment.value = null
+      updatedAppointment.value = null 
+      delete formdata.id
+    }
+  })
 
   const zipCodes = [11201, 11203, 11204, 11205, 11206, 11207, 11208, 11209, 11210, 11211, 11212, 11213, 11214, 11215, 11216, 11217, 11218, 11219, 11220, 11221, 11222, 11223, 11224, 11225, 11226, 11228, 11229, 11230, 11231, 11232, 11233, 11234, 11235, 11236, 11237, 11238, 11239, 11241, 11243, 11249]
   const isCoveredZip = (zip: string) => {
