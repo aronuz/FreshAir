@@ -46,19 +46,27 @@
               </div>
             </template>
             <template v-else>
-              <div class="grid grid-cols-5 justify-evenly p-3 bg-white-100">
+              <div class="grid grid-cols-2 md:grid-cols-4 font-semibold bg-gray-100 p-2 rounded">
                 <div>Page</div>
-                <div class="col-span-2">Show/Hide</div>
-                <div class="col-span-2">Path</div>
+                <div class="hidden md:block">Show/Hide</div>
+                <div class="hidden md:block">Path</div>
               </div>
-              <div v-for="page in pages" :key="page.to" class="flex justify-between p-3 bg-gray-100 rounded">
-                <span>{{ page.name }}</span>
-                <UCheckbox v-model="page.allowed" :label="isSM ? page.allowed ? 'Shown' : 'Hidden' : ''"/>
-                <UFormField v-if="page.allowed">
-                  <USelect v-model="pathPicked[page.name]" :items="[page.to, '/construction']" value-key="id" class="w-full" label="Path" arrow @update:modelValue="updateService(page.name, pathPicked[page.name])"/>
-                </UFormField>
-                <UButton class="bg-blue-500 text-white px-2 py-1 rounded" @click="updatePageAccess(page)" label="Edit" />
-              </div>
+              <div v-for="page in pages" :key="page.to" class="grid grid-cols-2 md:grid-cols-4 grid-rows-3 border-b p-3 bg-gray-100 hover:bg-gray-50 transition rounded">
+                <template v-if="isMD">
+                  <div class="col-span-2 md:col-span-1">{{ page.name }}</div>
+                  <UCheckbox class="flex-none my-auto" v-model="page.allowed" :label="page.allowed ? 'Shown' : 'Hidden'"/>
+                  <UFormField v-if="page.allowed" class="flex-auto">
+                    <USelect v-model="pathPicked[page.name]" :items="[page.to, '/construction']" value-key="id" class="w-full" label="Path" arrow @update:modelValue="updateService(page.name, pathPicked[page.name])"/>
+                  </UFormField>
+                </template>
+                <div v-else class="flex justify-start align-bottom">
+                  <UCheckbox class="flex-none my-auto" v-model="page.allowed"/>
+                  <UFormField v-if="page.allowed" class="flex-auto">
+                    <USelect v-model="pathPicked[page.name]" :items="[page.to, '/construction']" value-key="id" class="w-full" label="Path" arrow @update:modelValue="updateService(page.name, pathPicked[page.name])"/>
+                  </UFormField> 
+                </div>
+                <UButton class="col-span-2 md:col-span-1 justify-self-end flex items-center justify-center w-1/4 md:w-1/2 bg-blue-500 text-white rounded" @click="updatePageAccess(page)" label="Edit" />
+              </div> 
             </template>
             
             <template #footer v-if="item.label === 'User Management'">
@@ -82,7 +90,6 @@ const UCheckbox = resolveComponent('UCheckbox')
 
 const breakpoints = useBreakpoints(breakpointsTailwind)
 const isMD = breakpoints?.greaterOrEqual('md')
-const isSM = breakpoints?.greaterOrEqual('sm')
 
 interface userType {
   title: string,
