@@ -81,7 +81,7 @@ export const useFetchQueries = () => {
             if (user.id) {
                 query = query.eq('id', user.id)
             } else if (user.user_id) {
-                query = query.eq('id', user.user_id)
+                query = query.eq('user_id', user.user_id)
             }
             const { data, error } = await query.single()
             if (error) {
@@ -91,13 +91,16 @@ export const useFetchQueries = () => {
                 if (data) {
                     const isChanged = Object.keys(userData).some(key => userData[key] !== data[key])
                     if (isChanged) {
-                        const { error } = await supabase.from('users').upsert(data).eq('userId', data.user_id)
+                        Object.assign(userData, { id: data.id })
+                        const { error } = await supabase.from('users').upsert(userData)
                         if (error) {
                             saveError = error.message ?? 'Unkown error while updating user data'
                             saveStatus = error.code ?? ''
                         } else {
                             saveData = {id: data.id, user_id: data.user_id} 
                         } 
+                    } else {
+                        saveData = {user_id: data.user_id}
                     }
                 } else {
                     const { error, status } = createUser(userData)

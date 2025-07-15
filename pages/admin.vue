@@ -1,6 +1,6 @@
 <template>
   <ClientOnly>
-    <FormModal v-model="isOpenUser" :selected-user="selectedUser" @saved="selectedUser=null; isOpenUser=false"/>
+    <FormModal v-model="isOpenUser" :selected-user="selectedUser" @saved="updateSelectedUser"/>
     <EventsModal v-if="selectedUser && isOpenEvents" v-model="isOpenEvents" :groupped-events="appointments" :user="selectedUser.title"/>
       
     <UCard>
@@ -229,6 +229,18 @@ const { getPageAccess,
         deleteUsers,
         fetchAppointments,
         pending } = useFetchQueries()
+
+const updateSelectedUser = (event: userType | null) => {
+  selectedUser.value = null
+  if (event) {
+    users.value = users.value.map(user => {
+      if (user.user_id === event.user_id) {
+        return {...user, ...event}
+      }
+      return user
+    })
+  }
+} 
 
 const updateSelectedUsers = async (event: boolean, id: string) => {
   if (event) selectedUsers.value.push(id)

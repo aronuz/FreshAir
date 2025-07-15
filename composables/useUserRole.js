@@ -7,7 +7,8 @@ export const useSetRole = async (userId, role = 'user') => {
   const error = await addRoleRecord(userId, role)
   if (error) {
     toastBar('error', 'Failed to assign user role', error.toString())
-    return null
+    
+    return error
   }
 
   userRole.value = role

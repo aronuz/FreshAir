@@ -155,7 +155,7 @@
 
   const roles = ref([{label: 'User', value: 'user'}, {label: 'Admin', value: 'admin'}])
   // const rolePicked = ref('useState('userRole').value')
-  const rolePicked = ref('user')
+  const rolePicked = ref(useState('userRole').value)
   // const updateRole = () => {
   //   (formdata as roleType).role = rolePicked.value as string
   // }
@@ -178,83 +178,85 @@
     zip: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid zip code')
   })
 
-  const schema = props.selectedUser ? 
-    baseSchema.extend({
-      role: z.enum(roles.value.map(role => role.label) as [string, ...string[]])
-    }) 
-    : appointmentSchema.extend({
-      start_date: z.coerce.date().refine((date) => {
-        const datePicked = dayjs(date)
-        const today = dayjs(new Date()).hour(0).minute(0).second(0)
-        return datePicked.diff(today) > 0
+  const schema = computed(() => 
+    props.selectedUser ? 
+      baseSchema.extend({
+        role: z.enum(roles.value.map(role => role.value) as [string, ...string[]])
+      }).passthrough()
+      : appointmentSchema.extend({
+        start_date: z.coerce.date().refine((date) => {
+          const datePicked = dayjs(date)
+          const today = dayjs(new Date()).hour(0).minute(0).second(0)
+          return datePicked.diff(today) > 0
+        }, {
+          message: 'Pick a future date, must be in the future.',
+        }),
+        start_time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+          message: "Invalid format (expected HH:mm)",
+        }), 
+        end_date: z.coerce.date().optional(),
+        end_time: z.string().optional(),
+        notes: z.string().max(255, "Text is too long").optional(),
+      }).refine((data) => {
+        return /^\+?[1-9]\d{1,14}$/.test(data.phone)
       }, {
-        message: 'Pick a future date, must be in the future.',
-      }),
-      start_time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
-        message: "Invalid format (expected HH:mm)",
-      }), 
-      end_date: z.coerce.date().optional(),
-      end_time: z.string().optional(),
-      notes: z.string().max(255, "Text is too long").optional(),
-    }).refine((data) => {
-      return /^\+?[1-9]\d{1,14}$/.test(data.phone)
-    }, {
-      message: "Please provide a valid phone number",
-      path: ['errors'],
-    }).refine(
-      (data) => {
-        const hasCoverage = isCoveredZip(data.zip)
-        return hasCoverage
-      },
-      {
-        message: 'Unfortunately, we do not service this zip code at this time.',
+        message: "Please provide a valid phone number",
         path: ['errors'],
-      }
-    ).refine(
-      (data) => {
-        const hasOverlap = isTimeOverlap(data.start_date, data.start_time)
-        return hasOverlap
-      },
-      {
-        message: 'Selected time is not available. Please choose a different time.',
-        path: ['errors'],
-      }
-    ).refine(
-      (data) => {
-        if (!data.end_date || (data.end_date && data.start_date && data.start_date <= data.end_date)) {
-          return true
+      }).refine(
+        (data) => {
+          const hasCoverage = isCoveredZip(data.zip)
+          return hasCoverage
+        },
+        {
+          message: 'Unfortunately, we do not service this zip code at this time.',
+          path: ['errors'],
         }
-        return false
-      },
-      {
-        message: 'End date must be after the start date.',
-        path: ['errors'],
-      }
-    )
-    .refine(
-      (data) => {
-        if (data.end_date && !data.end_time) {
+      ).refine(
+        (data) => {
+          const hasOverlap = isTimeOverlap(data.start_date, data.start_time)
+          return hasOverlap
+        },
+        {
+          message: 'Selected time is not available. Please choose a different time.',
+          path: ['errors'],
+        }
+      ).refine(
+        (data) => {
+          if (!data.end_date || (data.end_date && data.start_date && data.start_date <= data.end_date)) {
+            return true
+          }
           return false
+        },
+        {
+          message: 'End date must be after the start date.',
+          path: ['errors'],
         }
-        return true
-      },
-      {
-        message: 'End time is required if end date is provided.',
-        path: ['errors'],
-      }
-    ).refine(
-      (data) => {
-        if (data.end_time) {
-          const regex = /^([01]\d|2[0-3]):([0-5]\d)$/
-          const time = data.end_time
-          return regex.test(time)
+      )
+      .refine(
+        (data) => {
+          if (data.end_date && !data.end_time) {
+            return false
+          }
+          return true
+        },
+        {
+          message: 'End time is required if end date is provided.',
+          path: ['errors'],
         }
-        return true
-      },
-      {
-        message: "Invalid time format (expected HH:mm)",
-        path: ['errors'],
-      }
+      ).refine(
+        (data) => {
+          if (data.end_time) {
+            const regex = /^([01]\d|2[0-3]):([0-5]\d)$/
+            const time = data.end_time
+            return regex.test(time)
+          }
+          return true
+        },
+        {
+          message: "Invalid time format (expected HH:mm)",
+          path: ['errors'],
+        }
+      )
     )
 
   const title = computed(() => {
@@ -313,8 +315,10 @@
   }
   
   const saveUser = async (user: FormSubmitEvent<roleType>) => {
-    const userData = user?.data || Object.fromEntries(
-        Object.entries(formdata).map(([key, value]) => [key, value === undefined ? null : value])
+    const { title, phone, email, user_id } = user?.data
+    const userInfo = { title, phone, email, user_id }
+    const userData = Object.fromEntries(
+        Object.entries(userInfo).map(([key, value]) => [key, value === undefined ? null : value])
     );
 
     const {role, ...userWithoutRole} = userData
@@ -323,10 +327,11 @@
     if(error){
       showError(status as string, `Unable to update user record.\n${JSON.stringify(error)}`)
     } else {
-      if(role !== useState('userRole').value) await useSetRole(data!.id, role as string)
-      toastBar('success', 'User updated')
+      let roleError
+      if(role !== useState('userRole').value) roleError = await useSetRole(data!.user_id, role as string)
+      if(!roleError) toastBar('success', 'User updated')
       isOpen.value = false
-      emit('saved')
+      emit('saved', userWithoutRole)
     }
   }
 
@@ -346,7 +351,7 @@
         Object.entries(appointmentData).map(([key, value]) => [key, value === undefined ? null : value])
       )
 
-      const user = {title, address, phone, email}
+      const user = {title, phone, email}
       await saveUser(user)
 
       sanitizedAppointment.start_date = sanitizedAppointment.start_date
@@ -393,9 +398,9 @@
     if(value) {
       try {
         const {email, role, ...rest} = value as roleType
-        // rolePicked.value = role!
+        rolePicked.value = role!
         Object.assign(formdata, {...rest, email: email ?? undefined, role: role ?? undefined})
-        const val = schema.parse(formdata)
+        const val = schema.value.parse(formdata)
         console.log('Parsed User Data:', val)
       } catch(error) {
         const errorMessage = error instanceof z.ZodError ? error.errors : error
@@ -424,7 +429,7 @@
       saveLabel.value = 'Update'
       console.log(value.service)
       try{
-        const val = schema.parse(formdata)
+        const val = schema.value.parse(formdata)
         console.log('Parsed User Data:', val)
       }catch(error){
         const errorMessage = error instanceof z.ZodError ? error.errors : error
