@@ -320,18 +320,19 @@
     const userData = Object.fromEntries(
         Object.entries(userInfo).map(([key, value]) => [key, value === undefined ? null : value])
     );
-
-    const {role, ...userWithoutRole} = userData
-
-    const { data, error, status } = await updateUser(userWithoutRole)
+    const { data, error, status } = await updateUser(userData)
     if(error){
       showError(status as string, `Unable to update user record.\n${JSON.stringify(error)}`)
     } else {
       let roleError
+      const role = rolePicked.value as string
       if(role !== useState('userRole').value) roleError = await useSetRole(data!.user_id, role as string)
-      if(!roleError) toastBar('success', 'User updated')
+      if(!roleError) {
+        rolePicked.value = role
+        toastBar('success', 'User updated')
+      }
       isOpen.value = false
-      emit('saved', userWithoutRole)
+      emit('saved', userData)
     }
   }
 
