@@ -24,7 +24,7 @@
                   <template #appointments-cell="{ row }">
                     <UButton @click="loadUserEvents(row.original as userType)" label="See Appointments" />
                   </template>
-                  <template #actions-cell="{ row }">
+                  <template v-if="selectedUsers.length" #actions-cell="{ row }">
                     <UButton class="bg-blue-500 text-white px-2 py-1 rounded" @click="handleUpdateUser(row.original as userType)" label="Edit" />
                     <UButton class="bg-red-500 text-white px-2 py-1 rounded" @click="handleDeleteUsers((row.original as userType).user_id)" label="Remove" />
                   </template>
@@ -36,7 +36,7 @@
                       <div >{{ user.title }} - {{ user.phone }}<span v-if="user.email">/{{ user.email }}</span></div>
                       <div >Profile created on: {{ user.created_at }}</div>
                       <UButton @click="loadUserEvents(user)" label="See Appointments" />
-                      <div class="space-x-2">
+                      <div v-if="selectedUsers.length" class="space-x-2">
                         <UButton class="bg-blue-500 text-white px-2 py-1 rounded" @click="handleUpdateUser(user)" label="Edit" />
                         <UButton class="bg-red-500 text-white px-2 py-1 rounded" @click="handleDeleteUsers(user.user_id)" label="Remove" />
                       </div>
