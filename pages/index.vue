@@ -81,8 +81,11 @@
     const loadAppointments = async () => {
         const { data, isPending, error } = await fetchAppointments(pending, limit)
         pending.value = isPending.value
-        showTable.value = !error
-        appointments.value = data
+        if(error) {
+            console.error('Error fetching appointments:', error)
+        }
+        showTable.value = !error && data && data.length > 0
+        appointments.value = data ?? []
     }
 
     onMounted(async () => {
