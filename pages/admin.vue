@@ -54,18 +54,18 @@
               <div v-for="page in pages" :key="page.to" class="grid grid-cols-2 md:grid-cols-4 grid-rows-3 border-b p-3 bg-gray-100 hover:bg-gray-50 transition rounded">
                 <template v-if="isMD">
                   <div class="col-span-2 md:col-span-1">{{ page.name }}</div>
-                  <UCheckbox class="flex-none my-auto" v-model="page.allowed" :label="page.allowed ? 'Shown' : 'Hidden'"/>
+                  <UCheckbox class="flex-none my-auto" :class="{'col-span-2': !page.allowed}" v-model="page.allowed" :label="page.allowed ? 'Shown' : 'Hidden'"/>
                   <UFormField v-if="page.allowed" class="flex-auto">
-                    <USelect v-model="pathPicked[page.name]" :items="[page.to, '/construction']" value-key="id" class="w-full" label="Path" arrow @update:modelValue="updateService(page.name, pathPicked[page.name])"/>
+                    <USelect v-model="pathPicked[page.name]" :items="[page.to, getOldPath(page)]" value-key="id" class="w-full" label="Path" arrow />
                   </UFormField>
                 </template>
                 <div v-else class="flex justify-start align-bottom">
                   <UCheckbox class="flex-none my-auto" v-model="page.allowed"/>
                   <UFormField v-if="page.allowed" class="flex-auto">
-                    <USelect v-model="pathPicked[page.name]" :items="[page.to, '/construction']" value-key="id" class="w-full" label="Path" arrow @update:modelValue="updateService(page.name, pathPicked[page.name])"/>
+                    <USelect v-model="pathPicked[page.name]" :items="[page.to, getOldPath(page)]" value-key="id" class="w-full" label="Path" arrow />
                   </UFormField> 
                 </div>
-                <UButton class="col-span-2 md:col-span-1 justify-self-end flex items-center justify-center w-1/4 md:w-1/2 bg-blue-500 text-white rounded" @click="updatePageAccess(page)" label="Edit" />
+                <UButton class="col-span-2 md:col-span-1 justify-self-end flex items-center justify-center w-1/4 md:w-1/2 bg-blue-500 text-white rounded" @click="savePageInfo({pageName: page.name, path: pathPicked[page.name], allowed: page.allowed, oldPath: page.to})" label="Save" />
               </div> 
             </template>
             
@@ -87,7 +87,7 @@ import type { TableColumn, TabsItem } from '@nuxt/ui'
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 
 const UCheckbox = resolveComponent('UCheckbox')
-
+const { toastBar } = useToastBar()
 const breakpoints = useBreakpoints(breakpointsTailwind)
 const isMD = breakpoints?.greaterOrEqual('md')
 
@@ -111,10 +111,18 @@ interface stateType {
   zip?: string | undefined,
 }
 
+interface pages {
+  name: string,
+  to: string,
+  allowed: boolean,
+  oldPath?: string | null
+}
+
 interface pageItem {
     name: string,
     to: string,
     allowed: boolean,
+    oldPath?: string | null
 }
 
 interface pathType {
@@ -209,11 +217,11 @@ const columns = ref<TableColumn<userType>[]>([
   }
 ])
 
-const pages = reactive([{ name: 'Home', to: '/index', allowed: true }, 
-{ name: 'Services', to: '/services', allowed: true }, 
-{ name: 'Schedule Service', to: '/booking', allowed: true }, 
-{ name: 'Contact Us', to: '/contact', allowed: true }, 
-{ name: 'About Us', to: '/about', allowed: true }])
+const pages = reactive<pages[]>([{ name: 'Home', to: '/index', allowed: true, oldPath: null }, 
+{ name: 'Services', to: '/services', allowed: true, oldPath: null }, 
+{ name: 'Schedule Service', to: '/booking', allowed: true, oldPath: null }, 
+{ name: 'Contact Us', to: '/contact', allowed: true, oldPath: null }, 
+{ name: 'About Us', to: '/about', allowed: true, oldPath: null }])
 
 const pathPicked: pathType = reactive({
   'Home': '/index',
@@ -287,12 +295,13 @@ onMounted(async () => {
     }
     if(data) {
       data.forEach((pageItem: pageItem) => {
-      const item = pages.find((page) => {
-        page.name === pageItem.name
+        const item = pages.find((page) => page.name === pageItem.name)
+        item!.to = pageItem.to
+        item!.allowed = pageItem.allowed
+        item!.oldPath = pageItem.oldPath ?? null
+        pathPicked[item!.name] = item!.to
       })
-      item!.to = pageItem.to
-      item!.allowed = pageItem.allowed
-      })
+      console.log('Page access loaded:', pages)
     }
   }).catch(error => { 
     onError(500, error)
@@ -312,7 +321,7 @@ const loadUserEvents = async (user: userType) => {
     return
   }
   selectedUser.value = user
-  appointments.value = data
+  appointments.value = data ?? []
   isOpenEvents.value = true
 }
 
@@ -320,11 +329,22 @@ watch(isOpenUser, (val) => {
   if (!val) selectedUser.value = null
 })
 
-const updateService = (pageName: string, path: string) => {
-  const item = pages.find(page => page.name = pageName)
-  item!.to = path
+const getOldPath = (page: pageItem) => {
+  return page.oldPath ?? '/construction'
 }
 
+const savePageInfo = async ({ pageName: name, path: to, allowed, oldPath }: { pageName: string, path: string, allowed: boolean, oldPath: string }) => {
+  try {
+    const {error} = await updatePageAccess({ name, to, allowed, oldPath })
+    if (error) {
+      onError(500, error.message)
+      return
+    }
+    toastBar('success', 'Page access updated successfully')
+  } catch (error) {
+    onError(500, error)
+  }
+}
 // const sendEmail = async () => {
 //   try {
 //     await $fetch('/api/send-email', {

@@ -30,20 +30,21 @@ export const useFetchQueries = () => {
     }
 
     const createUser = async (user) => {
+        let saveData = null
         let saveError = null
         let saveStatus = null
         try {
-            const { error } = await supabase.from('users').insert([user])
+            const { data, error } = await supabase.from('users').insert([user])
             
             if (error) {
                 saveError = error.message ?? 'Unkown error while creating user'
                 saveStatus = error.code ?? ''
-            } 
+            } else saveData = data
         } catch (error) {
             saveError = error;
             saveStatus = "500"
         }
-        return { error: saveError, status: saveStatus }
+        return { data: saveData, error: saveError, status: saveStatus }
     };
 
     const deleteUsers = async (pending, user_ids) => {
@@ -103,10 +104,12 @@ export const useFetchQueries = () => {
                         saveData = {user_id: data.user_id}
                     }
                 } else {
-                    const { error, status } = createUser(userData)
+                    const { data, error, status } = createUser(userData)
                     if (error) {
                         saveError = error
                         saveStatus = status
+                    } else if (data) {
+                        saveData = {user_id: data.user_id}
                     }
                 }
             }
@@ -122,8 +125,7 @@ export const useFetchQueries = () => {
     const updatePageAccess = async (page) => {
         const { error } = await supabase
             .from('page_access')
-            .update({ allowed: page.allowed })
-            .eq('name', page.name)
+            .update(page).eq('name', page.name)
         return { error }
     }
 
