@@ -155,7 +155,7 @@
 
   const roles = ref([{label: 'User', value: 'user'}, {label: 'Admin', value: 'admin'}])
   // const rolePicked = ref('useState('userRole').value')
-  const rolePicked = ref(useState('userRole').value)
+  const rolePicked = ref('user')
   // const updateRole = () => {
   //   (formdata as roleType).role = rolePicked.value as string
   // }
@@ -326,7 +326,7 @@
     } else {
       let roleError
       const role = rolePicked.value as string
-      if(role !== useState('userRole').value) roleError = await useSetRole(data!.user_id, role as string)
+      if(role !== props.selectedUser!.role) roleError = await useSetRole(data!.user_id, role as string)
       if(!roleError) {
         rolePicked.value = role
         toastBar('success', 'User updated')
