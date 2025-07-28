@@ -34,7 +34,17 @@ export const useFetchQueries = () => {
         let saveError = null
         let saveStatus = null
         try {
-            const { data, error } = await supabase.from('users').insert([user])
+            let userObj
+            if (typeof user === 'string') {
+                userObj = {
+                    user_id: user,
+                    title: '',
+                    phone: ''
+                }
+            } else {
+                userObj = user
+            }
+            const { data, error } = await supabase.from('users').upsert([userObj], { onConflict: 'user_id' })
             
             if (error) {
                 saveError = error.message ?? 'Unkown error while creating user'

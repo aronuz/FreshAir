@@ -8,6 +8,8 @@
 <script lang="ts" setup>
 import AppointmentCalendar from '../components/AppointmentCalendar.vue'
 
+const { createUser } = useFetchQueries()
+const { toastBar } = useToastBar()
 const origin = useState('origin')
 const userRole = useState('userRole')
 const guestUser = useGuestUser()
@@ -29,7 +31,15 @@ onMounted(async () => {
     const userId = session.user.id
     userRole.value = await useCheckRole(userId)
     console.log('before sr')
-    if(!userRole.value) await useSetRole(userId)
+    if(!userRole.value) {
+      const { error } = await createUser(userId)
+      if (error) {
+        toastBar('error', `Failed to create user.`, (error && typeof error === 'object' && 'message' in error ? (error as any).message : 'Unknown error'))
+        console.error('Error creating user:', error)
+        return
+      }
+      await useSetRole(userId)
+    }
   }
   roleSet.value = true
 })
