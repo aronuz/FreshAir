@@ -1,10 +1,11 @@
 <template>
   <ConfirmationCard v-if="success" :type="type" :email="regState.email" :from-page="fromPage"/>
-  <UCard v-else class="w-fit mx-auto">
+  <UCard v-else class="dialog-container w-fit mx-auto">
     <template #header>
       <div class="grid grid-rows-2 text-lg">
-        <div>Welcome! Please sign in with an email and password,</div>
-        <div>or enter as guest to schedule a new appointment!</div>
+        <h1>Welcome!</h1>
+        <h2>Please sign in with an email and password,</h2>
+        <h2>or enter as guest to schedule a new appointment!</h2>
       </div>
     </template>
     <UForm class="w-fit" :state=regState :schema="schema" @submit.prevent="handleAuthentication" @error="onError">
@@ -34,9 +35,9 @@
       </div>
     </UForm>
     <template #footer>
-      <div class="grid grid-rows-2 gap-2 w-fit">
-        <div>Click <UButton to="/login">here</UButton> to sign in or register using a confirmation link.</div>
-        <div>Click <UButton variant="ghost" @click="setGuestUser">here</UButton> to continue as guest to add a new appointment.</div>
+      <div class="dialog-details grid grid-rows-2 gap-2 w-fit">
+        <p>Click <UButton to="/login">here</UButton> to sign in or register using a confirmation link.</p>
+        <p>Click <UButton variant="ghost" @click="setGuestUser">here</UButton> to continue as guest to add a new appointment.</p>
       </div>
     </template>
   </UCard>
