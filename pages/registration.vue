@@ -1,46 +1,48 @@
 <template>
-  <ConfirmationCard v-if="success" :type="type" :email="regState.email" :from-page="fromPage"/>
-  <UCard v-else class="dialog-container w-fit mx-auto">
-    <template #header>
-      <div class="grid grid-rows-2 text-lg">
-        <h1>Welcome!</h1>
-        <h2>Please sign in with an email and password,</h2>
-        <h2>or enter as guest to schedule a new appointment!</h2>
-      </div>
-    </template>
-    <UForm class="w-fit" :state=regState :schema="schema" @submit.prevent="handleAuthentication" @error="onError">
-      <!-- <div class="flex"> -->
-        <div class="grid grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))] gap-2">
-          <UFormField required label="Email" name="email">
-            <UInput placeholder="Email" v-model="regState.email"/>
-          </UFormField>
-          <UFormField required label="Password" name="password1">
-            <UInput type="password" placeholder="password" v-model="regState.password1"/>
-          </UFormField>
-          <div class="flex flex-wrap">
-            <span class="inline-block">Logging in for the first time?</span>
-            <span class="inline-block">Please confirm your password:</span>
-          </div>
-          <UFormField label="Confirm Password" name="password2">
-            <UInput type="password" placeholder="password" v-model="regState.password2"/>
-          </UFormField>
+  <div class="h-screen flex items-start justify-center font-sans">
+    <ConfirmationCard v-if="success" :type="type" :email="regState.email" :from-page="fromPage"/>
+    <UCard v-else class="dialog-container w-fit mx-auto">
+      <template #header>
+        <div class="grid grid-rows-auto text-lg/6">
+            <p class="text-3xl text-white font-bold">Welcome!</p>
+            <h2 class="font-semibold">Please sign in with an email and password,</h2>
+            <h2 class="font-semibold">or enter as guest to schedule a new appointment!</h2>
         </div>
-      <!-- </div> -->
-      <div class="flex flex-wrap justify-center self-center m-4 gap-2 w-full">
-        <div v-show="hasErrors" class="col-span-2">          
-          <UFormField name="errors"/>
-        </div>      
-        <UButton class="px-8" type="submit" color="info" variant="solid" :label="submitLabel" :loading="pending"/>
-        <UButton :to="fromPage" variant="outline" color="warning" label="Cancel" :disabled="pending"/>
-      </div>
-    </UForm>
-    <template #footer>
-      <div class="dialog-details grid grid-rows-2 gap-2 w-fit">
-        <p>Click <UButton to="/login">here</UButton> to sign in or register using a confirmation link.</p>
-        <p>Click <UButton variant="ghost" @click="setGuestUser">here</UButton> to continue as guest to add a new appointment.</p>
-      </div>
-    </template>
-  </UCard>
+      </template>
+
+      <UForm class="w-fit" :state=regState :schema="schema" @submit.prevent="handleAuthentication" @error="onError">
+          <div class="grid grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))] gap-2">
+            <UFormField required label="Email" name="email">
+              <UInput placeholder="Email" v-model="regState.email"/>
+            </UFormField>
+            <UFormField required label="Password" name="password1">
+              <UInput type="password" placeholder="password" v-model="regState.password1"/>
+            </UFormField>
+            <div class="flex flex-wrap">
+              <span class="inline-block">Logging in for the first time?</span>
+              <span class="inline-block">Please confirm your password:</span>
+            </div>
+            <UFormField label="Confirm Password" name="password2">
+              <UInput type="password" placeholder="password" v-model="regState.password2"/>
+            </UFormField>
+          </div>
+        <!-- </div> -->
+        <div class="flex flex-wrap justify-center self-center m-4 gap-2 w-full">
+          <div v-show="hasErrors" class="col-span-2">          
+            <UFormField name="errors"/>
+          </div>      
+          <UButton class="px-8" type="submit" color="info" variant="solid" :label="submitLabel" :loading="pending"/>
+          <UButton :to="fromPage" variant="outline" color="neutral" label="Cancel" :disabled="pending"/>
+        </div>
+      </UForm>
+      <template #footer>
+        <div class="dialog-details grid grid-rows-2 gap-2 text-sm leading-4 md:text-lg md:leading-6">
+            <p class="sm:whitespace-nowrap">Click <UButton to="/login">here</UButton> to sign in or register using a confirmation link.</p>
+            <p class="sm:whitespace-nowrap">Click <UButton variant="outline" @click="setGuestUser">here</UButton> to continue as guest to add an appointment.</p>
+        </div>
+      </template>
+    </UCard>
+  </div>
 </template>
 
 <script lang="ts" setup>
