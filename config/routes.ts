@@ -4,7 +4,7 @@ export const ROUTE_CONFIG = [
   {name: "Schedule", path: "booking"},
   {name: "Contact", path: "contact"},
   {name: "Services", path: "gallery"},
-  {name: "Login", path: "login"},
+  {name: "Login", path: "loginLink"},
   {name: "Registration", path: "registration"},
   {name: "Site", path: "admin"},
   {name: "Construction", path: "construction"}

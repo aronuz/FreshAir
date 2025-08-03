@@ -1,32 +1,27 @@
 <template>
-  <div class="h-screen flex items-start justify-center font-sans">
-    <ConfirmationCard v-if="success" :type="type" :email="regState.email" :from-page="fromPage"/>
-    <UCard v-else class="dialog-container w-fit mx-auto">
-      <template #header>
-        <div class="grid grid-rows-auto text-lg/6">
-            <p class="text-3xl text-white font-bold">Welcome!</p>
-            <h2 class="font-semibold">Please sign in with an email and password,</h2>
-            <h2 class="font-semibold">or enter as guest to schedule a new appointment!</h2>
-        </div>
-      </template>
+  <login childRef="guestUser" page="registration" :type="type" :email="regState.email" :success="success">
+    <template #prompt>
+      Please sign in with an email and password,
+    </template>
 
+    <template #default="{onError, fromPage}">
       <UForm class="w-fit" :state=regState :schema="schema" @submit.prevent="handleAuthentication" @error="onError">
-          <div class="grid grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))] gap-2">
-            <UFormField required label="Email" name="email">
-              <UInput placeholder="Email" v-model="regState.email"/>
-            </UFormField>
-            <UFormField required label="Password" name="password1">
-              <UInput type="password" placeholder="password" v-model="regState.password1"/>
-            </UFormField>
-            <div class="flex flex-wrap">
-              <span class="inline-block">Logging in for the first time?</span>
-              <span class="inline-block">Please confirm your password:</span>
-            </div>
-            <UFormField label="Confirm Password" name="password2">
-              <UInput type="password" placeholder="password" v-model="regState.password2"/>
-            </UFormField>
+        <div class="grid grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))] gap-2">
+          <UFormField required label="Email" name="email">
+            <UInput placeholder="Email" v-model="regState.email"/>
+          </UFormField>
+          <UFormField required label="Password" name="password1">
+            <UInput type="password" placeholder="password" v-model="regState.password1"/>
+          </UFormField>
+          <div class="flex flex-wrap">
+            <span class="inline-block">Logging in for the first time?</span>
+            <span class="inline-block">Please confirm your password:</span>
           </div>
-        <!-- </div> -->
+          <UFormField label="Confirm Password" name="password2">
+            <UInput type="password" placeholder="password" v-model="regState.password2"/>
+          </UFormField>
+        </div>
+
         <div class="flex flex-wrap justify-center self-center m-4 gap-2 w-full">
           <div v-show="hasErrors" class="col-span-2">          
             <UFormField name="errors"/>
@@ -35,39 +30,22 @@
           <UButton :to="fromPage" variant="outline" color="neutral" label="Cancel" :disabled="pending"/>
         </div>
       </UForm>
-      <template #footer>
-        <div class="dialog-details grid grid-rows-2 gap-2 text-sm leading-4 md:text-lg md:leading-6">
-            <p class="sm:whitespace-nowrap">Click <UButton to="/login">here</UButton> to sign in or register using a confirmation link.</p>
-            <p class="sm:whitespace-nowrap">Click <UButton variant="outline" @click="setGuestUser">here</UButton> to continue as guest to add an appointment.</p>
-        </div>
-      </template>
-    </UCard>
-  </div>
+    </template>
+
+    <template #switch>
+      Click <UButton to="/loginLink">here</UButton> to sign in or register using a confirmation link.
+    </template>
+  </login>
 </template>
 
 <script lang="ts" setup>
-  import type { FormErrorEvent } from '@nuxt/ui'
   import { z } from 'zod'
-  
-  const router = useRouter()
 
   const type = 'Confirmation'
 
-  const origin = useState('origin')
-  const fromPage = ref<string>('/')
-  console.log('we: ', origin.value)
-  let origin_value = origin.value as string
-  if (origin_value && origin_value.includes('_')) {
-        origin_value = origin_value.slice(0, origin_value.indexOf('_')) 
-    }
-  if(origin_value && origin_value !== 'index') fromPage.value+=origin_value
-  let fromPageLink: HTMLElement | null
-  watch(() => document, (value) => {
-      if (value && origin_value && !['login', 'registration'].includes(origin_value)) {
-          fromPageLink = document.querySelector(`#${origin_value}`)
-          fromPageLink?.classList.add('router-link-active')
-      }
-  }, {immediate: true})
+  interface childRefType {
+    guestUser: any
+  }
 
   interface regType {
     email: string | undefined,
@@ -81,10 +59,11 @@
     password2: undefined,
   }
 
+  const childRef = ref<childRefType | null>(null)
+
   const { toastBar } = useToastBar()
   const supabase = useSupabaseClient();
   const success = ref(false)
-  const guestUser = useGuestUser()
   const pending = ref(false);
   const regform = ref()
   const submitLabel = ref('Login')
@@ -93,16 +72,6 @@
   const regState = reactive({...initState})
 
   const hasErrors = ref(false)
-
-  const setGuestUser = () => {
-    guestUser.value = {
-      id: 0,
-      email: ''
-    }
-    const idList = document.querySelectorAll('.router-link-active')
-    if(idList.length) idList[0].classList.remove('router-link-active')
-    router.push({ path: "/booking" })
-  }
 
   const passwordSchema = z.string()
     .min(8, 'Password must be at least 8 characters long.')
@@ -138,12 +107,6 @@
   }
   
   const handleRegister = async () => {
-    // if(!regState.password2) {
-    //   const element: HTMLElement | null = document.querySelector("[name='password2']")
-    //   element?.focus()
-    //   toastBar('error', 'Registration failed.', 'Please confirm your password!')
-    //   return
-    // }
     pending.value = true
     regLabel.value = "Waiting..."
     hasErrors.value = false
@@ -156,7 +119,7 @@
         }
       })
       if (error) throw error
-      guestUser.value = null
+      childRef.value!.guestUser = null
       success.value = true
       toastBar('success', 'Registration successful!', 'Please check your email to confirm your account.')
      } catch (error) {
@@ -180,7 +143,7 @@
         password: regState.password1 as string,
       })
       if (error) throw error
-      guestUser.value = null
+      childRef.value!.guestUser = null
       toastBar('success', 'Login successful!', 'Welcome back!')
       await navigateTo('/booking');
     } catch (error) {
@@ -193,36 +156,6 @@
       pending.value = false;
     }
   }
-
-  const onError = async (event: FormErrorEvent) => {
-    if (event?.errors.length){
-      hasErrors.value = true
-      for(const error of event.errors){
-        setTimeout(() => showError(error.message), 1000)
-      }
-      if (event.errors[0]?.id) {
-        const element = document.getElementById(event.errors[0].id)
-        element?.focus()
-        element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }
-    }
-  }
-
-
-  // const verifyOtpCode = async (optCode: string) => { 
-  //   const { error } = await supabase.auth.verifyOtp({
-  //       email: regState.email as string,
-  //       token: optCode ?? '',
-  //       type: 'email',
-  //   });
-
-  //   if (error) {
-  //       toastBar('error', 'Authientication Error', error.message)
-  //   } else {
-  //       toastBar('success', 'Welcome to Fresh Air!')
-  //       navigateTo('/booking');
-  //   }
-  // }
 
   definePageMeta({
       layout: "default",

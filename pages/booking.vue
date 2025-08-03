@@ -24,7 +24,7 @@ onMounted(async () => {
     const stateBack = history.state.back as string
     const fromPage = stateBack === '/' ? 'index' : stateBack.slice(1)
     origin.value = `${fromPage}_booking`
-    return navigateTo('/login')
+    return navigateTo('/loginLink')
   } else if (!userRole.value && session?.user) {
     console.log("User session:", session)
     console.log('before cr')

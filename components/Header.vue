@@ -15,7 +15,7 @@
           <UButton v-if="user" class="h-fit" color="secondary" variant="solid" @click="handleLogout" label="Log Out" />
           <div v-else class="flex h-fit flex-row gap-2">
             <UBadge v-if="guestUser" color="success" size="xl">Guest</UBadge>
-            <UButton v-if="notOnLogin" color="secondary" variant="solid" to="/login" label="Log In" />
+            <UButton v-if="notOnLogin" color="secondary" variant="solid" to="/loginLink" label="Log In" />
             <UButton v-if="notOnLogin" color="secondary" variant="solid" to="/registration" label="Register" />
           </div>
       </div>
@@ -140,7 +140,7 @@
   // })
   watch(
       () => route.path, (currentPage) => {
-        notOnLogin.value = !['/login', '/registration'].includes(currentPage)
+        notOnLogin.value = !['/loginLink', '/registration'].includes(currentPage)
       }, {immediate: true}
     )
 
@@ -156,7 +156,7 @@
   }
 
   const handleLogin = () => {
-    navigateTo('/login', )
+    navigateTo('/loginLink', )
   }
   const handleRegister = () => {
     navigateTo('/registraition', )

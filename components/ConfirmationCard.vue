@@ -1,23 +1,25 @@
   
-  <template>
-    <UCard class="w-fit mx-auto">
-        <template #header>
-          <div class="text-lg">{{ type }} link has been sent to {{ email }}</div>
-        </template>
+<template>
+  <login page="Confirmation">
+    <template #prompt>
+      <div class="text-lg">{{ type }} link has been sent to {{ email }}</div>
+    </template>
+
+    <div>
+      <label for="code">Use the link in the email or use the one time code:</label>
+      <input class="ml-4 w-[8ch] border border-gray-500 rounded px-2 py-1" id="code" v-model="otpCode" placeholder="000000" type="text" />
+    </div>
+
+    <template #switch>
+      <div class="flex justify-between">
+        <span>Please check your email.</span>
         <div>
-          <label for="code">Use the link in the email or use the one time code:</label>
-          <input class="ml-4 w-[8ch] border border-gray-500 rounded px-2 py-1" id="code" v-model="otpCode" placeholder="000000" type="text" />
+          <UButton v-if="!otpCode" :to="fromPage" variant="solid" color="success" label="OK" />
+          <UButton v-else variant="solid" color="success" label="Verify" @click="verifyOtpCode"/>
         </div>
-        <template #footer>
-          <div class="flex justify-between">
-            <span>Please check your email.</span>
-            <div>
-              <UButton v-if="!otpCode" :to="fromPage" variant="solid" color="success" label="OK" />
-              <UButton v-else variant="solid" color="success" label="Verify" @click="verifyOtpCode"/>
-            </div>
-          </div>
-        </template>
-  </UCard>
+      </div>
+    </template>
+  </login>
 </template>
 
 <script lang="ts" setup>
