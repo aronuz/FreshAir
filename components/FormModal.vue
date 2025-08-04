@@ -84,7 +84,12 @@
   import { z } from 'zod'
   import dayjs from 'dayjs'
   
-  import { useFetchQueries } from '~/composables/useFetchQueries'
+  // import { useFetchQueries } from '~/composables/useFetchQueries'
+  import { storeToRefs } from 'pinia'
+  import { useEventsStore } from '~/stores/events'
+
+  const eventsStore = useEventsStore()
+  const { events, eventsByDate, loading, error } = storeToRefs(eventsStore)
 
   interface userType {
     id?: number,
@@ -361,14 +366,20 @@
       sanitizedAppointment.end_date = sanitizedAppointment.end_date
       ? sanitizedAppointment.end_date.toISOString().split('T')[0]
       : null
-      const { error, status, type } = await submitAppointment(sanitizedAppointment) 
-      if(error){
-        const action = type === 'create' ? 'create a new': 'update'
-        showError(status as string, `Unable to ${action} appointment record.\n${JSON.stringify(error)}`)
-      } else {
-        toastBar('success', `Service ${type === 'update' ? 'updated':'scheduled'}`)
-        isOpen.value = false
-        emit('saved')
+      const isUpdate = !!selectedAppointment.value
+      const action = isUpdate ? 'update' : 'create a new'
+      try {
+        const { error, status } = await eventsStore.saveEvent(sanitizedAppointment, isUpdate)
+        //await submitAppointment(sanitizedAppointment) 
+        if(error){          
+          showError(status as string, `Unable to ${action} appointment record.\n${JSON.stringify(error)}`)
+        } else {
+          toastBar('success', `Service ${isUpdate ? 'updated' : 'scheduled'}`)
+          isOpen.value = false
+          emit('saved')
+        }
+      } catch (error) {
+        showError('500', `Unable to ${action} user record.\n${JSON.stringify(error)}`)
       }
     }
   }
