@@ -24,7 +24,7 @@ export default defineNuxtConfig({
     }
   },
   modules: [// Install this module
-  '@nuxtjs/sitemap', '@nuxtjs/supabase', '@nuxt/ui', '@nuxt/image'],
+  '@nuxtjs/sitemap', '@nuxtjs/supabase', '@nuxt/ui', '@nuxt/image', '@pinia/nuxt'],
   css: ['~/assets/css/main.css'],
   image: {
     //domains: ['picsum.photos', 'www.google.com'],

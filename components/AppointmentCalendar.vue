@@ -53,6 +53,13 @@
 import { ref } from 'vue';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 
+import { storeToRefs } from 'pinia'
+import { useEventsStore } from '~/stores/events'
+
+const eventsStore = useEventsStore()
+const { events: storedEvents, loading, error } = storeToRefs(eventsStore)
+
+
 const { toastBar } = useToastBar()
 const user = useSupabaseUser()
 const guestUser = useGuestUser()
@@ -66,15 +73,14 @@ const addLabel = ref('Book Now')
 const appointments = ref(null)
 const events = []
 const existingRecords = ref([])
-// let eventsParsed = ref([])
 const selectedAppointment = useState('selectedAppointment', () => null)
 const updatedAppointment =  useState('updatedAppointment', () => null)
 const selectedDate = ref(null)
 
-const { fetchAppointments,
-        updateAppointment,
-        deleteAppointment,
-      } = useFetchQueries()
+// const { fetchAppointments,
+//         updateAppointment,
+//         deleteAppointment,
+//       } = useFetchQueries()
 
 const breakpoints = useBreakpoints(breakpointsTailwind)
 const isMD = breakpoints?.greaterOrEqual('md')
@@ -100,34 +106,22 @@ watch(() => selectedAppointment.value, (value) => {
   addLabel.value = value ? 'Make a change' : 'Book Now'
 }, {immediate: true})  
 
-// const onError = (status, message = 'An unknown error has occured.') => {
-//   toastBar('error', `Error ${status}`, message)
-//   throw createError({ statusCode: status, message: message});
-// }
-
 const reload = async () => {
   if(guestUser.value) return
-  const {data, timesData, isPending, error, status} = await fetchAppointments(pending)
-  pending.value = isPending.value
-  if(error){
-    onError(status, error)
+  try {
+    const mergedData = data.map((item) => {
+      const { users, ...rest } = item
+      return { ...rest, ...users, id: rest.id, created_at: rest.created_at }
+    })
+
+    appointments.value = mergedData
+
+    existingRecords.value = timesData
+    events.splice(0, events.length, ...mergedData);
+  } catch (error) {
+    onError(500, error)
     return
   }
-
-  const mergedData = data.map((item) => {
-    const { users, ...rest } = item
-    return { ...rest, ...users, id: rest.id, created_at: rest.created_at }
-  })
-
-  appointments.value = mergedData
-
-  existingRecords.value = timesData
-  events.splice(0, events.length, ...mergedData);
-  // eventsParsed.value.splice(0)
-  // if(appointments.value) {
-  //   setFullCalendar(appointments.value)
-  //   setSideBar(appointments.value)
-  // }
 }
 
 const eventsParsed = computed(() => {
@@ -149,9 +143,7 @@ const eventsParsed = computed(() => {
     return event
     }
   )
-  console.log(eventsObject.length)
   return eventsObject
-  // eventsObject.forEach(event => eventsParsed.value.push({...event}))
 })
 
 const grouppedEvents = computed( () => {
@@ -221,7 +213,8 @@ const setValues = () => {
 
 const handleRemove = async () => {
   const id = selectedAppointment.value.id
-  const { error, isPending } = await deleteAppointment(pending)
+  const { error, isPending } = await eventsStore.deleteEvent(id, pending)
+  //await deleteAppointment(id, pending)
   if (error) onError(500, error)
   else {
     const selectedEl = document.querySelector(`.fc-event[data-event-id="${id}"]`);
