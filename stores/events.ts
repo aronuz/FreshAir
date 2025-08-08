@@ -9,13 +9,18 @@ export interface Event {
   id: number
   name: string
   date: string
-  // Add other event properties as needed
+  // other event props
+}
+
+export interface TimesDataItem {
+  record_id: number
+  [key: string]: any
 }
 
 export const useEventsStore = defineStore('events', {
   state: () => ({
     events: [] as Event[],
-    timesData: [] as any[],
+    timesData: [] as TimesDataItem[],
     loading: false,
     error: null as string | null,
     lastFetched: null as Date | null,
@@ -40,6 +45,7 @@ export const useEventsStore = defineStore('events', {
     // Get event by ID
     getEventById: (state) => (id: number) =>
       state.events.find(event => event.id === id),
+
   },
 
   actions: {
@@ -61,7 +67,7 @@ export const useEventsStore = defineStore('events', {
         }
 
         this.events = data
-        this.timesData = timesData
+        this.timesData = [...timesData]
         this.lastFetched = new Date()
         this.loading = isPending
         
@@ -77,14 +83,15 @@ export const useEventsStore = defineStore('events', {
       this.loading = true
       
       try {
-        const { data, error, status } = await submitAppointment(appointment)
+        const { data, timesData, error, status } = await submitAppointment(appointment)
         if (data) {
             if (!update) {
-                this.events.push(data)
+                this.events.push(data)    
             } else {
                 const index = this.events.findIndex(e => e.id === data.id)
                 if (index !== -1) this.events[index] = data
             }
+            this.updateTimesData(data.id, timesData)
         }
         return { error, status }
       } catch (error) {
@@ -106,6 +113,7 @@ export const useEventsStore = defineStore('events', {
           return { error, isPending, status }
         }
         this.events = this.events.filter(e => e.id !== id)
+        await this.updateTimesData(id, null, true); // Remove from timesData
         this.loading = false
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to delete event'
@@ -124,6 +132,23 @@ export const useEventsStore = defineStore('events', {
       this.events = []
       this.lastFetched = null
       this.error = null
+    },
+
+    async updateTimesData(id: number, updateData: TimesDataItem | null = null, isDelete = false) {
+       const index = this.timesData.findIndex(item => item && item.record_id === id)
+        
+        if (isDelete) {
+            // Remove times item
+            if (index !== -1) {
+                this.timesData.splice(index, 1)
+            }
+        } else if (index !== -1) {
+            // Update existing times items
+            Object.assign(this.timesData[index], { record_id: id, ...updateData })
+        } else if (updateData) {
+            // Add new times data
+            this.timesData.push({ ...updateData })
+        }
     }
   },
 })

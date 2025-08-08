@@ -218,12 +218,16 @@ export const useFetchQueries = () => {
     }
 
     const submitAppointment = async (appointment) => {
+        let saveData = null
+        let saveTimesData = null
         let saveError = null
         let saveStatus = null
         let actionType = 'create'
         if (selectedAppointment.value) {
-            const { error, status } = await updateAppointment(appointment)
+            const { data, timesData, error, status } = await updateAppointment(appointment)
             actionType = 'update'
+            saveData = data
+            saveTimesData = timesData
             saveError = error
             saveStatus = status
         } else {
@@ -244,17 +248,20 @@ export const useFetchQueries = () => {
                     saveError = error.message ?? 'Uknown error - appointment data not saved'
                     saveStatus = error.code ?? ''
                 } else if (data && Object.keys(data).length) {
+                    saveData = data
                     const { error: userError, status } = await updateUser({ ...userData, user_id: data.user_id })
                     if (userError) {
                         saveError = userError
                         saveStatus = status
                     }
                     const { ['id']: value, start_date, start_time } = data
-                    const timesData = { ['record_id']: value, start_date, start_time }
-                    const { error: timesError } = await supabase.from('times').insert([timesData])
+                    const timesDataRow = { ['record_id']: value, start_date, start_time }
+                    const { data: timesData, error: timesError } = await supabase.from('times').insert([timesDataRow]).select('*').single()
                     if (timesError) {
                         saveError = timesError.message ?? 'Uknown error - times data not updated'
                         saveStatus = timesError.code ?? ''
+                    } else {
+                        saveTimesData = timesData
                     }
                 }
             } catch (error) {
@@ -264,10 +271,12 @@ export const useFetchQueries = () => {
                 pending.value = false
             }
         }
-        return { error: saveError, status: saveStatus, type: actionType, pending }
+        return { data: saveData, timesData: saveTimesData, error: saveError, status: saveStatus, type: actionType, pending }
     };
 
     const updateAppointment = async (appointment) => {
+        let saveData = null
+        let saveTimesData = null
         let saveStatus = null
         let saveError = null
         const changedValues = {}
@@ -293,7 +302,7 @@ export const useFetchQueries = () => {
                         const { title, email, phone, ...rest } = updatedValues
                         const userData = { title, email, phone }
                         const id = selectedAppointment.value.id
-                        const { data, error } = await supabase.from('appointments').update({...rest}).eq('id', id).select('user_id').single()
+                        const { data, error } = await supabase.from('appointments').update({...rest}).eq('id', id).select('*').single()
                         // await $fetch(`/api/appointments/${selectedAppointment.value.id}`, {
                         //     method: 'PUT',
                         //     body: appointment.value,
@@ -302,17 +311,20 @@ export const useFetchQueries = () => {
                             saveError = error.message ?? 'Unkown error'
                             saveStatus = error.code ?? ''
                         } else {
+                            saveData = data
                             const { error: userError, status } = await updateUser({ ...userData, user_id: data.user_id })
                             if (userError) {
                                 saveError = userError
                                 saveStatus = status
                             }
-                            const timesData = { start_date: appointment.start_date, start_time: appointment.start_time }
-                            const { error: timesError } = await supabase.from('times').update(timesData).eq('record_id', id)
+                            const timesDataRow = { ['record_id']: id, start_date: appointment.start_date, start_time: appointment.start_time }
+                            const { data: timesData, error: timesError } = await supabase.from('times').upsert(timesDataRow).onconflict('record_id').select('*').single()
                             if (timesError) {
                                 saveError = userError.message ?? 'Uknown error - times data not updated'
                                 saveStatus = userError.code ?? ''
-                            }     
+                            } else {
+                                saveTimesData = timesData
+                            }
                             selectedAppointment.value = null
                             updatedAppointment.value = null //blankState.value
                         }
@@ -325,10 +337,10 @@ export const useFetchQueries = () => {
                 }
             }
         }
-        return { error: saveError, status: saveStatus }
+        return { data: saveData, timesData: saveTimesData, error: saveError, status: saveStatus }
     }
       
-    const deleteAppointment = async (pending) => {
+    const deleteAppointment = async (id, pending) => {
         let deleteError = null
         let deleteStatus = null
         if (!selectedAppointment.value) {
@@ -337,7 +349,6 @@ export const useFetchQueries = () => {
         } else {
             pending.value = true
             try {
-                const id = selectedAppointment.value.id
                 const { error } = await supabase.from('appointments').delete().eq('id', id)
                 if (error) {
                     deleteError = error.message ?? 'Uknown error'
