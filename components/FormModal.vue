@@ -84,13 +84,10 @@
   import { z } from 'zod'
   import dayjs from 'dayjs'
   
-  // import { useFetchQueries } from '~/composables/useFetchQueries'
+  import { useFetchQueries } from '~/composables/useFetchQueries'
   import { storeToRefs } from 'pinia'
-  import { useEventsStore } from '~/stores/events'
-
-  const eventsStore = useEventsStore()
-  const { events, eventsByDate, loading, error } = storeToRefs(eventsStore)
-
+  import { getDynamicStore } from '~/stores/events'
+  
   interface userType {
     id?: number,
     title: string | undefined,
@@ -355,6 +352,11 @@
       const isUpdate = !!selectedAppointment.value
       const action = isUpdate ? 'update' : 'create a new'
       try {
+        const range = dayjs(sanitizedAppointment.start_date).format('MMMM')
+        const type = 'dayGridMonth'
+        const storeId = `${range}-${type}`
+        const eventsStore = getDynamicStore(storeId)
+        const { events, eventsByDate, loading, error: storeError } = storeToRefs(eventsStore)
         const { error, status } = await eventsStore.saveEvent(sanitizedAppointment, isUpdate)
         //await submitAppointment(sanitizedAppointment) 
         if(error){          
