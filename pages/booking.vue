@@ -20,9 +20,14 @@ onMounted(async () => {
   const supabase = useSupabaseClient()
   const { data: { session } } = await supabase.auth.getSession()
   if (!guestUser.value && (!session || !session.user)) {
-    const { history } = useRouter().options
-    const stateBack = history.state.back as string
-    const fromPage = stateBack === '/' ? 'index' : stateBack.slice(1)
+    const route = useRoute(), router = useRouter()
+    const { history } = router.options
+    const stateBack = history.state.back as string | null
+    const fromPage = !stateBack ? 
+      route.path : 
+      stateBack === '/' ? 
+        'index' : 
+        stateBack.slice(1)
     origin.value = `${fromPage}_booking`
     return navigateTo('/loginLink')
   } else if (!userRole.value && session?.user) {
