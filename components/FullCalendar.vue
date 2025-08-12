@@ -1,5 +1,5 @@
 <template>
-  <FullCalendar :options="calendarOptions" />
+  <FullCalendar ref="FullCalendarGrid" :options="calendarOptions" />
 </template>
 
 <script lang="ts" setup>
@@ -8,6 +8,9 @@
   import interactionPlugin from '@fullcalendar/interaction'
   import timegrid from '@fullcalendar/timegrid'
   import list from '@fullcalendar/list'
+
+  import type { DatesSetArg, ViewApi, CalendarOptions } from '@fullcalendar/core'
+
   import dayjs from 'dayjs'
 
   const props = defineProps({
@@ -53,8 +56,30 @@
     }
   })
 
-  const emit = defineEmits(['select', 'deselect', 'calendarReady', 'dateClicked'])
+  const emit = defineEmits(['viewChanged', 'dateChanged', 'select', 'deselect', 'calendarReady', 'dateClicked'])
   
+  const FullCalendarGrid = ref<typeof FullCalendar | null>(null)
+
+  // Computed properties with calendar values
+  const currentViewType = ref<string | null>(null)
+  //   FullCalendarGrid.value ? FullCalendarGrid.value.getApi().view.type : 'dayGridMonth'
+  // })
+  const currentDate = ref<Date>(new Date())
+  //   FullCalendarGrid.value ? FullCalendarGrid.value.getApi().getDate() : 'all'
+  // })
+  let viewType: string | null = currentViewType.value ? currentViewType.value : 'dayGridMonth'
+  let range: string = currentDate.value ? dayjs(currentDate.value).format('MMMM') : 'all'
+
+  // watch(currentViewType, (view) => {
+  //   viewType = view ?? 'dayGridMonth'
+  //   emit('viewChanged', viewType)
+  // }, {immediate: true})
+
+  // watch(currentDate, (Date) => {
+  //   range = Date ? dayjs(Date).format('MMMM') : 'all'
+  //   emit('dateChanged', range)
+  // }, {immediate: true})
+
   const events = ref([])
   watch(() => props.dataSet, (dataSet) => {
     events.value.splice(0)
@@ -89,7 +114,10 @@
     }
   }
 
-  const calendarOptions = {
+  // Reactive state that mirrors calendar state
+  const currentView = ref('')
+
+  const calendarOptions: CalendarOptions = {
     plugins: [ dayGridPlugin, interactionPlugin, timegrid, list ],
     headerToolbar: {
       left: 'prev,next today',
@@ -110,6 +138,24 @@
       },
     },
     events: events.value,
-    eventsSet: () => { emit('calendarReady') }
+    eventsSet: () => { emit('calendarReady') },
+    // Update reactive state when calendar changes
+    datesSet: (dateInfo: DatesSetArg) => {
+      currentView.value = dateInfo.view.type
+      currentDate.value = dateInfo.view.currentStart
+    },    
+    viewDidMount: (viewInfo: { view: ViewApi }) => {
+      currentView.value = viewInfo.view.type
+    }
   }
+
+  watch(currentView, (view) => {
+    viewType = view ?? 'dayGridMonth'
+    emit('viewChanged', viewType)
+  }, {immediate: true})
+
+  watch(currentDate, (Date) => {
+    range = Date ? dayjs(Date).format('MMMM') : 'all'
+    emit('dateChanged', range)
+  }, {immediate: true})
 </script>

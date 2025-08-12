@@ -25,7 +25,7 @@
     <FormModal v-model="isOpen" :selected-date="selectedDate" :existing-records="existingRecords" @saved="reload"/>
     <ClientOnly>
       <UCard v-if="user && showCalendar" class="lg:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
-        <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendar-ready="isReady=true" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
+        <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendar-ready="isReady=true" @viewChanged="updateStoreName" @dateChanged="updateStoreName" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
       </UCard>
       <UCard v-else-if="user" class="col-span-12 text-4xl w-full bg-linear-to-b from-sky-100 to-sky-400" :class="{'lg:hidden': showCalendar, 'lg:col-span-9': !showCalendar }">
         <section>
@@ -53,12 +53,14 @@
 import { ref } from 'vue';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 
+import dayjs from 'dayjs'
+
 import { storeToRefs } from 'pinia'
-import { useEventsStore } from '~/stores/events'
+import { getDynamicStore } from '~/stores/events'
 
-const eventsStore = useEventsStore()
-const { events: storedEvents, loading, error } = storeToRefs(eventsStore)
-
+const defaultDate = dayjs(new Date()).format('MMMM')
+let storeId = `${defaultDate}-dayGridMonth`
+let eventsStore = getDynamicStore(storeId)
 
 const { toastBar } = useToastBar()
 const user = useSupabaseUser()
@@ -77,6 +79,14 @@ const selectedAppointment = useState('selectedAppointment', () => null)
 const updatedAppointment =  useState('updatedAppointment', () => null)
 const selectedDate = ref(null)
 
+const updateStoreName = ({ date, type }) => {
+  const range = date ?? defaultDate
+  storeId = `${range}-${type}`
+}
+watchEffect(() => {
+  eventsStore = getDynamicStore(storeId)
+})
+const { events: storedEvents, loading, error } = storeToRefs(eventsStore)
 // const { fetchAppointments,
 //         updateAppointment,
 //         deleteAppointment,
@@ -109,15 +119,25 @@ watch(() => selectedAppointment.value, (value) => {
 const reload = async () => {
   if(guestUser.value) return
   try {
-    const mergedData = data.map((item) => {
-      const { users, ...rest } = item
-      return { ...rest, ...users, id: rest.id, created_at: rest.created_at }
-    })
 
-    appointments.value = mergedData
+    const {data, timesData, isPending, error, status} = await eventsStore.fetchEvents(pending)
+    // await fetchAppointments(pending)
 
-    existingRecords.value = timesData
-    events.splice(0, events.length, ...mergedData);
+    pending.value = isPending.value
+    if(error){
+      onError(status, error)
+      return
+    } else if (data){
+      const mergedData = data.map((item) => {
+        const { users, ...rest } = item
+        return { ...rest, ...users, id: rest.id, created_at: rest.created_at }
+      })
+
+      appointments.value = mergedData
+
+      existingRecords.value = timesData
+      events.splice(0, events.length, ...mergedData);
+    }
   } catch (error) {
     onError(500, error)
     return
