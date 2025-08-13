@@ -44,6 +44,7 @@ onMounted(async () => {
         return
       }
       await useSetRole(userId)
+      useState<string>('user_id', () => userId)
     }
   }
   roleSet.value = true

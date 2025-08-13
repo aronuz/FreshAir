@@ -317,7 +317,7 @@
   }
   
   const saveUser = async (user: FormSubmitEvent<roleType>) => {
-    const { title, phone, email, user_id } = user?.data
+    const { title, phone, email, user_id } = user//?.data
     const userInfo = { title, phone, email, user_id }
     const userData = Object.fromEntries(
         Object.entries(userInfo).map(([key, value]) => [key, value === undefined ? null : value])
@@ -336,6 +336,7 @@
       isOpen.value = false
       emit('saved', userData)
     }
+    return { error } 
   }
 
   const saveAppointment = async (event: FormSubmitEvent<stateType>) => {
@@ -354,34 +355,37 @@
         Object.entries(appointmentData).map(([key, value]) => [key, value === undefined ? null : value])
       )
 
-      const user = {title, phone, email}
-      await saveUser(user)
+      const user = {title, phone, email, user_id: useState('user_id').value }
+      
+      const { error } = await saveUser(user)
 
-      sanitizedAppointment.start_date = sanitizedAppointment.start_date
-      ? sanitizedAppointment.start_date.toISOString().split('T')[0]
-      : null
-      sanitizedAppointment.end_date = sanitizedAppointment.end_date
-      ? sanitizedAppointment.end_date.toISOString().split('T')[0]
-      : null
-      const isUpdate = !!selectedAppointment.value
-      const action = isUpdate ? 'update' : 'create a new'
-      try {
-        const range = dayjs(sanitizedAppointment.start_date).format('MMMM')
-        const type = 'dayGridMonth'
-        const storeId = `${range}-${type}`
-        const eventsStore = getDynamicStore(storeId)
-        const { events, eventsByDate, loading, error: storeError } = storeToRefs(eventsStore)
-        const { error, status } = await eventsStore.saveEvent(sanitizedAppointment, isUpdate)
-        //await submitAppointment(sanitizedAppointment) 
-        if(error){          
-          showError(status as string, `Unable to ${action} appointment record.\n${JSON.stringify(error)}`)
-        } else {
-          toastBar('success', `Service ${isUpdate ? 'updated' : 'scheduled'}`)
-          isOpen.value = false
-          emit('saved')
+      if(!error) {
+        sanitizedAppointment.start_date = sanitizedAppointment.start_date
+        ? sanitizedAppointment.start_date.toISOString().split('T')[0]
+        : null
+        sanitizedAppointment.end_date = sanitizedAppointment.end_date
+        ? sanitizedAppointment.end_date.toISOString().split('T')[0]
+        : null
+        const isUpdate = !!selectedAppointment.value
+        const acion = isUpdate ? 'update' : 'create a new'
+        try {
+          const range = dayjs(sanitizedAppointment.start_date).format('MMMM')
+          const type = 'dayGridMonth'
+          const storeId = `${range}-${type}`
+          const eventsStore = getDynamicStore(storeId)
+          const { events, eventsByDate, loading, error: storeError } = storeToRefs(eventsStore)
+          const { error, status } = await eventsStore.saveEvent(sanitizedAppointment, isUpdate)
+          //await submitAppointment(sanitizedAppointment) 
+          if(error){          
+            showError(status as string, `Unable to ${action} appointment record.\n${JSON.stringify(error)}`)
+          } else {
+            toastBar('success', `Service ${isUpdate ? 'updated' : 'scheduled'}`)
+            isOpen.value = false
+            emit('saved')
+          }
+        } catch (error) {
+          showError('500', `Unable to ${action} user record.\n${JSON.stringify(error)}`)
         }
-      } catch (error) {
-        showError('500', `Unable to ${action} user record.\n${JSON.stringify(error)}`)
       }
     }
   }
