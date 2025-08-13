@@ -45,8 +45,8 @@ export function getDynamicStore(storeId: string) {
                 
                 // Check if cache is still valid
                 isCacheValid: (state) => {
-                if (!state.lastFetched) return false
-                return Date.now() - state.lastFetched.getTime() < state.cacheExpiry
+                    if (!state.lastFetched) return false
+                    return Date.now() - state.lastFetched.getTime() < state.cacheExpiry
                 },
                 
                 // Get event by ID
@@ -58,76 +58,76 @@ export function getDynamicStore(storeId: string) {
             actions: {
                 // Fetch events from database
                 async fetchEvents(pending: boolean, forceRefresh = false) {
-                console.log('fetchEvents called')
-                // Return cached data if valid and not forcing refresh
-                if (!forceRefresh && this.isCacheValid && this.events.length > 0) {
-                    return { data: this.events, timesData: this.timesData, isPending: false }
-                }
-
-                this.loading = pending
-                this.error = null
-
-                try {
-                    const { data, timesData, isPending, error, status } = await fetchAppointments(pending)
-                    
-                    if(error){
-                        return { error, status }
+                    console.log('fetchEvents called')
+                    // Return cached data if valid and not forcing refresh
+                    if (!forceRefresh && this.isCacheValid && this.events.length > 0) {
+                        return { data: this.events, timesData: this.timesData, isPending: false }
                     }
 
-                    this.events = data
-                    this.timesData = [...timesData]
-                    this.lastFetched = new Date()
-                    this.loading = isPending
-                    
-                    return { data, timesData, isPending }
-                } catch (error) {
-                    this.error = error instanceof Error ? error.message : 'Failed to fetch events'
-                    this.loading = false
-                    throw error
-                }
+                    this.loading = pending
+                    this.error = null
+
+                    try {
+                        const { data, timesData, isPending, error, status } = await fetchAppointments(pending)
+                        
+                        if(error){
+                            return { error, status }
+                        }
+
+                        this.events = data
+                        this.timesData = [...timesData]
+                        this.lastFetched = new Date()
+                        this.loading = isPending
+                        
+                        return { data, timesData, isPending }
+                    } catch (error) {
+                        this.error = error instanceof Error ? error.message : 'Failed to fetch events'
+                        this.loading = false
+                        throw error
+                    }
                 },
                 // Add or update an event
                 async saveEvent(appointment: Omit<Event, 'id'> | Partial<Event>, update: boolean) {
-                this.loading = true
-                debugger
-                try {
-                    const { data, timesData, error, status } = await submitAppointment(appointment)
-                    if (data) {
-                        if (!update) {
-                            this.events.push(data)    
-                        } else {
-                            const index = this.events.findIndex(e => e.id === data.id)
-                            if (index !== -1) this.events[index] = data
+                    this.loading = true
+                    debugger
+                    try {
+                        const { data, timesData, error, status } = await submitAppointment(appointment)
+                        if (data) {
+                            if (!update) {
+                                this.events.push(data)    
+                            } else {
+                                const index = this.events.findIndex(e => e.id === data.id)
+                                if (index !== -1) this.events[index] = data
+                            }
+                            this.updateTimesData(data.id, timesData)
                         }
-                        this.updateTimesData(data.id, timesData)
+                        return { error, status }
+                    } catch (error) {
+                        this.error = error instanceof Error ? error.message : `Failed to ${update? 'update' : 'add'} appointment`
+                        this.loading = false
+                        throw error
+                    } finally {
+                        this.loading = false
                     }
-                    return { error, status }
-                } catch (error) {
-                    this.error = error instanceof Error ? error.message : `Failed to ${update? 'update' : 'add'} appointment`
-                    this.loading = false
-                    throw error
-                } finally {
-                    this.loading = false
-                }
                 },
 
                 // Delete an event
                 async deleteEvent(id: number, pending: boolean) {
-                this.loading = true
-                
-                try {
-                    const { error, isPending, status } = await deleteAppointment(id, pending)
-                    if (error) {
-                    return { error, isPending, status }
+                    this.loading = true
+                    
+                    try {
+                        const { error, isPending, status } = await deleteAppointment(id, pending)
+                        if (error) {
+                        return { error, isPending, status }
+                        }
+                        this.events = this.events.filter(e => e.id !== id)
+                        await this.updateTimesData(id, null, true); // Remove from timesData
+                        this.loading = false
+                    } catch (error) {
+                        this.error = error instanceof Error ? error.message : 'Failed to delete event'
+                        this.loading = false
+                        throw error
                     }
-                    this.events = this.events.filter(e => e.id !== id)
-                    await this.updateTimesData(id, null, true); // Remove from timesData
-                    this.loading = false
-                } catch (error) {
-                    this.error = error instanceof Error ? error.message : 'Failed to delete event'
-                    this.loading = false
-                    throw error
-                }
                 },
 
                 // Clear cache and force refresh
@@ -137,9 +137,9 @@ export function getDynamicStore(storeId: string) {
 
                 // Clear all data
                 clearEvents() {
-                this.events = []
-                this.lastFetched = null
-                this.error = null
+                    this.events = []
+                    this.lastFetched = null
+                    this.error = null
                 },
 
                 async updateTimesData(id: number, updateData: TimesDataItem | null = null, isDelete = false) {
