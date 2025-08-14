@@ -328,10 +328,12 @@
     } else {
       let roleError
       const role = rolePicked.value as string
-      if(role !== props.selectedUser!.role) roleError = await useSetRole(data!.user_id, role as string)
-      if(!roleError) {
-        rolePicked.value = role
-        toastBar('success', 'User updated')
+      if(props.selectedUser) {
+        if(role !== props.selectedUser!.role) roleError = await useSetRole(data!.user_id, role as string)
+        if(!roleError) {
+          rolePicked.value = role
+          toastBar('success', 'User updated')
+        }
       }
       isOpen.value = false
       emit('saved', userData)
@@ -351,15 +353,18 @@
       showError(errors, '500')
     } else {
       console.log(appointmentData)
-      const {title, address, phone, email, ...sanitizedAppointment} = Object.fromEntries(
+      const {title, phone, email, ...sanitizedAppointment} = Object.fromEntries(
         Object.entries(appointmentData).map(([key, value]) => [key, value === undefined ? null : value])
       )
 
-      const user = {title, phone, email, user_id: useState('user_id').value }
+      const user_id = useState('user_id').value
+
+      const user = {title, phone, email, 'user_id': user_id}
       
       const { error } = await saveUser(user)
 
       if(!error) {
+        sanitizedAppointment.user_id = user_id
         sanitizedAppointment.start_date = sanitizedAppointment.start_date
         ? sanitizedAppointment.start_date.toISOString().split('T')[0]
         : null
@@ -367,7 +372,7 @@
         ? sanitizedAppointment.end_date.toISOString().split('T')[0]
         : null
         const isUpdate = !!selectedAppointment.value
-        const acion = isUpdate ? 'update' : 'create a new'
+        const action = isUpdate ? 'update' : 'create'
         try {
           const range = dayjs(sanitizedAppointment.start_date).format('MMMM')
           const type = 'dayGridMonth'
@@ -375,16 +380,17 @@
           const eventsStore = getDynamicStore(storeId)
           const { events, eventsByDate, loading, error: storeError } = storeToRefs(eventsStore)
           const { error, status } = await eventsStore.saveEvent(sanitizedAppointment, isUpdate)
-          //await submitAppointment(sanitizedAppointment) 
+          //await submitAppointment(sanitizedAppointment)
           if(error){          
             showError(status as string, `Unable to ${action} appointment record.\n${JSON.stringify(error)}`)
           } else {
-            toastBar('success', `Service ${isUpdate ? 'updated' : 'scheduled'}`)
+            toastBar('success', `Service ${action}d successfully.`)
             isOpen.value = false
             emit('saved')
           }
         } catch (error) {
-          showError('500', `Unable to ${action} user record.\n${JSON.stringify(error)}`)
+          const errorMessage = error instanceof Error ? JSON.stringify(error) : error
+          showError('500', `Unable to ${action} appointment record.\n${errorMessage}`)
         }
       }
     }

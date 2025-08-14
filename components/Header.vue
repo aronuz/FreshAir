@@ -55,7 +55,7 @@
           <NuxtLink to="/contact" @click="isMobileMenuOpen = false">Contact Us</NuxtLink>
           <NuxtLink to="/about" @click="isMobileMenuOpen = false">About Us</NuxtLink>
           <NuxtLink v-if="isAdmin" to="/admin" label="Admin" @click="isMobileMenuOpen = false" /> -->
-          <UButton v-if="user" class="text-4xl/15 m-auto" color="info" variant="outline" @click="handleLogout; isMobileMenuOpen = false" label="Log Out" />
+          <UButton v-if="user" class="text-4xl/15 m-auto" color="info" variant="outline" @click="isMobileMenuOpen = false; handleLogout()" label="Log Out" />
           <UButtonGroup v-else class="m-auto">
             <UButton v-if="notOnLogin" class="text-4xl/15 pb-4" color="info" variant="outline" @click="handleLogin; isMobileMenuOpen = false" label="Log In" />
             <UButton v-if="notOnLogin" class="text-4xl/15 pb-4" color="info" variant="outline" @click="handleRegister; isMobileMenuOpen = false" label="Register" />
@@ -70,6 +70,8 @@
 </template>
 
 <script lang="ts" setup>
+  import { removeAllStores } from '~/stores/events'
+
   const { getPageAccess } = useFetchQueries()
   const guestUser = useGuestUser()
   const user = useSupabaseUser()
@@ -150,6 +152,9 @@
       toastBar('error', 'Logout failed.', JSON.stringify(error))
     } else {
       userRole.value = null
+      isAdmin.value = false
+      useState('user_id', () => null)
+      removeAllStores()
       toastBar('success', `You have been logged out.`)
       await router.push('/');
     }

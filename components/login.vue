@@ -53,18 +53,17 @@
 
     const isConfirmation = computed(() => props.page === 'Confirmation')
     
-    const origin = useState('origin')
+    let origin = useState('origin').value as string
     const fromPage = ref<string>('/') //useRouter().options.history.state.back
 
-    let origin_value = origin.value as string
-    if (origin_value && origin_value.includes('_')) {
-        origin_value = origin_value.slice(0, origin_value.indexOf('_')) 
+    if (origin && origin.includes('_')) {
+        origin = origin.slice(0, origin.indexOf('_')) 
     }
-    if(origin_value && origin_value !== 'index') fromPage.value+=origin_value
+    if(origin && origin !== 'index') fromPage.value+=origin
     let fromPageLink: HTMLElement | null
     watch(() => document, (value) => {
-        if (value && origin_value && !['login', 'registration'].includes(origin_value)) {
-            fromPageLink = document.querySelector(`#${origin_value}`)
+        if (value && origin && !['login', 'registration'].includes(origin)) {
+            fromPageLink = document.querySelector(`#${origin}`)
             fromPageLink?.classList.add('router-link-active')
         }
     }, {immediate: true})
@@ -89,6 +88,7 @@
             id: 0,
             email: ''
         }
+        useState('user_id', () => 0)
         const idList = document.querySelectorAll('.router-link-active')
         if(idList.length) idList[0].classList.remove('router-link-active')
         router.push({ path: "/booking" })

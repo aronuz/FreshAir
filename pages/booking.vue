@@ -46,6 +46,9 @@ onMounted(async () => {
       await useSetRole(userId)
       useState<string>('user_id', () => userId)
     }
+  } else if (session?.user){
+    const userId = session.user.id
+    useState<string>('user_id', () => userId)
   }
   roleSet.value = true
 })

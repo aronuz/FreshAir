@@ -14,6 +14,10 @@ export interface TimesDataItem {
 
 const storeMap = new Map()
 
+export const removeAllStores = () => {
+    storeMap.clear()
+}
+
 export function getDynamicStore(storeId: string) {
     if (storeMap.has(storeId)) {
         return storeMap.get(storeId)
@@ -22,8 +26,7 @@ export function getDynamicStore(storeId: string) {
                 submitAppointment,
                 deleteAppointment,
             } = useFetchQueries()
-        const useEventsStore = defineStore(`events-${storeId}`, {
-            
+        const useEventsStore = defineStore(`events-${storeId}`, {            
 
             state: () => ({
                 events: [] as Event[],
@@ -91,15 +94,17 @@ export function getDynamicStore(storeId: string) {
                     this.loading = true
                     debugger
                     try {
-                        const { data, timesData, error, status } = await submitAppointment(appointment)
-                        if (data) {
+                        const { data, error, status } = await submitAppointment(appointment)
+                        if (data) {                            
                             if (!update) {
-                                this.events.push(data)    
-                            } else {
+                                this.events.push(data as Event)    
+                            } else {                                
                                 const index = this.events.findIndex(e => e.id === data.id)
-                                if (index !== -1) this.events[index] = data
+                                if (index !== -1) this.events[index] = data as Event
                             }
-                            this.updateTimesData(data.id, timesData)
+                            const { id: record_id, ...rest } = data
+                            const timesDataItem = { 'record_id': record_id, ...rest } as TimesDataItem
+                            this.updateTimesData(record_id, timesDataItem)
                         }
                         return { error, status }
                     } catch (error) {
@@ -117,15 +122,37 @@ export function getDynamicStore(storeId: string) {
                     
                     try {
                         const { error, isPending, status } = await deleteAppointment(id, pending)
-                        if (error) {
+                        if (!error) {                            
+                            this.events = this.events.filter(e => e.id !== id)
+                            await this.updateTimesData(id, null, true); // Remove from timesData
+                            this.loading = false
+                        } 
                         return { error, isPending, status }
-                        }
-                        this.events = this.events.filter(e => e.id !== id)
-                        await this.updateTimesData(id, null, true); // Remove from timesData
-                        this.loading = false
                     } catch (error) {
                         this.error = error instanceof Error ? error.message : 'Failed to delete event'
                         this.loading = false
+                        throw error
+                    }
+                },
+
+                async updateTimesData(id: number, updateData: TimesDataItem | null = null, isDelete = false) {
+                    try {
+                        const index = this.timesData.findIndex(item => item && item.record_id === id)
+                        
+                        if (isDelete) {
+                            // Remove times item
+                            if (index !== -1) {
+                                this.timesData.splice(index, 1)
+                            }
+                        } else if (index !== -1) {
+                            // Update existing times items
+                            Object.assign(this.timesData[index], { ...updateData })
+                        } else if (updateData) {
+                            // Add new times data
+                            this.timesData.push({ ...updateData })
+                        }
+                    } catch (error) {
+                        this.error = error instanceof Error ? error.message : 'Failed to update times data'
                         throw error
                     }
                 },
@@ -135,28 +162,16 @@ export function getDynamicStore(storeId: string) {
                 return this.fetchEvents(true, true)
                 },
 
-                // Clear all data
+                // Clear all data in current store
                 clearEvents() {
                     this.events = []
                     this.lastFetched = null
                     this.error = null
                 },
 
-                async updateTimesData(id: number, updateData: TimesDataItem | null = null, isDelete = false) {
-                const index = this.timesData.findIndex(item => item && item.record_id === id)
-                    
-                    if (isDelete) {
-                        // Remove times item
-                        if (index !== -1) {
-                            this.timesData.splice(index, 1)
-                        }
-                    } else if (index !== -1) {
-                        // Update existing times items
-                        Object.assign(this.timesData[index], { record_id: id, ...updateData })
-                    } else if (updateData) {
-                        // Add new times data
-                        this.timesData.push({ ...updateData })
-                    }
+                // Remove the current store
+                removeStore() {
+                    storeMap.delete(storeId)
                 }
             },
         })
