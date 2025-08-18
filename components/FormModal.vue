@@ -413,7 +413,7 @@
   const isOpen = computed({
     get: () => props.modelValue,
     set: (val: Boolean) => {
-      if (!val) blankForm()
+      if (!val && appform.value) blankForm()
       emit('update:modelValue', val)
     }
   })
