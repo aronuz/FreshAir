@@ -9,6 +9,13 @@
             <div class="flex-items h-fit">
               <h3 class="font-semibold text-2xl md:text-lg text-gray-700 mb-2">{{ service.name }}</h3>
               <p class="text-gray-600 text-2xl md:text-sm h-fit">{{ service.description }}</p>
+              <UButton
+                v-if="service.type !== 'plans'"
+                class="mt-2"
+                color="primary"
+                variant="solid"
+                label="Request Service"
+                @click="$router.push({path: '/booking', query: {service: service.name}})"/>
             </div>
             <div class="flex-items">
               <GalleryItem :image-src="service.type" :alt-text="service.description" loading="lazy"/>
@@ -21,14 +28,7 @@
 </template>
 
 <script lang="ts" setup>
-const services = [
-  {id: 1, name: 'Air Conditioning', type: 'ac', description: 'Installation, repair, and maintenance of all types of air conditioning systems.'},
-  {id: 2, name: 'Heating Systems', type: 'heating', description: 'Expert services for furnaces, heat pumps, and other heating solutions.'},
-  {id: 3, name: 'Ventilation', type: 'ventilation', description: 'Improving indoor air quality with effective ventilation systems.'},
-  {id: 4, name: 'Ductwork', type: 'ductwork', description: 'Installation, cleaning, and repair of ductwork for optimal airflow.'},
-  {id: 5, name: 'Maintenance Plans', type: 'plans', description: 'Regular maintenance services to keep your HVAC system running smoothly.'},
-  {id: 6, name: 'Emergency Services', type: 'emergency', description: '24/7 emergency repair services when you need them most.'}
-]
+import { services } from '~/data/constants.json'
 
 const displayStyle: Array<Object> = reactive([])
 for (const i in services){
@@ -43,7 +43,6 @@ const showEl = () => {
     displayStyle[i] = {display: 'block'}
   })
 } 
-
 
 if (process.client) {
 //   onMounted(() => {

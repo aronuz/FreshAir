@@ -1,0 +1,10 @@
+{
+"services": [
+        {"id": 1, "name": "Air Conditioning", "type": "ac", "description": "Installation, repair, and maintenance of all types of air conditioning systems."},
+        {"id": 2, "name": "Heating Systems", "type": "heating", "description": "Expert services for furnaces, heat pumps, and other heating solutions."},
+        {"id": 3, "name": "Ventilation", "type": "ventilation", "description": "Improving indoor air quality with effective ventilation systems."},
+        {"id": 4, "name": "Ductwork", "type": "ductwork", "description": "Installation, cleaning, and repair of ductwork for optimal airflow."},
+        {"id": 5, "name": "Maintenance Plans", "type": "plans", "description": "Regular maintenance services to keep your HVAC system running smoothly."},
+        {"id": 6, "name": "Emergency Services", "type": "emergency", "description": "24/7 emergency repair services when you need them most."}
+    ]
+}

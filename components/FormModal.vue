@@ -88,6 +88,8 @@
   import { storeToRefs } from 'pinia'
   import { getDynamicStore } from '~/stores/events'
   
+  import { services as serviceList } from '~/data/constants.json'
+
   interface userType {
     id?: number,
     title: string | undefined,
@@ -119,7 +121,8 @@
     modelValue: Boolean,
     existingRecords: Object,
     selectedDate: String as PropType<string|null>,
-    selectedUser: Object as PropType<roleType|null>
+    selectedUser: Object as PropType<roleType|null>,
+    service: String as PropType<string|undefined>
   })
   const emit = defineEmits(['update:modelValue', 'saved'])
 
@@ -261,11 +264,11 @@
       )
     )
 
+  const appform = ref()
+
   const title = computed(() => {
     return props.selectedUser ? 'User Info' : !updatedAppointment ? 'New Appointment' : 'Make a change'
   })
-
-  const appform = ref()
 
   const saveLabel = ref('Save')
 
@@ -273,8 +276,13 @@
 
   const hasErrors = ref(false)
 
-  const services = ref([{label: 'Air Conditioning', id: 1}, {label: 'Heat Systems', id: 2}, {label: 'Ventilation', id: 3}, {label: 'Ductwork', id: 4}, {label: 'Maintenance', id: 5}, {label: 'Emergency', id: 6}])
+  const services = ref(serviceList.map(service => ({label: service.name, id: service.id})))
   const servicePicked = ref(0)
+  
+  onMounted(() => {
+    const serviceItem = props.service ? serviceList.find(item => item.name === props.service) : undefined
+    servicePicked.value = serviceItem ? serviceItem.id : 0
+  })
 
   const appointmentData = formdata as stateType
 

@@ -22,7 +22,7 @@
         <USkeleton v-if="user && loadingList" class="mx-auto mt-8 h-8 w-[5vw] bg-gray-600" as="div"/>
       </UCard>
     </div>
-    <FormModal v-model="isOpen" :selected-date="selectedDate" :existing-records="existingRecords" @saved="reload"/>
+    <FormModal v-model="isOpen" :selected-date="selectedDate" :existing-records="existingRecords" :service="service" @saved="reload"/>
     <ClientOnly>
       <UCard v-if="user && showCalendar" class="lg:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
         <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendar-ready="isReady=true" @viewChanged="updateStoreName" @dateChanged="updateStoreName" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
@@ -58,6 +58,11 @@ import dayjs from 'dayjs'
 import { storeToRefs } from 'pinia'
 import { getDynamicStore } from '~/stores/events'
 
+
+const props = defineProps({
+  service: String | undefined
+})
+
 const defaultDate = dayjs(new Date()).format('MMMM')
 let storeId = `${defaultDate}-dayGridMonth`
 let eventsStore = getDynamicStore(storeId)
@@ -78,6 +83,10 @@ const existingRecords = ref([])
 const selectedAppointment = useState('selectedAppointment', () => null)
 const updatedAppointment =  useState('updatedAppointment', () => null)
 const selectedDate = ref(null)
+
+onMounted(() => {
+  if (props.service) isOpen.value = true
+})
 
 const updateStoreName = ({ date, type }) => {
   const range = date ?? defaultDate

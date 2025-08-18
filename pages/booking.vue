@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col items-center">
     <h2 class="text-3xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-8">Book your HVAC Service</h2>
-    <AppointmentCalendar v-if="roleSet"/>
+    <AppointmentCalendar v-if="roleSet" :service="service"/>
   </div>
 </template>
 
@@ -10,6 +10,8 @@ import AppointmentCalendar from '../components/AppointmentCalendar.vue'
 
 const { createUser } = useFetchQueries()
 const { toastBar } = useToastBar()
+const route = useRoute()
+const service = route.query.service as string | undefined
 const origin = useState('origin')
 const userRole = useState('userRole')
 const guestUser = useGuestUser()
