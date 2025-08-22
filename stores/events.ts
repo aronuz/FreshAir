@@ -1,15 +1,28 @@
 import { defineStore } from 'pinia'
 
+export interface fetchParams {
+    pending: boolean,
+    limit?: number,
+    user_id?: string | null,
+    list?: boolean
+}
+
+export interface StoreID {
+    range: string | null
+    type: string
+    user_id: string | null
+}
+
 export interface Event {
-  id: number
-  name: string
-  date: string
-  // other event props
+    id: number
+    name: string
+    date: string
+    // other event props
 }
 
 export interface TimesDataItem {
-  record_id: number
-  [key: string]: any
+    record_id: number
+    [key: string]: any
 }
 
 const storeMap = new Map()
@@ -18,21 +31,23 @@ export const removeAllStores = () => {
     storeMap.clear()
 }
 
-export function getDynamicStore(storeId: string) {
-    if (storeMap.has(storeId)) {
-        return storeMap.get(storeId)
+export function getDynamicStore(storeId: StoreID) {
+    const storeKey = `${storeId.range}-${storeId.type}-${storeId.user_id || 'all'}`
+    if (storeMap.has(storeKey)) {
+        return storeMap.get(storeKey)
     } else {
         const { fetchAppointments,
                 submitAppointment,
                 deleteAppointment,
             } = useFetchQueries()
-        const useEventsStore = defineStore(`events-${storeId}`, {            
+        const useEventsStore = defineStore(`events-${storeKey}`, {            
 
             state: () => ({
                 events: [] as Event[],
                 timesData: [] as TimesDataItem[],
                 loading: false,
                 error: null as string | null,
+                status: null as string | number | null,
                 lastFetched: null as Date | null,
                 cacheExpiry: 5 * 60 * 1000, // 5 minutes
             }),
@@ -60,41 +75,33 @@ export function getDynamicStore(storeId: string) {
 
             actions: {
                 // Fetch events from database
-                async fetchEvents(pending: boolean, forceRefresh = false) {
+                async fetchEvents(fetchParams: fetchParams, forceRefresh = false) {
                     console.log('fetchEvents called')
                     // Return cached data if valid and not forcing refresh
                     if (!forceRefresh && this.isCacheValid && this.events.length > 0) {
                         return { data: this.events, timesData: this.timesData, isPending: false }
                     }
 
-                    this.loading = pending
-                    this.error = null
-
                     try {
-                        const { data, timesData, isPending, error, status } = await fetchAppointments(pending)
+                        const { data, timesData, isPending, error, status } = await fetchAppointments(fetchParams.pending)
                         
                         if(error){
-                            return { error, status }
+                            return { error, status, isPending }
                         }
 
                         this.events = data
                         this.timesData = [...timesData]
-                        this.lastFetched = new Date()
-                        this.loading = isPending
-                        
+                        this.lastFetched = new Date()                        
                         return { data, timesData, isPending }
                     } catch (error) {
-                        this.error = error instanceof Error ? error.message : 'Failed to fetch events'
-                        this.loading = false
+                        // this.error = error instanceof Error ? error.message : 'Failed to fetch events'
                         throw error
                     }
                 },
                 // Add or update an event
                 async saveEvent(appointment: Omit<Event, 'id'> | Partial<Event>, update: boolean) {
-                    this.loading = true
-                    debugger
                     try {
-                        const { data, error, status } = await submitAppointment(appointment)
+                        const { data, error, status, isPending } = await submitAppointment(appointment)
                         if (data) {                            
                             if (!update) {
                                 this.events.push(data as Event)    
@@ -106,32 +113,32 @@ export function getDynamicStore(storeId: string) {
                             const timesDataItem = { 'record_id': record_id, ...rest } as TimesDataItem
                             this.updateTimesData(record_id, timesDataItem)
                         }
-                        return { error, status }
+                        return { error, status, isPending }
                     } catch (error) {
-                        this.error = error instanceof Error ? error.message : `Failed to ${update? 'update' : 'add'} appointment`
-                        this.loading = false
+                        // this.error = error instanceof Error ? error.message : `Failed to ${update? 'update' : 'add'} appointment`
                         throw error
-                    } finally {
-                        this.loading = false
                     }
                 },
 
                 // Delete an event
                 async deleteEvent(id: number, pending: boolean) {
                     this.loading = true
-                    
+                    this.error = null
+                    this.status = null
                     try {
-                        const { error, isPending, status } = await deleteAppointment(id, pending)
+                        const { error, status, isPending } = await deleteAppointment(id, pending)
                         if (!error) {                            
                             this.events = this.events.filter(e => e.id !== id)
                             await this.updateTimesData(id, null, true); // Remove from timesData
-                            this.loading = false
-                        } 
-                        return { error, isPending, status }
+                        } else this.error = error
+                        this.loading = isPending.value
+                        this.status = status
                     } catch (error) {
                         this.error = error instanceof Error ? error.message : 'Failed to delete event'
+                        this.status = 500
                         this.loading = false
-                        throw error
+                    } finally {
+                        return { error: this.error, status: this.status, isPending: this.loading }
                     }
                 },
 
@@ -159,7 +166,7 @@ export function getDynamicStore(storeId: string) {
 
                 // Clear cache and force refresh
                 async refreshEvents() {
-                return this.fetchEvents(true, true)
+                return this.fetchEvents({pending: true}, true)
                 },
 
                 // Clear all data in current store
@@ -171,11 +178,12 @@ export function getDynamicStore(storeId: string) {
 
                 // Remove the current store
                 removeStore() {
-                    storeMap.delete(storeId)
+                    storeMap.delete(storeKey)
                 }
             },
         })
-        storeMap.set(storeId, useEventsStore())
-        return useEventsStore
+        const storeInstance = useEventsStore()
+        storeMap.set(storeKey, storeInstance)
+        return storeInstance
     }
 }

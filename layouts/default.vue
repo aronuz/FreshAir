@@ -35,7 +35,7 @@
 </script>
 
 <style>
-.router-link-active {
+nav .router-link-active {
   background-color: rgb(62, 194, 113);
   color: #fff;
   box-shadow: 0px 5px rgb(88, 121, 212);

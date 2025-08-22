@@ -360,6 +360,7 @@
       }
       showError(errors, '500')
     } else {
+      pending.value = true
       console.log(appointmentData)
       const {title, phone, email, ...sanitizedAppointment} = Object.fromEntries(
         Object.entries(appointmentData).map(([key, value]) => [key, value === undefined ? null : value])
@@ -383,12 +384,13 @@
         const action = isUpdate ? 'update' : 'create'
         try {
           const range = dayjs(sanitizedAppointment.start_date).format('MMMM')
-          const type = 'dayGridMonth'
-          const storeId = `${range}-${type}`
+          const type = 'month'
+          const storeId = { range, type, user_id: null }
           const eventsStore = getDynamicStore(storeId)
           const { events, eventsByDate, loading, error: storeError } = storeToRefs(eventsStore)
-          const { error, status } = await eventsStore.saveEvent(sanitizedAppointment, isUpdate)
+          const { error, status, isPending } = await eventsStore.saveEvent(sanitizedAppointment, isUpdate, pending)
           //await submitAppointment(sanitizedAppointment)
+          pending.value = isPending.value
           if(error){          
             showError(status as string, `Unable to ${action} appointment record.\n${JSON.stringify(error)}`)
           } else {
@@ -398,6 +400,7 @@
           }
         } catch (error) {
           const errorMessage = error instanceof Error ? JSON.stringify(error) : error
+          pending.value = false
           showError('500', `Unable to ${action} appointment record.\n${errorMessage}`)
         }
       }

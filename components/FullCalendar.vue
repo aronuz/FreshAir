@@ -56,7 +56,7 @@
     }
   })
 
-  const emit = defineEmits(['viewChanged', 'dateChanged', 'select', 'deselect', 'calendarReady', 'dateClicked'])
+  const emit = defineEmits(['dataChanged', 'select', 'deselect', 'calendarReady', 'dateClicked'])
   
   const FullCalendarGrid = ref<typeof FullCalendar | null>(null)
 
@@ -151,11 +151,11 @@
 
   watch(currentView, (view) => {
     viewType = view ?? 'dayGridMonth'
-    emit('viewChanged', viewType)
+    emit('dataChanged', viewType)
   }, {immediate: true})
 
   watch(currentDate, (Date) => {
     range = Date ? dayjs(Date).format('MMMM') : 'all'
-    emit('dateChanged', range)
+    emit('dataChanged', range)
   }, {immediate: true})
 </script>

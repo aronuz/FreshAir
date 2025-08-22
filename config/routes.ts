@@ -9,3 +9,11 @@ export const ROUTE_CONFIG = [
   {name: "Site", path: "admin"},
   {name: "Construction", path: "construction"}
 ] as const
+
+export const PAGES_CONFIG = [
+  { name: 'Home', to: '/index', allowed: true, oldPath: null }, 
+  { name: 'Services', to: '/gallery', allowed: true, oldPath: null }, 
+  { name: 'Schedule Service', to: '/booking', allowed: true, oldPath: null }, 
+  { name: 'Contact Us', to: '/contact', allowed: true, oldPath: null }, 
+  { name: 'About Us', to: '/about', allowed: true, oldPath: null }
+]

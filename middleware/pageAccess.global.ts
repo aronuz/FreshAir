@@ -1,11 +1,7 @@
 interface AccessRule {
   to: string;
   allowed: boolean;
-}
-
-interface AccessRulesResponse {
-  data: AccessRule[];
-  error?: string;
+  [key: string]: any;
 }
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
@@ -19,19 +15,21 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     userRole.value = await useCheckRole(userId)
   }
 
-  const { data } = await useFetch<AccessRulesResponse>(`/api/page-access?path=${to.path}`)
+  const { data } = await useFetch<AccessRule>(`/api/page-access?path=${to.path}`)
+  console.log('data: ', data.value)
   if(data.value) {
     if (data.value.error && userRole.value === 'admin') {
       toastBar('error', 'Access list is missing', data.value.error)
     }
-    const accessRules: AccessRule[] = data.value.data
+    const accessRule: AccessRule = data.value
 
-    if (userRole.value !== 'admin' && accessRules && accessRules.length) {
-      const denied = accessRules.find((page: AccessRule) => page.to === to.path && !page.allowed )
-      if (denied) {
-        toastBar('error', 'Under construction', `${denied.to} is being updated. Please try again later!`)  
-        return navigateTo('/from')
-      }
+    if (to.path === '/admin' && userRole.value !== 'admin') {
+      toastBar('error', 'Access Denied', `You do not have permission to access ${to.path}`)
+      return navigateTo(from.path)
+    }
+    if (userRole.value !== 'admin' && accessRule && !accessRule.allowed) {
+      toastBar('error', 'Under construction', `${accessRule.to} is being updated. Please try again later!`)  
+      return navigateTo(from.path)
     }
   }
 })

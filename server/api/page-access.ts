@@ -9,6 +9,6 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   
-  const { data, error } = await supabase.from('page_access').select('*').eq('page', query.path);
+  const { data, error } = await supabase.from('page_access').select('*').eq('to', query.path);
   return data && data.length ? data[0] : { error: error ?? 'Page access rule not found' };
 });

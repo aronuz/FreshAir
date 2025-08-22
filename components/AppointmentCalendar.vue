@@ -25,7 +25,7 @@
     <FormModal v-model="isOpen" :selected-date="selectedDate" :existing-records="existingRecords" :service="service" @saved="reload"/>
     <ClientOnly>
       <UCard v-if="user && showCalendar" class="lg:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
-        <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendar-ready="isReady=true" @viewChanged="updateStoreName" @dateChanged="updateStoreName" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
+        <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendar-ready="isReady=true" @dataChanged="updateStoreName" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
       </UCard>
       <UCard v-else-if="user" class="col-span-12 text-4xl w-full bg-linear-to-b from-sky-100 to-sky-400" :class="{'lg:hidden': showCalendar, 'lg:col-span-9': !showCalendar }">
         <section>
@@ -64,7 +64,7 @@ const props = defineProps({
 })
 
 const defaultDate = dayjs(new Date()).format('MMMM')
-let storeId = `${defaultDate}-dayGridMonth`
+let storeId = { range: defaultDate, type: 'month', user_id: null }
 let eventsStore = getDynamicStore(storeId)
 
 const { toastBar } = useToastBar()
@@ -84,13 +84,19 @@ const selectedAppointment = useState('selectedAppointment', () => null)
 const updatedAppointment =  useState('updatedAppointment', () => null)
 const selectedDate = ref(null)
 
-onMounted(() => {
-  if (props.service) isOpen.value = true
+watchEffect(() => {
+  isOpen.value = !!props.service
 })
 
 const updateStoreName = ({ date, type }) => {
   const range = date ?? defaultDate
-  storeId = `${range}-${type}`
+  let viewType = 'month'
+  if (type && type.includes('Grid')) {
+    const regex = /(Grid|List)(\w*)$/
+    const match = type.match(regex)
+    viewType = match[2].toLowerCase()
+  }
+  storeId = { range, type: viewType, user_id: null }
 }
 watchEffect(() => {
   eventsStore = getDynamicStore(storeId)
@@ -128,8 +134,8 @@ watch(() => selectedAppointment.value, (value) => {
 const reload = async () => {
   if(guestUser.value) return
   try {
-
-    const {data, timesData, isPending, error, status} = await eventsStore.fetchEvents(pending)
+    pending.value = true
+    const {data, timesData, error, status, isPending} = await eventsStore.fetchEvents({ pending: pending.value })
     // await fetchAppointments(pending)
 
     pending.value = isPending.value
@@ -148,7 +154,7 @@ const reload = async () => {
       events.splice(0, events.length, ...mergedData);
     }
   } catch (error) {
-    onError(500, error)
+    onError(500, error instanceof Error ? error.message : 'Failed to fetch events')
     return
   }
 }
@@ -241,16 +247,18 @@ const setValues = () => {
 }
 
 const handleRemove = async () => {
+  pending.value = true
   const id = selectedAppointment.value.id
-  const { error, isPending } = await eventsStore.deleteEvent(id, pending)
+  const { error, status, isPending } = await eventsStore.deleteEvent(id, pending)
   //await deleteAppointment(id, pending)
-  if (error) onError(500, error)
-  else {
-    const selectedEl = document.querySelector(`.fc-event[data-event-id="${id}"]`);
-    if (selectedEl) selectedEl.remove()
-    toastBar('success', `Service appointment removed`)
-  }
   pending.value = isPending.value
+  if (error) {
+    onError(status, error)
+    return
+  }
+  const selectedEl = document.querySelector(`.fc-event[data-event-id="${id}"]`);
+  if (selectedEl) selectedEl.remove()
+  toastBar('success', `Service appointment removed`)
 }
 
 useHead({

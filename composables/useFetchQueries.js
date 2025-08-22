@@ -1,7 +1,7 @@
 export const useFetchQueries = () => {
     const supabase = useSupabaseClient()
     const error = ref('');
-    const pending = ref(false)
+    const isPending = ref(false)
     const blankState = useState('blankState')
     const selectedAppointment = useState('selectedAppointment')
     const updatedAppointment = useState('updatedAppointment') //ref(blankState.value)
@@ -10,7 +10,7 @@ export const useFetchQueries = () => {
         let fetchData = null
         let fetchError = null
         let fetchStatus = null
-        pending.value = true
+        isPending.value = pending
 
         try {
             const { data, error } = await supabase.rpc('get_user_data_and_role', { user_uuid: userId })
@@ -23,10 +23,10 @@ export const useFetchQueries = () => {
             fetchError = error;
             fetchStatus = "500"
         } finally {    
-            pending.value = false
+            isPending.value = false
         }
         
-        return { data: fetchData, error: fetchError, status: fetchStatus, isPending: pending }
+        return { data: fetchData, error: fetchError, status: fetchStatus, isPending }
     }
 
     const createUser = async (user) => {
@@ -64,7 +64,7 @@ export const useFetchQueries = () => {
             deleteError = "Unable to remove selected user(s)"
             deleteStatus = "500"
         } else {
-            pending.value = true
+            isPending.value = pending
             try {
                 const { error } = await supabase.from('users').delete().in('user_id', user_ids)
                 if (error) {
@@ -75,10 +75,10 @@ export const useFetchQueries = () => {
                 deleteError = `${deleteError}\n${error}`;
                 deleteStatus = "500"
             } finally {    
-                pending.value = false
+                isPending.value = false
             }
         }
-        return { error: deleteError, isPending: pending, status: deleteStatus }
+        return { error: deleteError, status: deleteStatus, isPending }
     };
 
     const updateUser = async (user) => {
@@ -127,9 +127,9 @@ export const useFetchQueries = () => {
             saveError = error;
             saveStatus = "500"
         } finally {;
-            pending.value = false
+            isPending.value = false
         }
-        return { data: saveData, error: saveError, status: saveStatus }
+        return { data: saveData, error: saveError, status: saveStatus, isPending }
     }
 
     const updatePageAccess = async (page) => {
@@ -147,7 +147,7 @@ export const useFetchQueries = () => {
     }
 
     const fetchAppointments = async (pending, limit = 0, id = null, list = false, dateRange = null) => {
-        pending.value = true
+        isPending.value = true
         let saveError = null
         let saveStatus = null
         const groupByDate = (data) => {
@@ -214,7 +214,7 @@ export const useFetchQueries = () => {
             const dataValue = response.data?.value?.timesData
             if (dataValue && dataValue.length) timesData = dataValue
         }
-        return { data: dataSet, timesData, isPending: pending, error: saveError, status: saveStatus }
+        return { data: dataSet, timesData, isPending, error: saveError, status: saveStatus }
     }
 
     const submitAppointment = async (appointment) => {
@@ -230,7 +230,7 @@ export const useFetchQueries = () => {
             saveStatus = status
         } else {
             try {
-                pending.value = true
+                isPending.value = true
 
                 const { title, email, phone, ...rest } = appointment
                 const appoinmentData = { ...rest }
@@ -264,15 +264,14 @@ export const useFetchQueries = () => {
                 saveError = error;
                 saveStatus = "500"
             } finally {
-                pending.value = false
+                isPending.value = false
             }
         }
-        return { data: saveData, error: saveError, status: saveStatus, type: actionType, pending }
+        return { data: saveData, error: saveError, status: saveStatus, type: actionType, isPending }
     };
 
     const updateAppointment = async (appointment) => {
         let saveData = null
-        let saveTimesData = null
         let saveStatus = null
         let saveError = null
         const changedValues = {}
@@ -294,7 +293,7 @@ export const useFetchQueries = () => {
                     saveStatus = "500"
                 }else{
                     try {
-                        pending.value = true
+                        isPending.value = true
                         const { title, email, phone, ...rest } = updatedValues
                         const userData = { title, email, phone }
                         const id = selectedAppointment.value.id
@@ -327,7 +326,7 @@ export const useFetchQueries = () => {
                         saveError = error;
                         saveStatus = "500"
                     } finally {
-                        pending.value = false
+                        isPending.value = false
                     }
                 }
             }
@@ -342,7 +341,7 @@ export const useFetchQueries = () => {
             deleteError = "Unable to remove selected appoinment"
             deleteStatus = "500"
         } else {
-            pending.value = true
+            isPending.value = true
             try {
                 const { error } = await supabase.from('appointments').delete().eq('id', id)
                 if (error) {
@@ -356,10 +355,10 @@ export const useFetchQueries = () => {
                 deleteError = `${deleteError}\n${error}`;
                 deleteStatus = "500"
             } finally {    
-                pending.value = false
+                isPending.value = false
             }
         }
-        return { error: deleteError, isPending: pending, status: deleteStatus }
+        return { error: deleteError, status: deleteStatus, isPending }
     };
 
     return {
@@ -373,7 +372,7 @@ export const useFetchQueries = () => {
         submitAppointment,
         updateAppointment,
         deleteAppointment,
-        pending,
+        pending: isPending,
         updatedAppointment
     }
 }

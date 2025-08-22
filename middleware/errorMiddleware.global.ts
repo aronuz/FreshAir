@@ -93,10 +93,10 @@ export default defineNuxtRouteMiddleware(async (to: RouteLocationNormalized, fro
 
   const { getPageAccess } = useFetchQueries()
 
-    try {
+  try {
     const { data: pageAccessData, error } = await getPageAccess()
     
-    if (error || !pageAccessData) {
+    if (error || !pageAccessData || !pageAccessData.length) {
       throw createError({ 
         statusCode: 500, 
         statusMessage: 'Failed to load page configuration',

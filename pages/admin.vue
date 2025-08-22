@@ -86,6 +86,11 @@ import { h, ref, resolveComponent } from 'vue'
 import type { TableColumn, TabsItem } from '@nuxt/ui'
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 
+import { PAGES_CONFIG, ROUTE_CONFIG } from '~/config/routes'
+import { storeToRefs } from 'pinia'
+import { useUsersStore } from '~/stores/users'
+import { getDynamicStore } from '~/stores/events'
+
 const UCheckbox = resolveComponent('UCheckbox')
 const { toastBar } = useToastBar()
 const breakpoints = useBreakpoints(breakpointsTailwind)
@@ -217,26 +222,32 @@ const columns = ref<TableColumn<userType>[]>([
   }
 ])
 
-const pages = reactive<pages[]>([{ name: 'Home', to: '/index', allowed: true, oldPath: null }, 
-{ name: 'Services', to: '/services', allowed: true, oldPath: null }, 
-{ name: 'Schedule Service', to: '/booking', allowed: true, oldPath: null }, 
-{ name: 'Contact Us', to: '/contact', allowed: true, oldPath: null }, 
-{ name: 'About Us', to: '/about', allowed: true, oldPath: null }])
+const pages = reactive<pages[]>(PAGES_CONFIG)
 
-const pathPicked: pathType = reactive({
-  'Home': '/index',
-  'Services': '/services', 
-  'Schedule Service': '/booking',
-  'Contact Us': '/contact',
-  'About Us': '/about'
+let pathPicked: pathType = reactive({})
+pages.forEach((page: pageItem) => {
+  const name = page.name
+  const path = ROUTE_CONFIG.find(item => item.name === name)?.path 
+  pathPicked[name] = path ? `/${path}` : page.to
 })
+
+// const pathPicked: pathType = reactive({
+//   'Home': '/index',
+//   'Services': '/gallery', 
+//   'Schedule Service': '/booking',
+//   'Contact Us': '/contact',
+//   'About Us': '/about'
+// })
 
 const { getPageAccess,
         updatePageAccess,
-        fetchUsers,
-        deleteUsers,
         fetchAppointments,
         pending } = useFetchQueries()
+
+const usersStore = useUsersStore()
+const { fetchUsers, deleteUser, updateUser } = usersStore
+
+const { usersByName, getUserById } = storeToRefs(usersStore)
 
 const updateSelectedUser = (event: userType | null) => {
   selectedUser.value = null
@@ -257,8 +268,9 @@ const updateSelectedUsers = async (event: boolean, id: string) => {
 
 const handleLoadUsers = async () => {
   try {
-    const { data, error, isPending } = await fetchUsers(pending)
-    pending.value = isPending.value
+    pending.value = true
+    const { data, error, isPending } = await fetchUsers(pending.value)
+    pending.value = isPending!.value
     if (error) {
       onError(500, error)
       return
@@ -266,13 +278,14 @@ const handleLoadUsers = async () => {
     users.value = data || []
   } catch (error) {
     onError(500, error)
+    pending.value = false
   }
 }
 
 const handleDeleteUsers = async (ids: string | string[]) => {
   try {
     const user_ids = !Array.isArray(ids) ? [ids] : ids
-    const { error, isPending } = await deleteUsers(pending, user_ids)
+    const { error, isPending } = await deleteUser(pending.value, user_ids)
     pending.value = isPending.value
     if (error) {
       onError(500, error)
@@ -294,11 +307,8 @@ onMounted(async () => {
       return
     }
     if(data) {
-      data.forEach((pageItem: pageItem) => {
-        const item = pages.find((page) => page.name === pageItem.name)
-        item!.to = pageItem.to
-        item!.allowed = pageItem.allowed
-        item!.oldPath = pageItem.oldPath ?? null
+      pages.forEach((pageItem: pageItem) => {
+        const item: pageItem | undefined = data.find((page: pageItem) => page.name === pageItem.name)
         pathPicked[item!.name] = item!.to
       })
       console.log('Page access loaded:', pages)
@@ -309,12 +319,19 @@ onMounted(async () => {
 })  
 
 const handleUpdateUser = async (user: userType) => {
+  const { error, status } = await updateUser(user)
+  if(error){
+    onError(status, error)
+  }
   selectedUser.value = user
   isOpenUser.value = true
 }
 
 const loadUserEvents = async (user: userType) => {
-  const {data, isPending, error, status} = await fetchAppointments(pending, 0, user.user_id, true)
+  const storeId = { range: null, type: 'month', user_id: user.user_id }
+  const eventsStore = getDynamicStore(storeId)
+  const { data, isPending, error, status } = await eventsStore.fetchEvents({ pending, limit: 0, user_id: user.user_id, list: true })
+  //await fetchAppointments(pending, 0, user.user_id, true)
   pending.value = isPending.value
   if(error){
     onError(status, error)
