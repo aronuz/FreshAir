@@ -146,8 +146,8 @@ export const useFetchQueries = () => {
         return { data, error }
     }
 
-    const fetchAppointments = async (pending, limit = 0, id = null, list = false, dateRange = null) => {
-        isPending.value = true
+    const fetchAppointments = async ({pending, limit = 0, id = null, list = false, dateRange = null}) => {
+        isPending.value = pending.value
         let saveError = null
         let saveStatus = null
         const groupByDate = (data) => {

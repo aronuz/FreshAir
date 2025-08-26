@@ -83,7 +83,7 @@ export function getDynamicStore(storeId: StoreID) {
                     }
 
                     try {
-                        const { data, timesData, isPending, error, status } = await fetchAppointments(fetchParams.pending)
+                        const { data, timesData, isPending, error, status } = await fetchAppointments(fetchParams)
                         
                         if(error){
                             return { error, status, isPending }

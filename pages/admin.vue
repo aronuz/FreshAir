@@ -16,31 +16,52 @@
                 <USkeleton v-for="i in 3" class="mx-auto mt-1 h-2 w-full bg-gray-600" as="div"/>
               </template>
               <div v-else>
-                <UTable v-if="isMD" ref="userTable" :data="users" :columns="columns" :ui="{
-                  wrapper: 'overflow-x-auto',
-                  thead: 'hidden md:table-header-group',
-                  tbody: 'block md:table-row-group'
-                }">
-                  <template #appointments-cell="{ row }">
-                    <UButton @click="loadUserEvents(row.original as userType)" label="See Appointments" />
-                  </template>
-                  <template v-if="selectedUsers.length" #actions-cell="{ row }">
-                    <UButton class="bg-blue-500 text-white px-2 py-1 rounded" @click="handleUpdateUser(row.original as userType)" label="Edit" />
-                    <UButton class="bg-red-500 text-white px-2 py-1 rounded" @click="handleDeleteUsers((row.original as userType).user_id)" label="Remove" />
-                  </template>
-                </UTable>
+                <template v-if="isMD">
+                  <UTable ref="userTable" v-model:column-visibility="visibility" v-model:pagination="pagination" :data="users" :columns="columns" :ui="{
+                    wrapper: 'overflow-x-auto',
+                    thead: 'hidden md:table-header-group',
+                    tbody: 'block md:table-row-group'
+                  }">
+                    <template #appointments-cell="{ row }">
+                      <UButton @click="loadUserEvents(row.original as userType)" label="See Appointments" />
+                    </template>
+                    <template #actions-cell="{ row }">
+                      <template v-if="selectedUsers.has((row.original as userType).user_id)">
+                        <UButton class="bg-blue-500 text-white px-2 py-1 rounded" @click="handleUpdateUser(row.original as userType)" label="Edit" />
+                        <UButton class="bg-red-500 text-white px-2 py-1 rounded" @click="handleDeleteUsers((row.original as userType).user_id)" label="Remove" />
+                      </template>
+                    </template>
+                  </UTable>                  
+                  <div class="flex justify-center border-t border-default pt-4">
+                    <UPagination
+                      :default-page="(userTable?.tableApi?.getState().pagination.pageIndex || 0) + 1"
+                      :items-per-page="userTable?.tableApi?.getState().pagination.pageSize"
+                      :total="userTable?.tableApi?.getFilteredRowModel().rows.length"
+                      @update:page="(p) => userTable?.tableApi?.setPageIndex(p - 1)"
+                    />
+                  </div>
+                </template>                               
                 <template v-else>
-                  <div v-for="user in users" :key="user.user_id" class="flex justify-between p-3 bg-gray-100 rounded">
+                  <UCheckbox :default-value="allSelected" v-model="allSelected" @update:modelValue="updateSelectedUsers($event)" class="m-3" :label="selectAction"/>
+                  <div v-for="user in pageUsers" :key="user.user_id" class="flex justify-between p-3 bg-gray-100 rounded">
                     <div class="grid grid-cols-5 grid-rows-1 gap-4">
-                      <UCheckbox @changed="updateSelectedUsers($event, user.user_id)" />
-                      <div >{{ user.title }} - {{ user.phone }}<span v-if="user.email">/{{ user.email }}</span></div>
-                      <div >Profile created on: {{ user.created_at }}</div>
-                      <UButton @click="loadUserEvents(user)" label="See Appointments" />
-                      <div v-if="selectedUsers.length" class="space-x-2">
+                      <UCheckbox :default-value="selectedUsers.has(user.user_id)" @update:modelValue="updateSelectedUsers($event, user.user_id)" />
+                      <div>{{ user.title }} - {{ user.phone }}<span v-if="user.email">/{{ user.email }}</span></div>
+                      <div>Joined On: {{ dayjs(user.created_at).format('DD/MM/YY') }}</div>
+                      <UButton class="ml-4" @click="loadUserEvents(user)" label="See Appointments" />
+                      <div v-if="selectedUsers.has(user.user_id)" class="space-x-2">
                         <UButton class="bg-blue-500 text-white px-2 py-1 rounded" @click="handleUpdateUser(user)" label="Edit" />
                         <UButton class="bg-red-500 text-white px-2 py-1 rounded" @click="handleDeleteUsers(user.user_id)" label="Remove" />
                       </div>
                     </div>
+                  </div>
+                  <div class="flex justify-center mt-4">
+                    <UPagination
+                      v-model:page="currentPage"
+                      :items-per-page="itemsPerPage"
+                      show-edges
+                      :total="total"
+                    />
                   </div>
                 </template>
               </div>
@@ -71,7 +92,7 @@
             
             <template #footer v-if="item.label === 'User Management'">
               <UButton icon="i-heroicons-plus-circle" color="primary" variant="solid" label="Add" @click="isOpenUser = true"/>
-              <UButton icon="i-heroicons-x-circle" color="error" variant="solid" label="Remove" @click="handleDeleteUsers(selectedUsers)"/>
+              <UButton v-if="selectedUsers.size" icon="i-heroicons-x-circle" color="error" variant="solid" label="Remove" @click="handleDeleteUsers(selectedUsers)"/>
             </template>
           </UCard>
         </template>
@@ -90,6 +111,7 @@ import { PAGES_CONFIG, ROUTE_CONFIG } from '~/config/routes'
 import { storeToRefs } from 'pinia'
 import { useUsersStore } from '~/stores/users'
 import { getDynamicStore } from '~/stores/events'
+import dayjs from 'dayjs'
 
 const UCheckbox = resolveComponent('UCheckbox')
 const { toastBar } = useToastBar()
@@ -145,10 +167,33 @@ const tabItems = ref<TabsItem[]>([
   }
 ])
 
+// Hide ID Column
+const visibility = ref({
+  user_id: false
+})
+
+// Pagination for UTable
+const userTable = useTemplateRef('userTable')
+const pagination = ref({
+  pageIndex: 0,
+  pageSize: 20
+})
+// Pagination for mobile view
+const currentPage = ref(1);
+const itemsPerPage = ref(20)
+const total = computed(() => users.value.length)
+const pageUsers = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+
+  return users.value.slice(start, end);
+});
+
+
 const onError = useNuxtApp().$onError
 const users = ref<userType[]>([])
 const selectedUser = ref<userType | null | undefined>(null)
-const selectedUsers = ref<string[]>([])
+const selectedUsers = ref<Set<string>>(new Set())
 const appointments = ref<stateType[]>([])
 
 const isOpenUser = ref(false)
@@ -157,26 +202,32 @@ const isOpenEvents = ref(false)
 const columns = ref<TableColumn<userType>[]>([
   {
     id: 'select',
-    header: ({ table }) =>
-      h(UCheckbox, {
+    header: ({ table }) => {
+      return h(UCheckbox, {
         modelValue: table.getIsSomePageRowsSelected()
           ? 'indeterminate'
           : table.getIsAllPageRowsSelected(),
-        'onUpdate:modelValue': (value: boolean | 'indeterminate') =>
-          table.toggleAllPageRowsSelected(!!value),
-        'aria-label': 'Select all'
-      }),
-    cell: ({ row }) =>
-      h(UCheckbox, {
-        modelValue: row.getIsSelected(),
+        'onUpdate:modelValue': (value: boolean | 'indeterminate') =>{
+          table.toggleAllPageRowsSelected(!!value)
+          updateSelectedUsers(value as boolean)
+        },
+        'aria-label': selectAction.value,
+        label: selectAction.value
+      })
+    },
+    cell: ({ row }) => {
+      return h(UCheckbox, {
+        modelValue: !!selectedUsers.value.has(row.getValue('user_id')) && row.toggleSelected(true)|| row.getIsSelected(),
         'onUpdate:modelValue': (value: boolean | 'indeterminate') => {
           row.toggleSelected(!!value)
           const isSelected = typeof value === 'boolean' ? value : false
           updateSelectedUsers(isSelected, row.getValue('user_id'))
         },
         'aria-label': 'Select user'
-      }),
+      })
+    }
   },
+  { accessorKey: 'user_id', cell: ({ row }) => row.getValue('title') },
   {
     accessorKey: 'title',
     header: 'Name',
@@ -261,9 +312,20 @@ const updateSelectedUser = (event: userType | null) => {
   }
 } 
 
-const updateSelectedUsers = async (event: boolean, id: string) => {
-  if (event) selectedUsers.value.push(id)
-  else selectedUsers.value = selectedUsers.value.filter(item => item !== id)
+const updateSelectedUsers = async (event: boolean, id: string | null = null) => {
+  if(id){
+    if (event) selectedUsers.value.add(id)
+    else selectedUsers.value.delete(id) //selectedUsers.value.filter(item => item !== id)
+  } else {
+    if (event) {
+      // Add all user IDs to selectedUsers
+      const allUserIds = users.value.map(user => user.user_id)
+      selectedUsers.value = new Set(allUserIds)
+    } else {
+      // Clear all selections
+      selectedUsers.value.clear()
+    }
+  }
 }
 
 const handleLoadUsers = async () => {
@@ -277,14 +339,15 @@ const handleLoadUsers = async () => {
     }
     users.value = data || []
   } catch (error) {
+    console.log(error)
     onError(500, error)
     pending.value = false
   }
 }
 
-const handleDeleteUsers = async (ids: string | string[]) => {
+const handleDeleteUsers = async (ids: string | Set<string>) => {
   try {
-    const user_ids = !Array.isArray(ids) ? [ids] : ids
+    const user_ids = !(ids instanceof Set) ? [ids] : Array.from(ids)
     const { error, isPending } = await deleteUser(pending.value, user_ids)
     pending.value = isPending.value
     if (error) {
@@ -297,6 +360,14 @@ const handleDeleteUsers = async (ids: string | string[]) => {
     onError(500, error)
   } 
 }
+
+const allSelected = computed(() => {
+  return selectedUsers.value.size === users.value.length
+})
+
+const selectAction = computed(() => {
+  return `${allSelected.value ? 'Deselect' : 'Select'} All`
+})
 
 onMounted(async () => {
   await handleLoadUsers()

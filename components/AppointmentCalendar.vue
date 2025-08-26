@@ -29,18 +29,31 @@
       </UCard>
       <UCard v-else-if="user" class="col-span-12 text-4xl w-full bg-linear-to-b from-sky-100 to-sky-400" :class="{'lg:hidden': showCalendar, 'lg:col-span-9': !showCalendar }">
         <section>
+          
           <!-- Object.keys(grouppedEvents).length ||  -->
-          <div v-if="!loadingList && grouppedEvents && Object.keys(grouppedEvents).length">
+          <div v-if="!loadingList && pageEvents && pageEvents.length">
             <div class="flex justify-center">Appointments</div>
-            <div v-for="(group, key) in grouppedEvents" :key="key">
-              <div class="flex justify-end">{{ key }}</div>
-              <UCard v-for="event in group" :key="event.id" class="flex flex-col odd:bg-white even:bg-gray-400">
-                <div @click="updateEventEl($event, event.id)">{{ event.title }}</div>
-              </UCard>
-            </div>
+            <template v-for="(pageEvent, arrIx) in pageEvents" :key="arrIx">
+              <div v-for="(group, key) in pageEvent" :key="key">
+                <div class="flex justify-end">{{ key }}</div>
+                <UCard v-for="event in group" :key="event.id" class="flex flex-col odd:bg-white even:bg-gray-400">
+                  <div @click="updateEventEl($event, event.id)">{{ event.title }}</div>
+                </UCard>
+              </div>
+            </template>
           </div>
           <div v-else>No Appointments</div>
-        </section>        
+        </section>
+        <template v-if="!loadingList && pageEvents && pageEvents.length" #footer>
+          <div class="flex justify-center mt-4">
+            <UPagination
+              v-model:page="currentPage"
+              :items-per-page="itemsPerPage"
+              show-edges
+              :total="total"
+            />
+          </div>
+        </template>        
       </UCard>
     </ClientOnly>
     <UCard v-if="user && loadingList" class="w-[50vw] bg-linear-to-b from-sky-100 to-sky-400">
@@ -192,9 +205,22 @@ const grouppedEvents = computed( () => {
         }
         group[date].push(entry)
     }
-    console.log(group)
     return group
 })
+
+const currentPage = ref(1);
+const itemsPerPage = ref(20)
+const total = computed(() => grouppedEvents ? Object.keys(grouppedEvents).length : 0)
+
+const pageEvents = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  console.log('grouppedEvents', grouppedEvents)
+  const eventArray = grouppedEvents.value ? Object.entries(grouppedEvents.value).map(([key, val]) => {
+    return { [key]: val };
+  }) : [];
+  return eventArray.slice(start, end);
+});
 
 reload()
 
