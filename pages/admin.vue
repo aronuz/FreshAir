@@ -37,7 +37,7 @@
                       :default-page="(userTable?.tableApi?.getState().pagination.pageIndex || 0) + 1"
                       :items-per-page="userTable?.tableApi?.getState().pagination.pageSize"
                       :total="userTable?.tableApi?.getFilteredRowModel().rows.length"
-                      @update:page="(p) => userTable?.tableApi?.setPageIndex(p - 1)"
+                      @update:page="(p: number) => userTable?.tableApi?.setPageIndex(p - 1)"
                     />
                   </div>
                 </template>                               
@@ -86,7 +86,7 @@
                     <USelect v-model="pathPicked[page.name]" :items="[page.to, getOldPath(page)]" value-key="id" class="w-full" label="Path" arrow />
                   </UFormField> 
                 </div>
-                <UButton class="col-span-2 md:col-span-1 justify-self-end flex items-center justify-center w-1/4 md:w-1/2 bg-blue-500 text-white rounded" @click="savePageInfo({pageName: page.name, path: pathPicked[page.name], allowed: page.allowed, oldPath: page.to})" label="Save" />
+                <UButton class="col-span-2 md:col-span-1 justify-self-end flex items-center justify-center w-1/4 md:w-1/2 bg-blue-500 text-white rounded" @click="savePageInfo({pageName: page.name, path: pathPicked[page.name], allowed: !!page.allowed, oldPath: page.to})" label="Save" />
               </div> 
             </template>
             
@@ -141,14 +141,14 @@ interface stateType {
 interface pages {
   name: string,
   to: string,
-  allowed: boolean,
+  allowed?: boolean,
   oldPath?: string | null
 }
 
-interface pageItem {
+interface pages {
     name: string,
     to: string,
-    allowed: boolean,
+    allowed?: boolean,
     oldPath?: string | null
 }
 
@@ -273,10 +273,11 @@ const columns = ref<TableColumn<userType>[]>([
   }
 ])
 
-const pages = reactive<pages[]>(PAGES_CONFIG)
+const pageEntries = reactive<pages[]>(PAGES_CONFIG)
 
 let pathPicked: pathType = reactive({})
-pages.forEach((page: pageItem) => {
+const pages: pages[] = pageEntries.filter(page => page.to !== '/admin')
+pages.forEach((page: pages) => {
   const name = page.name
   const path = ROUTE_CONFIG.find(item => item.name === name)?.path 
   pathPicked[name] = path ? `/${path}` : page.to
@@ -378,8 +379,8 @@ onMounted(async () => {
       return
     }
     if(data) {
-      pages.forEach((pageItem: pageItem) => {
-        const item: pageItem | undefined = data.find((page: pageItem) => page.name === pageItem.name)
+      pages.forEach((pages: pages) => {
+        const item: pages | undefined = data.find((page: pages) => page.name === pages.name)
         pathPicked[item!.name] = item!.to
       })
       console.log('Page access loaded:', pages)
@@ -417,7 +418,7 @@ watch(isOpenUser, (val) => {
   if (!val) selectedUser.value = null
 })
 
-const getOldPath = (page: pageItem) => {
+const getOldPath = (page: pages) => {
   return page.oldPath ?? '/construction'
 }
 

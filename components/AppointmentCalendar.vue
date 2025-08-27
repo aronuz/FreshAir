@@ -18,7 +18,6 @@
             <UButton v-if="selectedAppointment" class="flex flex-row justify-between text-4xl md:text-lg mt-4 p-3 pr-11" block icon="i-heroicons-x-circle" size="xl" color="error" variant="solid" label="Remove" :ui="{leadingIcon: 'size-10'}" @click="handleRemove"/>
           </div>
         </ClientOnly>
-        <!-- !Object.keys(grouppedEvents).length && !eventsParsed.length -->
         <USkeleton v-if="user && loadingList" class="mx-auto mt-8 h-8 w-[5vw] bg-gray-600" as="div"/>
       </UCard>
     </div>
@@ -27,34 +26,9 @@
       <UCard v-if="user && showCalendar" class="lg:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
         <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendar-ready="isReady=true" @dataChanged="updateStoreName" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
       </UCard>
-      <UCard v-else-if="user" class="col-span-12 text-4xl w-full bg-linear-to-b from-sky-100 to-sky-400" :class="{'lg:hidden': showCalendar, 'lg:col-span-9': !showCalendar }">
-        <section>
-          
-          <!-- Object.keys(grouppedEvents).length ||  -->
-          <div v-if="!loadingList && pageEvents && pageEvents.length">
-            <div class="flex justify-center">Appointments</div>
-            <template v-for="(pageEvent, arrIx) in pageEvents" :key="arrIx">
-              <div v-for="(group, key) in pageEvent" :key="key">
-                <div class="flex justify-end">{{ key }}</div>
-                <UCard v-for="event in group" :key="event.id" class="flex flex-col odd:bg-white even:bg-gray-400">
-                  <div @click="updateEventEl($event, event.id)">{{ event.title }}</div>
-                </UCard>
-              </div>
-            </template>
-          </div>
-          <div v-else>No Appointments</div>
-        </section>
-        <template v-if="!loadingList && pageEvents && pageEvents.length" #footer>
-          <div class="flex justify-center mt-4">
-            <UPagination
-              v-model:page="currentPage"
-              :items-per-page="itemsPerPage"
-              show-edges
-              :total="total"
-            />
-          </div>
-        </template>        
-      </UCard>
+      <template v-else-if="user" class="col-span-12 lg:col-span-9">
+        <ListView :groupped-events="grouppedEvents" />
+      </template>
     </ClientOnly>
     <UCard v-if="user && loadingList" class="w-[50vw] bg-linear-to-b from-sky-100 to-sky-400">
       <USkeleton v-for="i in 3" class="mx-auto my-4 h-8 w-5/6 bg-gray-600" as="div"/>

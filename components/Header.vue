@@ -33,8 +33,8 @@
       <div class="hidden md:block">
         <!-- md:text-lg lg:text-xl xl:text-2xl -->
         <nav class="flex shrink justify-between p-3 font-bold text-white rounded-sm">
-          <template v-for="link in siteLinks" :key="link.path">
-            <NuxtLink v-if="link.path !== '/admin' || userRole === 'admin'" :to="link.path === '/index' ? '/' : link.path" :id="link.path" class="w-fit h-10 bg-gray-400 px-5 py-[5px] lg:py-[2px] xl:py-0 rounded-lg text-[clamp(.82rem,1vw+.34rem,1.5rem)] text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">{{link.label}}</NuxtLink>
+          <template v-for="link in siteLinks" :key="link.to">
+            <NuxtLink v-if="link.to !== '/admin' || userRole === 'admin'" :to="link.to === '/index' ? '/' : link.to" :id="link.path" class="w-fit h-10 bg-gray-400 px-5 py-[5px] lg:py-[2px] xl:py-0 rounded-lg text-[clamp(.82rem,1vw+.34rem,1.5rem)] text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">{{link.name}}</NuxtLink>
           </template>        
           
           <!-- <NuxtLink to="/" id="index" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">Home</NuxtLink>
@@ -46,8 +46,8 @@
       </div>
       <UCard v-if="isMobileMenuOpen" class="md:hidden absolute z-100 right-10" variant="outline" :ui="{root: 'bg-default text-default'}">
         <nav class="flex flex-col gap-4 text-4xl">
-          <template v-for="link in siteLinks" :key="link.path">
-            <NuxtLink v-if="link.path !== '/admin' || userRole === 'admin'" :to="link.path === '/index' ? '/' : link.path" @click="isMobileMenuOpen = false">{{link.label}}</NuxtLink>
+          <template v-for="link in siteLinks" :key="link.to">
+            <NuxtLink v-if="link.to !== '/admin' || userRole === 'admin'" :to="link.to === '/index' ? '/' : link.to" @click="isMobileMenuOpen = false">{{link.name}}</NuxtLink>
           </template>  
           <!-- <NuxtLink to="/" @click="isMobileMenuOpen = false">Home</NuxtLink>
           <NuxtLink to="/gallery" @click="isMobileMenuOpen = false">Services</NuxtLink>
@@ -72,6 +72,14 @@
 <script lang="ts" setup>
   import { removeAllStores } from '~/stores/events'
 
+  import { PAGES_CONFIG } from '~/config/routes'
+  interface pages {
+    name: string,
+    to: string,
+    allowed?: boolean,
+    oldPath?: string | null
+  }
+
   const { getPageAccess } = useFetchQueries()
   const guestUser = useGuestUser()
   const user = useSupabaseUser()
@@ -86,15 +94,8 @@
   
   const userRole = useState('userRole')
   const isAdmin = ref(userRole.value === 'admin')
-
-  const siteLinks = ref([
-    { path: '/index', label: 'Home' },
-    { path: '/gallery', label: 'Services' },
-    { path: '/booking', label: 'Schedule Service' },
-    { path: '/contact', label: 'Contact Us' },
-    { path: '/about', label: 'About Us' },
-    { path: '/admin', label: 'Site Settings' }
-  ])
+  const pageConfig = [...PAGES_CONFIG]
+  const siteLinks = reactive<pages[]>(pageConfig)
   
   onBeforeMount(async () => {
     const { data, error } = await getPageAccess()
@@ -103,17 +104,17 @@
       data.forEach((page: { to: string; name: string }) => {
         if (page.name !== 'Construction') {
           const pagePath = page.to === '/index' ? '/' : page.to
-          const linkIndex = siteLinks.value.findIndex(link => link.label !== page.name)
+          const linkIndex = siteLinks.findIndex((link: pages) => link.name !== page.name)
           if (linkIndex !== -1){
             // Replace path of existing link
-            siteLinks.value.map((link) => {
-              if (link.label === page.name) {
-                link.path = pagePath
+            siteLinks.map((link: pages) => {
+              if (link.name === page.name) {
+                link.to = pagePath
               }
             })
           } else {
             // Add new link
-            siteLinks.value.push({ path: pagePath, label: page.name })
+            siteLinks.push({ to: pagePath, name: page.name })
           }
         }
       })
