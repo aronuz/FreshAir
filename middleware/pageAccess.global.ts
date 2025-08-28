@@ -5,7 +5,24 @@ interface AccessRule {
 }
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  const { toastBar } = useToastBar()
+  
+  // const isClient = Object.prototype.hasOwnProperty.call(import.meta, 'client')
+
+  const showToastBar = (type: 'error' | 'info', title: string, message: string) => {
+    // try{
+    //   if (isClient) {
+    //     const { toastBar } = useToastBar()
+    //     toastBar('error', title, message);
+    //   } else {
+    //     console[type === 'error' ? 'error' : 'log'](`${title}: ${message}`);
+    //   }
+    // }catch(e){
+    //   console.error('Toast bar error:', e);
+    // }
+  // }
+    console[type === 'error' ? 'error' : 'log'](`${title}: ${message}`);
+}
+
   const userRole = useState<string | null>('userRole', () => null)
   const supabase = useSupabaseClient()
   const { data: { session } } = await supabase.auth.getSession()
@@ -15,21 +32,22 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     userRole.value = await useCheckRole(userId)
   }
 
-  const { data } = await useFetch<AccessRule>(`/api/page-access?path=${to.path}`)
+  const pathTo = to.path === '/' ? '/index' : to.path, pathFrom = from.path === '/index' ? '/' : from.path
+  const { data, error } = await useFetch<AccessRule>(`/api/page-access?path=${pathTo}`)
   console.log('data: ', data.value)
+  if(error.value && userRole.value === 'admin') {
+    showToastBar('error', 'Access fetch error', error.value?.statusText || 'Unknown error')
+  }
   if(data.value) {
-    if (data.value.error && userRole.value === 'admin') {
-      toastBar('error', 'Access list is missing', data.value.error)
-    }
     const accessRule: AccessRule = data.value
 
-    if (to.path === '/admin' && userRole.value !== 'admin') {
-      toastBar('error', 'Access Denied', `You do not have permission to access ${to.path}`)
-      return navigateTo(from.path)
+    if (pathTo === '/admin' && userRole.value !== 'admin') {
+      showToastBar('info', 'Access Denied', `You do not have permission to access ${pathTo}`)
+      return navigateTo(pathFrom)
     }
     if (userRole.value !== 'admin' && accessRule && !accessRule.allowed) {
-      toastBar('error', 'Under construction', `${accessRule.to} is being updated. Please try again later!`)  
-      return navigateTo(from.path)
+      showToastBar('info', 'Under construction', `${accessRule.to} is being updated. Please try again later!`)  
+      return navigateTo(pathFrom)
     }
   }
 })
