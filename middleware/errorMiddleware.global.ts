@@ -37,7 +37,7 @@ const buildRouteAccessMap = (pageData: any[], routeConfig: typeof ROUTE_CONFIG) 
     
     if (pageAccess) {
       accessMap.set(route.path, {
-        path: pageAccess.to,
+        path: pageAccess.to === '/index' ? '/' : pageAccess.to,
         allowed: pageAccess.allowed,
         name: route.name
       })
