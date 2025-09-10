@@ -42,7 +42,8 @@
 <script setup>
   // Get the error object passed by Nuxt
   const error = useError()
-  const errorData = JSON.parse(error.value?.data)
+  const errorMessage = error.value?.data && JSON.parse(error.value?.data) || 'An unexpected error occurred.'
+  const errorData = errorMessage
   // Check if in dev mode
   const showDebugInfo = import.meta.dev
 
@@ -68,16 +69,19 @@
   }
 
   const getErrorTitle = () => {
-    switch (error.value?.statusCode) {
-      case 404:
-        return 'Page Not Found'
-      case 403:
-        return 'Page Unavailable'
-      case 500:
-        return 'Server Error'
-      default:
-        return 'Error'
+    if(error.value?.statusCode) {
+      switch (error.value?.statusCode) {
+        case 404:
+          return 'Page Not Found'
+        case 403:
+          return 'Page Unavailable'
+        case 500:
+          return 'Server Error'
+        default:
+          return 'Error'
+      }
     }
+    return 'Error'
   }
 
   const getRetryButtonText = () => {

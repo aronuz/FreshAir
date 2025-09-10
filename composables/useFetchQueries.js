@@ -1,18 +1,26 @@
 export const useFetchQueries = () => {
-    const supabase = useSupabaseClient()
-    const error = ref('');
-    const isPending = ref(false)
-    const blankState = useState('blankState')
-    const selectedAppointment = useState('selectedAppointment')
-    const updatedAppointment = useState('updatedAppointment') //ref(blankState.value)
+    const error = ref(''), 
+        isPending = ref(false),
+        selectedAppointment = useState('selectedAppointment'),
+        updatedAppointment = useState('updatedAppointment')
+
+    const getSupabase = () => {
+        const client = useSupabaseClient();
+        if (!client) {
+            throw new Error('Supabase client is not available in current context');
+        }
+        return client;
+    }
 
     const fetchUsers = async (pending, userId = null) => {
-        let fetchData = null
-        let fetchError = null
-        let fetchStatus = null
+        let fetchData = null,
+            fetchError = null,
+            fetchStatus = null
+
         isPending.value = pending
 
         try {
+            const supabase = getSupabase()
             const { data, error } = await supabase.rpc('get_user_data_and_role', { user_uuid: userId })
             if (error) {
                 fetchError = error.message ?? 'Unkown error while creating user'
@@ -31,9 +39,10 @@ export const useFetchQueries = () => {
 
     const createUser = async (user) => {
         let saveData = null
-        let saveError = null
-        let saveStatus = null
+            saveError = null, 
+            saveStatus = null
         try {
+            const supabase = getSupabase()
             let userObj
             if (typeof user === 'string') {
                 userObj = {
@@ -58,21 +67,22 @@ export const useFetchQueries = () => {
     };
 
     const deleteUsers = async (pending, user_ids) => {
-        let deleteError = null
-        let deleteStatus = null
+        let deleteError = null, 
+            deleteStatus = null
         if (!user_ids || !user_ids.length) {
             deleteError = "Unable to remove selected user(s)"
             deleteStatus = "500"
         } else {
             isPending.value = pending
             try {
+                const supabase = getSupabase()
                 const { error } = await supabase.from('users').delete().in('user_id', user_ids)
                 if (error) {
                     deleteError = error.message ?? 'Uknown error'
                     deleteStatus = error.code ?? ''
                 }
             } catch (error) {
-                deleteError = `${deleteError}\n${error}`;
+                deleteError = `${deleteError ?? ''}\n${error instanceof Error ? error.message : String(error)}`
                 deleteStatus = "500"
             } finally {    
                 isPending.value = false
@@ -86,7 +96,8 @@ export const useFetchQueries = () => {
         let saveStatus = null
         let saveError = null
         try {
-            const userData = { title: user.title, email: user.email, phone: user.phone }
+            const supabase = getSupabase(),
+                userData = { title: user.title, email: user.email, phone: user.phone }
             
             let query = supabase.from('users').select('*')
             if (user.id) {
@@ -114,7 +125,7 @@ export const useFetchQueries = () => {
                         saveData = {user_id: data.user_id}
                     }
                 } else {
-                    const { data, error, status } = createUser(userData)
+                    const { data, error, status } = await createUser(userData)
                     if (error) {
                         saveError = error
                         saveStatus = status
@@ -133,6 +144,7 @@ export const useFetchQueries = () => {
     }
 
     const updatePageAccess = async (page) => {
+        const supabase = getSupabase()
         const { error } = await supabase
             .from('page_access')
             .update(page).eq('name', page.name)
@@ -140,13 +152,15 @@ export const useFetchQueries = () => {
     }
 
     const getPageAccess = async (page) => {
+        const supabase = getSupabase()
         const { data, error } = await supabase
             .from('page_access')
             .select('*')
         return { data, error }
     }
 
-    const fetchAppointments = async ({pending, limit = 0, id = null, list = false, dateRange = null}) => {
+    const fetchAppointments = async ({pending, limit = 0, id = null, list = false, store = false, dateRange = null}) => {
+        console.log('fetchAppointments called')
         isPending.value = pending.value
         let saveError = null
         let saveStatus = null
@@ -161,9 +175,10 @@ export const useFetchQueries = () => {
             }
             return group
         }
-        const today = new Date()
-        const dateFrom = dateRange?.value?.from ? dateRange.value.from : today.toISOString().split('T')[0]
-        const dateTo = dateRange?.value?.to ? dateRange.value.to : new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0]
+        const supabase = getSupabase(),
+            today = new Date(),
+            dateFrom = dateRange?.value?.from ? dateRange.value.from : today.toISOString().split('T')[0],
+            dateTo = dateRange?.value?.to ? dateRange.value.to : new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0]
 
         let prefix = 'all'
         const query = supabase.from('appointments').select('*, users!inner(*)')
@@ -178,42 +193,61 @@ export const useFetchQueries = () => {
         
         if (limit) {
             query.limit(limit)
-            prefix = `${prefix}_'limit'`
+            prefix = `${prefix}_limit`
         }
         
-        let dataSet = []
-        // for(let i = 0; i < 2; i++){    
+        let data = null
+        
+        if(store) {
+            const { data: queryData, error } = await query
+            if (error) {
+                saveError = error
+                saveStatus = '500'
+            } else if (queryData && queryData.length) {
+                data = queryData
+            }
+        } else {
+            // Use useAsyncData but always return the data, whether from cache or fresh fetch
             const { data } = await useAsyncData(`${prefix}-${dateFrom}-${dateTo}`, async () => {
+                console.log('useAsyncData callback executing - fetching from database')
                 const { data, error } = await query
                 if (error) {
                     saveError = error
                     saveStatus = '500'
-                    return null; // Or throw an error to be caught by useAsyncData
+                    return null;
                 } 
                 return { data };
-            })
-            if(data && data.value) dataSet = data.value
-        // }
-        if (dataSet) {
-            dataSet = list ? groupByDate(dataSet.data) : dataSet.data
-        } else if (error){
-            saveError = error
-            saveStatus = '500'
+            })//, { server: false, lazy: true }
+            if (data) queryData = data
         }
-        let timesData = []
-        if(!limit && !id) {
-            const response = await useAsyncData(`times-${dateFrom}-${dateTo}`, async () => {
-                const { data: timesData, error } = await supabase.from('times').select('*')
-                if (error) {
-                    saveError = error
-                    saveStatus = '500'
-                    return null; // Or throw an error to be caught by useAsyncData
-                }            
-                return { timesData }
-            })
-            const dataValue = response.data?.value?.timesData
-            if (dataValue && dataValue.length) timesData = dataValue
+        
+        console.log('useAsyncData completed, data exists:', !!data?.value)
+        
+        let dataSet = null, timesData = []
+        // Always return the data, whether it came from cache or fresh fetch
+        if(data && data.length > 0) {
+            // dataSet = data.value
+            // console.log('Data retrieved from useAsyncData, length:', dataSet?.data?.length)
+                
+            // dataSet = list ? groupByDate(queryData.value.data) : queryData.value.data
+            dataSet = list ? groupByDate(queryData) : queryData
+                    
+            if(!limit && !id) {
+                const response = await useAsyncData(`times-${dateFrom}-${dateTo}`, async () => {
+                    const { data: timesData, error } = await supabase.from('times').select('*')
+                    if (error) {
+                        saveError = error
+                        saveStatus = '500'
+                        return null;
+                    }            
+                    return { timesData }
+                })
+                const dataValue = response.data?.value?.timesData
+                if (dataValue && dataValue.length) timesData = dataValue
+            }
         }
+        
+        // console.log('fetchAppointments returning, data length:', dataSet?.length, 'error:', saveError)
         return { data: dataSet, timesData, isPending, error: saveError, status: saveStatus }
     }
 
@@ -231,7 +265,8 @@ export const useFetchQueries = () => {
         } else {
             try {
                 isPending.value = true
-
+                
+                const supabase = getSupabase()
                 const { title, email, phone, ...rest } = appointment
                 const appoinmentData = { ...rest }
                 const userData = { title, email, phone }
@@ -294,6 +329,8 @@ export const useFetchQueries = () => {
                 }else{
                     try {
                         isPending.value = true
+
+                        const supabase = getSupabase()
                         const { title, email, phone, ...rest } = updatedValues
                         const userData = { title, email, phone }
                         const id = selectedAppointment.value.id
@@ -343,7 +380,8 @@ export const useFetchQueries = () => {
         } else {
             isPending.value = true
             try {
-                const { error } = await supabase.from('appointments').delete().eq('id', id)
+                const supabase = getSupabase()
+                const { error } = await supabase.from('users').delete().eq('id', id)
                 if (error) {
                     deleteError = error.message ?? 'Uknown error'
                     deleteStatus = error.code ?? ''

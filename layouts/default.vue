@@ -36,8 +36,8 @@
 
 <style>
 nav .router-link-active {
-  background-color: rgb(62, 194, 113);
+  background-color: #3ec271;
   color: #fff;
-  box-shadow: 0px 5px rgb(88, 121, 212);
+  box-shadow: 0px 5px #5879d4;
 }
 </style>

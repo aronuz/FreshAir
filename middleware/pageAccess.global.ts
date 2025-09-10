@@ -6,48 +6,86 @@ interface AccessRule {
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
   
-  // const isClient = Object.prototype.hasOwnProperty.call(import.meta, 'client')
+  const isClient = import.meta.client,
+    userRole = useState<string | null>('userRole', () => null),
+    pathTo = to.path === '/index' ? '/' : to.path, 
+    pathFrom = !from || ['/admin', '/index'].includes(from.path) ? '/' : from.path
 
-  const showToastBar = (type: 'error' | 'info', title: string, message: string) => {
-    // try{
-    //   if (isClient) {
-    //     const { toastBar } = useToastBar()
-    //     toastBar('error', title, message);
-    //   } else {
-    //     console[type === 'error' ? 'error' : 'log'](`${title}: ${message}`);
-    //   }
-    // }catch(e){
-    //   console.error('Toast bar error:', e);
-    // }
-  // }
-    console[type === 'error' ? 'error' : 'log'](`${title}: ${message}`);
-}
-
-  const userRole = useState<string | null>('userRole', () => null)
-  const supabase = useSupabaseClient()
-  const { data: { session } } = await supabase.auth.getSession()
-
-  if(session && !userRole.value){
-    const userId = session.user.id
-    userRole.value = await useCheckRole(userId)
+  const showWarning = (type: 'error' | 'warn', title: string, message: string) => {
+    try{
+      if (isClient) {
+        const { toastBar } = useToastBar()
+        toastBar(type, title, message);
+      } else {
+        // eslint-disable-next-line no-console 
+        console[type](`${title}: ${message}`)
+      }
+    }catch(error){
+      // eslint-disable-next-line no-console
+      console.error(error instanceof Error ? error.message : 'Unknown error')
+    }
   }
 
-  const pathTo = to.path === '/' ? '/index' : to.path, pathFrom = from.path === '/index' ? '/' : from.path
-  const { data, error } = await useFetch<AccessRule>(`/api/page-access?path=${pathTo}`)
-  console.log('data: ', data.value)
-  if(error.value && userRole.value === 'admin') {
-    showToastBar('error', 'Access fetch error', error.value?.statusText || 'Unknown error')
-  }
-  if(data.value) {
-    const accessRule: AccessRule = data.value
+  let infoMsg: string
 
-    if (pathTo === '/admin' && userRole.value !== 'admin') {
-      showToastBar('info', 'Access Denied', `You do not have permission to access ${pathTo}`)
-      return navigateTo(pathFrom)
+  if (!userRole.value) {
+    try {
+      const supabase = useSupabaseClient()
+      const { data: { session } } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }))
+
+      if(session) {
+        const userId = session.user?.id
+        userRole.value = await useCheckRole(userId)
+      }
+    } catch (error) {
+      showWarning('error', 'Error fetching user session.', error instanceof Error ? error.message : 'Unknown error')
     }
-    if (userRole.value !== 'admin' && accessRule && !accessRule.allowed) {
-      showToastBar('info', 'Under construction', `${accessRule.to} is being updated. Please try again later!`)  
-      return navigateTo(pathFrom)
+  }
+  
+  if (pathTo === '/admin' && userRole.value !== 'admin') {
+    infoMsg = `Non-admin user attempted to access admin page.`
+    showWarning('warn', `You do not have permission to access this page`, infoMsg)
+    return navigateTo(pathFrom, { redirectCode: 302, replace: true })
+  }
+    
+  if (pathTo === '/admin') return // allow access to admin page for admins
+
+  let accessRule: AccessRule | null = null
+
+  try {
+    const { data, error } = await useFetch<AccessRule>('/api/page-access', {
+      query: { path: pathTo },
+      key: `page_:${pathTo}`,
+      server: true,
+      default: () => ({ to: '/', allowed: true })
+    })
+
+    if(error.value) {
+      infoMsg = `Error fetching access rule for ${to.path} page`
+      if (import.meta.server) console.error(infoMsg, {
+          pathTo,
+          statusCode: (error.value as any)?.statusCode,
+          statusMessage: (error.value as any)?.statusMessage
+        })
+      else 
+        showWarning('error', error.value.statusText || 'Unknown error', infoMsg)
     }
+
+    accessRule = data.value as AccessRule | null
+  } catch (error) {
+    infoMsg = `Error fetching access rule for path: ${to.path}.`
+    showWarning('error', error instanceof Error ? error.message : 'Unknown error', infoMsg)
+    accessRule = null
+  }    
+
+  if (userRole.value !== 'admin' && accessRule && !accessRule.error && !accessRule.allowed) {
+    infoMsg = `${accessRule.name} is being updated. Please try again later!`
+    showWarning('warn', 'Under construction', infoMsg)  
+    return navigateTo(pathFrom, { redirectCode: 302, replace: true })
+  }
+
+  if (accessRule && accessRule.error) {
+    infoMsg = `No access rule found for path: ${pathTo}. Allowing access by default.`
+    showWarning('warn', accessRule.error, infoMsg)
   }
 })

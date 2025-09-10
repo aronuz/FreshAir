@@ -9,8 +9,6 @@ interface userType {
   created_at: string,
 }
 
-const { fetchUsers, deleteUsers } = useFetchQueries()
-
 export const useUsersStore = defineStore('users', {            
 
     state: () => ({
@@ -46,6 +44,7 @@ export const useUsersStore = defineStore('users', {
             this.error = null
 
             try {
+                const { fetchUsers } = useFetchQueries()
                 const { data, error, status, isPending } = await fetchUsers(pending)
                 this.users = data || []
                 this.lastFetched = new Date()
@@ -73,6 +72,7 @@ export const useUsersStore = defineStore('users', {
         // Delete user
         async deleteUser(pending: boolean, user_ids: Array<number | string>) {
             try {
+                const { deleteUsers } = useFetchQueries()
                 const { error, status, isPending } = await deleteUsers(pending, user_ids)
                 if (!error) {
                     this.users = this.users.filter((user: userType) => !user_ids.includes(user.user_id))  

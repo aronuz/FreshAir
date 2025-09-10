@@ -86,7 +86,7 @@
                     <USelect v-model="pathPicked[page.name]" :items="[page.to, getOldPath(page)]" value-key="id" class="w-full" label="Path" arrow />
                   </UFormField> 
                 </div>
-                <UButton class="col-span-2 md:col-span-1 justify-self-end flex items-center justify-center w-1/4 md:w-1/2 bg-blue-500 text-white rounded" @click="savePageInfo({pageName: page.name, path: pathPicked[page.name], allowed: !!page.allowed, oldPath: page.to})" label="Save" />
+                <UButton class="col-span-2 md:col-span-1 justify-self-end flex items-center justify-center w-1/4 md:w-1/2 bg-blue-500 text-white rounded" @click="savePageInfo(page)" label="Save" />
               </div> 
             </template>
             
@@ -143,13 +143,6 @@ interface pages {
   to: string,
   allowed?: boolean,
   oldPath?: string | null
-}
-
-interface pages {
-    name: string,
-    to: string,
-    allowed?: boolean,
-    oldPath?: string | null
 }
 
 interface pathType {
@@ -280,7 +273,8 @@ const pages: pages[] = pageEntries.filter(page => page.to !== '/admin')
 pages.forEach((page: pages) => {
   const name = page.name
   const path = ROUTE_CONFIG.find(item => item.name === name)?.path 
-  pathPicked[name] = path ? `/${path}` : page.to
+  const pickedpath = path ? `/${path}` : page.to 
+  pathPicked[name] = pickedpath === '/index' ? '/' : pickedpath
 })
 
 // const pathPicked: pathType = reactive({
@@ -379,9 +373,15 @@ onMounted(async () => {
       return
     }
     if(data) {
+      let pageItem: pages
       pages.forEach((pages: pages) => {
         const item: pages | undefined = data.find((page: pages) => page.name === pages.name)
-        pathPicked[item!.name] = item!.to
+        if (item){
+          pageItem = item
+          pathPicked[pageItem.name] = pageItem.to === 'index' ? '/' : pageItem.to
+          pages.oldPath = pageItem.oldPath || null
+          pages.allowed = pageItem ? pageItem.allowed : true
+        }
       })
       console.log('Page access loaded:', pages)
     }
@@ -418,13 +418,15 @@ watch(isOpenUser, (val) => {
   if (!val) selectedUser.value = null
 })
 
-const getOldPath = (page: pages) => {
-  return page.oldPath ?? '/construction'
+const getOldPath = (page: pages | string) => {
+  return typeof page === 'string' ? page : page.oldPath ?? '/construction'
 }
-
-const savePageInfo = async ({ pageName: name, path: to, allowed, oldPath }: { pageName: string, path: string, allowed: boolean, oldPath: string }) => {
+// {pageName: page.name, path: pathPicked[page.name], allowed: !!page.allowed, oldPath: page.to}
+const savePageInfo = async ({ name, to, allowed, oldPath }: pages) => {
   try {
-    const {error} = await updatePageAccess({ name, to, allowed, oldPath })
+    const savedPath = oldPath && pathPicked[name] === getOldPath(oldPath) ? null : to,
+      newPath = pathPicked[name]
+    const {error} = await updatePageAccess({ name, to: newPath, allowed, oldPath: savedPath })
     if (error) {
       onError(500, error.message)
       return

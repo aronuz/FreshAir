@@ -53,10 +53,13 @@
     import customParseFormat from 'dayjs/plugin/customParseFormat'
     dayjs.extend(customParseFormat)
     
-    const globalUser = useState('globalUser', () => null)
-    const { fetchAppointments } = useFetchQueries()
+    interface Appointment {
+        [key: string]: number | string | null;
+    }
 
-    const appointments = ref([]);
+    const globalUser = useState('globalUser', () => null)
+
+    const appointments = ref<Appointment[]>([]);
     const showTable = ref(false)
 
     const services = [{label: 'Air Conditioning', id: 1}, {label: 'Heat Systems', id: 2}, {label: 'Ventilation', id: 3}, {label: 'Ductwork', id: 4}, {label: 'Maintenance', id: 5}, {label: 'Emergency', id: 6}]
@@ -72,24 +75,36 @@
             id: appt.id,
             date: appt.start_date,
             time: dayjs(appt.start_time, 'HH:mm:ss').format('h:mm A'),
-            service: appt.service ? services.find(item => item.id === appt.service).label : 'Unspecified'
+            service: appt.service ? services.find(item => item.id === appt.service)?.label : 'Unspecified'
         }));
     });
-  
-    const pending = ref([])
-    const limit = 3
+    
+    const pending = ref(false)
+    const limit = 3  
+    let storeId = { range: `limit_${limit}`, type: 'month', user_id: null }
+    let eventsStore = getDynamicStore(storeId)
+    
     const loadAppointments = async () => {
-        const { data, isPending, error } = await fetchAppointments(pending, limit)
+        console.log('loadAppointments called')
+        const { data, error, status, isPending } = await eventsStore.fetchEvents({ pending: pending, limit })
         pending.value = isPending.value
+        console.log('Store returned:', { dataLength: data?.length, error, status })
+        
         if(error) {
-            console.error('Error fetching appointments:', error)
+            console.error('Error fetching appointments:', error, status)
         }
-        showTable.value = !error && data && data.length > 0
+        
+        // Always update the component state with whatever data we got
         appointments.value = data ?? []
+        showTable.value = !error && data && data.length > 0
+        
+        console.log('Component updated, appointments length:', appointments.value.length)
     }
 
+    onBeforeMount(async () => {
+        await loadAppointments()
+    })
     onMounted(async () => {
-        loadAppointments()
         const unlink = useState('unlink')
         if(unlink.value) document.querySelector(`#${unlink.value}`)!.classList.remove('router-link-active')
     })

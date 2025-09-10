@@ -14,10 +14,7 @@ export interface StoreID {
 }
 
 export interface Event {
-    id: number
-    name: string
-    date: string
-    // other event props
+   [key: string]: number | string | Date;
 }
 
 export interface TimesDataItem {
@@ -50,6 +47,7 @@ export function getDynamicStore(storeId: StoreID) {
                 status: null as string | number | null,
                 lastFetched: null as Date | null,
                 cacheExpiry: 5 * 60 * 1000, // 5 minutes
+                hasBeenFetched: false, // Track if data has been fetched at least once
             }),
 
             getters: {
@@ -76,25 +74,40 @@ export function getDynamicStore(storeId: StoreID) {
             actions: {
                 // Fetch events from database
                 async fetchEvents(fetchParams: fetchParams, forceRefresh = false) {
-                    console.log('fetchEvents called')
-                    // Return cached data if valid and not forcing refresh
-                    if (!forceRefresh && this.isCacheValid && this.events.length > 0) {
+                    console.log('fetchEvents called, events length:', this.events?.length, 'lastFetched:', !!this.lastFetched)
+                    
+                    // If we already have data and this isn't a force refresh, return cached data
+                    // This handles the case where useAsyncData runs multiple times during hydration
+                    if (!forceRefresh && this.lastFetched && this.events?.length > 0) {
+                        console.log('Returning already fetched data from store cache')
+                        return { data: this.events, timesData: this.timesData, isPending: false }
+                    }
+                    
+                    // Return cached data if valid and not forcing refresh (normal cache behavior)
+                    if (!forceRefresh && this.isCacheValid && this.events?.length > 0) {
+                        console.log('Returning valid cached data')
                         return { data: this.events, timesData: this.timesData, isPending: false }
                     }
 
+                    console.log('Calling fetchAppointments')
                     try {
-                        const { data, timesData, isPending, error, status } = await fetchAppointments(fetchParams)
+                        const { data, timesData, isPending, error, status } = await fetchAppointments({...fetchParams, store: true})
+                        
+                        console.log('fetchAppointments returned, data length:', data?.length, 'error:', !!error)
                         
                         if(error){
                             return { error, status, isPending }
                         }
 
-                        this.events = data
-                        this.timesData = [...timesData]
-                        this.lastFetched = new Date()                        
-                        return { data, timesData, isPending }
+                        // Always update store state with the returned data, even if it came from useAsyncData cache
+                        this.events = data || []
+                        if (fetchParams.limit) this.timesData = [...(timesData || [])]
+                        this.lastFetched = new Date()
+                        
+                        console.log('Store updated, events length:', this.events.length)
+                        return { data: this.events, timesData: this.timesData, isPending }
                     } catch (error) {
-                        // this.error = error instanceof Error ? error.message : 'Failed to fetch events'
+                        console.error('Error in fetchEvents:', error)
                         throw error
                     }
                 },
@@ -102,16 +115,17 @@ export function getDynamicStore(storeId: StoreID) {
                 async saveEvent(appointment: Omit<Event, 'id'> | Partial<Event>, update: boolean) {
                     try {
                         const { data, error, status, isPending } = await submitAppointment(appointment)
-                        if (data) {                            
+                        if (data) {      
+                            const record = data as Event                      
                             if (!update) {
-                                this.events.push(data as Event)    
+                                this.events.push(record)    
                             } else {                                
-                                const index = this.events.findIndex(e => e.id === data.id)
+                                const index = this.events.findIndex(e => e.id === record.id)
                                 if (index !== -1) this.events[index] = data as Event
                             }
-                            const { id: record_id, ...rest } = data
+                            const { id: record_id, ...rest } = record
                             const timesDataItem = { 'record_id': record_id, ...rest } as TimesDataItem
-                            this.updateTimesData(record_id, timesDataItem)
+                            this.updateTimesData(record_id as number, timesDataItem)
                         }
                         return { error, status, isPending }
                     } catch (error) {
@@ -174,6 +188,7 @@ export function getDynamicStore(storeId: StoreID) {
                     this.events = []
                     this.lastFetched = null
                     this.error = null
+                    this.hasBeenFetched = false
                 },
 
                 // Remove the current store

@@ -11,7 +11,7 @@
       </div>
 
       <div class="justify-between align-center hidden md:flex">
-          <NuxtLink v-if="isAdmin" to="/admin">Admin</NuxtLink>
+          <NuxtLink v-if="isAdmin" to="/admin" class="relative bottom-1 bg-[#3ec271] mr-2 p-2 h-fit rounded-xl font-bold" :class="{'bottom-2 border-3 border-[#5879d4]': currentPath === '/admin'}">Admin</NuxtLink>
           <UButton v-if="user" class="h-fit" color="secondary" variant="solid" @click="handleLogout" label="Log Out" />
           <div v-else class="flex h-fit flex-row gap-2">
             <UBadge v-if="guestUser" color="success" size="xl">Guest</UBadge>
@@ -34,7 +34,7 @@
         <!-- md:text-lg lg:text-xl xl:text-2xl -->
         <nav class="flex shrink justify-between p-3 font-bold text-white rounded-sm">
           <template v-for="link in siteLinks" :key="link.to">
-            <NuxtLink v-if="link.to !== '/admin' || userRole === 'admin'" :to="link.to === '/index' ? '/' : link.to" :id="link.path" class="w-fit h-10 bg-gray-400 px-5 py-[5px] lg:py-[2px] xl:py-0 rounded-lg text-[clamp(.82rem,1vw+.34rem,1.5rem)] text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">{{link.name}}</NuxtLink>
+            <NuxtLink v-if="link.to !== '/admin' || userRole === 'admin'" :to="link.to === '/index' ? '/' : link.to" :id="link.name" class="w-fit h-10 bg-gray-400 px-5 py-[5px] lg:py-[2px] xl:py-0 rounded-lg text-[clamp(.82rem,1vw+.34rem,1.5rem)] text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">{{link.name}}</NuxtLink>
           </template>        
           
           <!-- <NuxtLink to="/" id="index" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">Home</NuxtLink>
@@ -80,13 +80,15 @@
     oldPath?: string | null
   }
 
-  const { getPageAccess } = useFetchQueries()
-  const guestUser = useGuestUser()
-  const user = useSupabaseUser()
-  const supabase = useSupabaseClient()
-  const route = useRoute()
-  const router = useRouter(); 
-  const { toastBar } = useToastBar()
+  const { getPageAccess } = useFetchQueries(),
+    guestUser = useGuestUser(),
+    user = useSupabaseUser(),
+    supabase = useSupabaseClient(),
+    route = useRoute(),
+    router = useRouter(),
+    currentPath = ref(route.path)
+
+    const { toastBar } = useToastBar()
   // const props = defineProps({
   //   user: Boolean, //Object,
   //   isAdmin: Boolean
@@ -143,6 +145,8 @@
   // })
   watch(
       () => route.path, (currentPage) => {
+        console.log('currentPath', route.path)
+        currentPath.value = route.path
         notOnLogin.value = !['/loginLink', '/registration'].includes(currentPage)
       }, {immediate: true}
     )
