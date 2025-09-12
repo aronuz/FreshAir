@@ -91,7 +91,7 @@ export function getDynamicStore(storeId: StoreID) {
 
                     console.log('Calling fetchAppointments')
                     try {
-                        const { data, timesData, isPending, error, status } = await fetchAppointments({...fetchParams, store: true})
+                        const { data, timesData, isPending, error, status } = await fetchAppointments(fetchParams)
                         
                         console.log('fetchAppointments returned, data length:', data?.length, 'error:', !!error)
                         

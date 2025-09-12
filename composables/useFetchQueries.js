@@ -159,7 +159,7 @@ export const useFetchQueries = () => {
         return { data, error }
     }
 
-    const fetchAppointments = async ({pending, limit = 0, id = null, list = false, store = false, dateRange = null}) => {
+    const fetchAppointments = async ({pending, limit = 0, id = null, list = false, index = false, dateRange = null}) => {
         console.log('fetchAppointments called')
         isPending.value = pending.value
         let saveError = null
@@ -196,15 +196,15 @@ export const useFetchQueries = () => {
             prefix = `${prefix}_limit`
         }
         
-        let data = null
+        let eventData = null
         
-        if(store) {
-            const { data: queryData, error } = await query
+        if(index) {
+            const { data, error } = await query
             if (error) {
                 saveError = error
                 saveStatus = '500'
-            } else if (queryData && queryData.length) {
-                data = queryData
+            } else if (data && data.length) {
+                eventData = data
             }
         } else {
             // Use useAsyncData but always return the data, whether from cache or fresh fetch
@@ -218,19 +218,13 @@ export const useFetchQueries = () => {
                 } 
                 return { data };
             })//, { server: false, lazy: true }
-            if (data) queryData = data
+            if (data) eventData = data?.value?.data || []
         }
-        
-        console.log('useAsyncData completed, data exists:', !!data?.value)
-        
+                
         let dataSet = null, timesData = []
         // Always return the data, whether it came from cache or fresh fetch
-        if(data && data.length > 0) {
-            // dataSet = data.value
-            // console.log('Data retrieved from useAsyncData, length:', dataSet?.data?.length)
-                
-            // dataSet = list ? groupByDate(queryData.value.data) : queryData.value.data
-            dataSet = list ? groupByDate(queryData) : queryData
+        if(eventData && eventData.length > 0) {
+            dataSet = list ? groupByDate(eventData) : eventData
                     
             if(!limit && !id) {
                 const response = await useAsyncData(`times-${dateFrom}-${dateTo}`, async () => {
@@ -247,7 +241,6 @@ export const useFetchQueries = () => {
             }
         }
         
-        // console.log('fetchAppointments returning, data length:', dataSet?.length, 'error:', saveError)
         return { data: dataSet, timesData, isPending, error: saveError, status: saveStatus }
     }
 

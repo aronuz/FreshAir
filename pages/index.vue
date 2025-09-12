@@ -86,7 +86,7 @@
     
     const loadAppointments = async () => {
         console.log('loadAppointments called')
-        const { data, error, status, isPending } = await eventsStore.fetchEvents({ pending: pending, limit })
+        const { data, error, status, isPending } = await eventsStore.fetchEvents({ pending: pending, limit, index: true })
         pending.value = isPending.value
         console.log('Store returned:', { dataLength: data?.length, error, status })
         
