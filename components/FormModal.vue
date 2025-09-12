@@ -83,7 +83,7 @@
   import type { FormErrorEvent, FormSubmitEvent } from '@nuxt/ui'
   import { z } from 'zod'
   import dayjs from 'dayjs'
-  
+
   import { useFetchQueries } from '~/composables/useFetchQueries'
   import { storeToRefs } from 'pinia'
   import { getDynamicStore } from '~/stores/events'
@@ -114,6 +114,9 @@
   }
   
   interface formDataType extends stateType, roleType{}
+
+  const usersStore = useUsersStore()
+  const { fetchUsers } = usersStore
 
   const { toastBar } = useToastBar()
   
@@ -155,7 +158,7 @@
   }
 
   const initState = createInitState()
-  const blankState: Ref<stateType> = useState('selectedAppointment', () => initState)
+  // const blankState: Ref<stateType> = useState('selectedAppointment', () => initState)
   const selectedAppointment = useState('selectedAppointment')
 
   const roles = ref([{label: 'User', value: 'user'}, {label: 'Admin', value: 'admin'}])
@@ -267,7 +270,7 @@
   const appform = ref()
 
   const title = computed(() => {
-    return props.selectedUser ? 'User Info' : !updatedAppointment ? 'New Appointment' : 'Make a change'
+    return props.selectedUser ? 'User Info' : !updatedAppointment?.value ? 'New Appointment' : 'Make a change'
   })
 
   const saveLabel = ref('Save')
@@ -288,11 +291,13 @@
 
   const blankForm = () => {
     if(props.selectedUser) {
-      Object.assign(formdata, blankState.value as roleType)
+      rolePicked.value = 'user'
+      Object.assign(formdata, createInitState())
     } else {
       formattedStartDate.value = null
-      formattedEndDate.value = null    
-      Object.assign(formdata, blankState.value as stateType)
+      formattedEndDate.value = null
+      servicePicked.value = 0
+      Object.assign(formdata, createInitState())
     }
     appform.value.clear()
   } 
@@ -420,11 +425,34 @@
       }
     }
   }
+  
+  const clearDataOnClose = () => {
+    
+      const selectedEl = document.querySelector('.selected-slot')
+      if (selectedEl) selectedEl.classList.remove('selected-slot')
+      selectedAppointment.value = null
+      updatedAppointment.value = null 
+      // delete formdata.id
+    
+    blankForm()
+  }
 
   const isOpen = computed({
-    get: () => props.modelValue,
+    get: async () => {
+      if(!props.selectedUser) {
+        pending.value = true
+        const { data, error, isPending } = await fetchUsers(pending.value, useState('user_id').value as number)
+        if(error) console.error('Error fetching user data:', error) 
+        if(data && !error) {
+          const userData = data && data.length > 0 ? data[0] : null
+          if(userData) Object.assign(formdata, {...userData, email: userData.email ?? undefined, role: userData.role ?? undefined})
+        }
+        pending.value = isPending!.value
+      }
+      return props.modelValue
+    },
     set: (val: Boolean) => {
-      if (!val && appform.value) blankForm()
+      if (!val) clearDataOnClose()
       emit('update:modelValue', val)
     }
   })
@@ -441,6 +469,8 @@
         const errorMessage = error instanceof z.ZodError ? error.errors : error
         console.error('Validation Error:', errorMessage)
       }
+    } else {
+      blankForm()
     }
   })
     
@@ -472,16 +502,6 @@
       }
     } else {
       saveLabel.value = 'Save'
-    }
-  })
-
-  watch(isOpen, (value) => {
-    if (!value && selectedAppointment.value) {
-      const selectedEl = document.querySelector('.selected-slot')
-      if (selectedEl) selectedEl.classList.remove('selected-slot')
-      selectedAppointment.value = null
-      updatedAppointment.value = null 
-      delete formdata.id
     }
   })
 

@@ -37,7 +37,7 @@ export const useUsersStore = defineStore('users', {
 
     actions: {
         // Fetch events from database
-        async fetchUsers(pending: boolean, forceReload = false) {
+        async fetchUsers(pending: boolean, userId: number | null = null, forceReload = false) {
             if (this.isCacheValid && !forceReload) {
                 return { data: this.users, error: null, status: 200, isPending: ref(false) }
             }
@@ -45,7 +45,7 @@ export const useUsersStore = defineStore('users', {
 
             try {
                 const { fetchUsers } = useFetchQueries()
-                const { data, error, status, isPending } = await fetchUsers(pending)
+                const { data, error, status, isPending } = await fetchUsers(pending, userId)
                 this.users = data || []
                 this.lastFetched = new Date()
                 return { data, error, status, isPending }
@@ -86,7 +86,7 @@ export const useUsersStore = defineStore('users', {
 
         // Clear cache and force refresh
         async refreshUsers() {
-            return this.fetchUsers(true, true)
+            return this.fetchUsers(true, null, true)
         },
 
         // Clear all data in current store
