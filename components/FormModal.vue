@@ -438,16 +438,11 @@
   }
 
   const isOpen = computed({
-    get: async () => {
-      if(!props.selectedUser) {
-        pending.value = true
-        const { data, error, isPending } = await fetchUsers(pending.value, useState('user_id').value as number)
-        if(error) console.error('Error fetching user data:', error) 
-        if(data && !error) {
-          const userData = data && data.length > 0 ? data[0] : null
-          if(userData) Object.assign(formdata, {...userData, email: userData.email ?? undefined, role: userData.role ?? undefined})
-        }
-        pending.value = isPending!.value
+    get: () => {
+      const userData: userType = useState<userType>('user_data').value
+      if(!props.selectedUser && userData) {
+        // , email: userData.email ?? undefined, role: userData.role ?? undefined
+        Object.assign(formdata, {...userData})
       }
       return props.modelValue
     },

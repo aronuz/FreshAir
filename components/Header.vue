@@ -73,6 +73,7 @@
   import { removeAllStores } from '~/stores/events'
 
   import { PAGES_CONFIG } from '~/config/routes'
+import { co } from '@fullcalendar/core/internal-common'
   interface pages {
     name: string,
     to: string,
@@ -102,9 +103,10 @@
   onBeforeMount(async () => {
     const { data, error } = await getPageAccess()
     if (error) return
+    const hiddenPages = useState('hiddenPages', () => [] as string[])
     if (data) {
-      data.forEach((page: { to: string; name: string }) => {
-        if (page.name !== 'Construction') {
+      data.forEach((page: { to: string; name: string; allowed: boolean }) => {
+        if (page.name !== 'Construction' && page.allowed) {
           const pagePath = page.to === '/index' ? '/' : page.to
           const linkIndex = siteLinks.findIndex((link: pages) => link.name !== page.name)
           if (linkIndex !== -1){
@@ -118,17 +120,29 @@
             // Add new link
             siteLinks.push({ to: pagePath, name: page.name })
           }
+        } else if (!page.allowed) {
+          hiddenPages.value.push(page.to)
         }
       })
+      const isBookingActive = !!data.findIndex((page: {to: string }) => page.to === '/booking')
+      if (isBookingActive) hiddenPages.value.push('/booking')
+      console.log('Hidden pages:', hiddenPages.value)   
     }
   })
 
-  // watch (user, (user: User | null) => {
-  //   if (user) {
-  //     //isAdmin.value = user.role = "admin"
-  //     isAdmin.value = useState('isAdmin', (user: User | null) => false); // Example admin state
-  //   }
-  // }, { immediate: true })
+  watch (user, async (user) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (user && session?.user.id) {
+      const usersStore = useUsersStore()
+      const { fetchUsers } = usersStore
+      const { data, error } = await fetchUsers(true, parseInt(session.user.id))
+      if(error) console.error('Error fetching user data:', error) 
+      if(data && !error) {
+        const userData = data && data.length > 0 ? data[0] : null
+        if(userData) useState('user_data', () => userData)
+      }
+    }
+  }, { immediate: true })
 
   const isMobileMenuOpen = ref(false);
 

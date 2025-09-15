@@ -10,7 +10,7 @@
               <h3 class="font-semibold text-2xl md:text-lg text-gray-700 mb-2">{{ service.name }}</h3>
               <p class="text-gray-600 text-2xl md:text-sm h-fit">{{ service.description }}</p>
               <UButton
-                v-if="service.type !== 'plans'"
+                v-if="!hiddenPages.includes('/booking') && service.type !== 'plans'"
                 class="mt-2"
                 color="primary"
                 variant="solid"
@@ -30,6 +30,8 @@
 <script lang="ts" setup>
 import { services } from '~/data/constants.json'
 
+const hiddenPages = useState('hiddenPages').value as string[]
+
 const displayStyle: Array<Object> = reactive([])
 for (const i in services){
   displayStyle[i] = {display: 'none'}
@@ -44,7 +46,7 @@ const showEl = () => {
   })
 } 
 
-if (process.client) {
+if (import.meta.client) {
 //   onMounted(() => {
     showEl()
     const unlink = useState('unlink')

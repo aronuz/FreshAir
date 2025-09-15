@@ -33,10 +33,13 @@
     </section>
 
     <section class="py-12 mt-8 bg-secondary-500 text-white rounded-lg shadow-md">
-        <div class="text-center font-bold">
-        <h2 class="text-3xl text-shadow-lg text-shadow-cyan-500 mb-4">Schedule an Appointment Today!</h2>
-        <p class="text-lg mb-6">Get your HVAC system checked by a professional. Book your appointment today.</p>
-        <UButton to="/booking" label="Book Appointment" color="neutral" size="lg" />
+        <template v-if="hiddenPages.includes('/booking')">
+            <!-- email block -->
+        </template>
+        <div v-else class="text-center font-bold">
+            <h2 class="text-3xl text-shadow-lg text-shadow-cyan-500 mb-4">Schedule an Appointment Today!</h2>
+            <p class="text-lg mb-6">Get your HVAC system checked by a professional. Book your appointment today.</p>
+            <UButton to="/booking" label="Book Appointment" color="neutral" size="lg" />
         </div>
     </section>
 
@@ -56,6 +59,8 @@
     interface Appointment {
         [key: string]: number | string | null;
     }
+
+    const hiddenPages = useState('hiddenPages').value as string[]
 
     const globalUser = useState('globalUser', () => null)
 
