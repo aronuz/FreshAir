@@ -32,11 +32,11 @@
         </div>
     </section>
 
-    <section class="py-12 mt-8 bg-secondary-500 text-white rounded-lg shadow-md">
-        <template v-if="hiddenPages.includes('/booking')">
-            <!-- email block -->
-        </template>
-        <div v-else class="text-center font-bold">
+    <section class="mt-8 text-center text-white shadow-md">
+        <div v-if="hiddenPages.includes('/booking')" class="p-4 bg-gray-200 rounded-lg">
+            <ContactForm />
+        </div>
+        <div v-else class="p-4 font-bold bg-secondary-500 rounded-lg">
             <h2 class="text-3xl text-shadow-lg text-shadow-cyan-500 mb-4">Schedule an Appointment Today!</h2>
             <p class="text-lg mb-6">Get your HVAC system checked by a professional. Book your appointment today.</p>
             <UButton to="/booking" label="Book Appointment" color="neutral" size="lg" />
