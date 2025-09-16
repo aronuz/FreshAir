@@ -73,7 +73,7 @@
   import { removeAllStores } from '~/stores/events'
 
   import { PAGES_CONFIG } from '~/config/routes'
-import { co } from '@fullcalendar/core/internal-common'
+
   interface pages {
     name: string,
     to: string,
@@ -124,8 +124,8 @@ import { co } from '@fullcalendar/core/internal-common'
           hiddenPages.value.push(page.to)
         }
       })
-      const isBookingActive = !!data.findIndex((page: {to: string }) => page.to === '/booking')
-      if (isBookingActive) hiddenPages.value.push('/booking')
+      const bookingIndex = data.findIndex((page: {to: string }) => page.to === '/booking')
+      if (bookingIndex < 0) hiddenPages.value.push('/booking')
       console.log('Hidden pages:', hiddenPages.value)   
     }
   })
