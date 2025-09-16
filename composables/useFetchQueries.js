@@ -159,7 +159,7 @@ export const useFetchQueries = () => {
         return { data, error }
     }
 
-    const fetchAppointments = async ({pending, limit = 0, id = null, list = false, index = false, dateRange = null}) => {
+    const fetchAppointments = async ({pending, limit = 0, id = null, list = false, index = false, startDate = null, endDate = null}) => {
         console.log('fetchAppointments called')
         isPending.value = pending.value
         let saveError = null
@@ -177,8 +177,8 @@ export const useFetchQueries = () => {
         }
         const supabase = getSupabase(),
             today = new Date(),
-            dateFrom = dateRange?.value?.from ? dateRange.value.from : today.toISOString().split('T')[0],
-            dateTo = dateRange?.value?.to ? dateRange.value.to : new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0]
+            dateFrom = startDate?.value ? startDate.value : today.toISOString().split('T')[0],
+            dateTo = endDate?.value ? endDate.value : new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0]
 
         let prefix = 'all'
         const query = supabase.from('appointments').select('*, users!inner(*)')

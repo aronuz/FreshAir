@@ -24,9 +24,19 @@
     <FormModal v-model="isOpen" :selected-date="selectedDate" :existing-records="existingRecords" :service="service" @saved="reload"/>
     <ClientOnly>
       <UCard v-if="user && showCalendar" class="lg:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
+        <RangeSelector @dateRangeChanged="setRangeDates"/>
         <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendar-ready="isReady=true" @dataChanged="updateStoreName" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
       </UCard>
       <template v-else-if="user" class="col-span-12 lg:col-span-9">
+        <template v-if="isXS">
+          <UButton class="w-fit" label="Pick Date Range" @click="showRange = !showRange"/>
+          <Transition name="slide">
+            <div v-if="showRange" class="slideout-panel">
+              <RangeSelector @dateRangeChanged="setRangeDates"/>
+            </div>
+          </Transition>
+        </template>  
+        <RangeSelector v-else @dateRangeChanged="setRangeDates"/>
         <ListView :groupped-events="grouppedEvents" />
       </template>
     </ClientOnly>
@@ -51,7 +61,7 @@ const props = defineProps({
 })
 
 const defaultDate = dayjs(new Date()).format('MMMM')
-let storeId = { range: defaultDate, type: 'month', user_id: null }
+let storeId = reactive({ range: defaultDate, type: 'month', user_id: null })
 let eventsStore = getDynamicStore(storeId)
 
 const { toastBar } = useToastBar()
@@ -70,12 +80,27 @@ const existingRecords = ref([])
 const selectedAppointment = useState('selectedAppointment', () => null)
 const updatedAppointment =  useState('updatedAppointment', () => null)
 const selectedDate = ref(null)
+const startDate = ref(null)
+const endDate = ref(null)
+const showRange = ref(false)
 
 watchEffect(() => {
   isOpen.value = !!props.service
 })
 
-const updateStoreName = ({ date, type }) => {
+const setRangeDates = ({ start, end }) => {
+  startDate.value = start
+  endDate.value = end
+  if(start || end) {
+    const rangeString = `${start ?? ''}-${end ?? ''}`
+    updateStoreName({ date: rangeString, type: 'month' })
+  } else { 
+    updateStoreName({ type: 'month' })
+  }
+  reload()
+}
+
+const updateStoreName = ({ date = null, type }) => {
   const range = date ?? defaultDate
   let viewType = 'month'
   if (type && type.includes('Grid')) {
@@ -83,11 +108,10 @@ const updateStoreName = ({ date, type }) => {
     const match = type.match(regex)
     viewType = match[2].toLowerCase()
   }
-  storeId = { range, type: viewType, user_id: null }
-}
-watchEffect(() => {
+  Object.assign(storeId, { range, type: viewType, user_id: null })
   eventsStore = getDynamicStore(storeId)
-})
+}
+
 const { events: storedEvents, loading, error } = storeToRefs(eventsStore)
 // const { fetchAppointments,
 //         updateAppointment,
@@ -96,6 +120,7 @@ const { events: storedEvents, loading, error } = storeToRefs(eventsStore)
 
 const breakpoints = useBreakpoints(breakpointsTailwind)
 const isMD = breakpoints?.greaterOrEqual('md')
+const isXS = breakpoints?.smaller('sm')
 console.log('isMD', isMD.value)
 
 watch(() => isMD.value, (value) => isCalendar.value = value, {immediate: true})
@@ -122,7 +147,7 @@ const reload = async () => {
   if(guestUser.value) return
   try {
     pending.value = true
-    const {data, timesData, error, status, isPending} = await eventsStore.fetchEvents({ pending: pending.value })
+    const {data, timesData, error, status, isPending} = await eventsStore.fetchEvents({ pending: pending.value, startDate, endDate })
     // await fetchAppointments(pending)
 
     pending.value = isPending.value
@@ -279,4 +304,32 @@ useHead({
       color: #FFF;
   }
 }
+</style>
+
+<style>
+  .slide-enter-from,
+  .slide-leave-to {
+    transform: translateX(-100%); /* Or -100% for left-to-right */
+  }
+
+  .slide-enter-active,
+  .slide-leave-active {
+    transition: transform 0.2s ease-in-out; /* Adjust duration and easing */
+  }
+
+  .slide-enter-to,
+  .slide-leave-from {
+    transform: translateX(0);
+  }
+
+  .slideout-panel {
+    position: absolute; /* Or absolute, depending on layout */
+    top: 35vh;
+    left: 0; /* Or left: 0 */
+    /*width: 250px;  Adjust as needed 
+    height: 100vh;
+    background-color: #f0f0f0;*/
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+  }
 </style>
