@@ -29,9 +29,14 @@
       </UCard>
       <template v-else-if="user" class="col-span-12 lg:col-span-9">
         <template v-if="isXS">
-          <UButton class="w-fit" label="Pick Date Range" @click="showRange = !showRange"/>
-          <Transition name="slide">
-            <div v-if="showRange" class="slideout-panel">
+          <UButton class="w-fit" :label="!showRange ? 'Pick Date Range' : 'Hide Date Range Panel'" @click="showRange = !showRange"/>
+          <Transition enter-active-class="transition-transform duration-200 ease-in-out"                      
+                      enter-from-class="-translate-y-full"
+                      enter-to-class="translate-y-0"
+                      leave-active-class="transition-transform duration-200 ease-in-out"
+                      leave-from-class="translate-y-0"
+                      leave-to-class="-translate-y-full">       
+            <div v-if="showRange" class="fixed top-0 left-0 shadow-lg z-[100] max-w-min">
               <RangeSelector @dateRangeChanged="setRangeDates"/>
             </div>
           </Transition>
@@ -307,14 +312,14 @@ useHead({
 </style>
 
 <style>
-  .slide-enter-from,
+  /* .slide-enter-from,
   .slide-leave-to {
-    transform: translateX(-100%); /* Or -100% for left-to-right */
+    transform: translateY(-100%);
   }
 
   .slide-enter-active,
   .slide-leave-active {
-    transition: transform 0.2s ease-in-out; /* Adjust duration and easing */
+    transition: transform 0.2s ease-in-out;
   }
 
   .slide-enter-to,
@@ -323,13 +328,13 @@ useHead({
   }
 
   .slideout-panel {
-    position: absolute; /* Or absolute, depending on layout */
-    top: 35vh;
-    left: 0; /* Or left: 0 */
-    /*width: 250px;  Adjust as needed 
+    position: absolute;
+    top: 0;
+    left: 0; 
+    width: 250px;  Adjust as needed 
     height: 100vh;
-    background-color: #f0f0f0;*/
+    background-color: #f0f0f0;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
     z-index: 100;
-  }
+  } */
 </style>
