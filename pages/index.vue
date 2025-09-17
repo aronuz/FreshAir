@@ -33,7 +33,7 @@
     </section>
 
     <section class="mt-8 text-center text-white shadow-md">
-        <div v-if="hiddenPages.includes('/booking')" class="p-4 bg-gray-200 rounded-lg">
+        <div v-if="isBookingDown" class="p-4 bg-gray-200 rounded-lg">
             <ContactForm />
         </div>
         <div v-else class="p-4 font-bold bg-secondary-500 rounded-lg">
@@ -60,7 +60,8 @@
         [key: string]: number | string | null;
     }
 
-    const hiddenPages = useState('hiddenPages').value as string[]
+    const hiddenPages = useState<string[] | undefined>('hiddenPages')
+    const isBookingDown = computed(() => hiddenPages.value?.includes('/booking') ?? false)
 
     const globalUser = useState('globalUser', () => null)
 
