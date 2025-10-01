@@ -2,59 +2,16 @@
   <section class="pt-6 mb-8">
     <h2 class="text-3xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-8">Our Services</h2>
     <ClientOnly>
-      <TransitionGroup name="service" tag="div" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="(service, i) in services" :key="service.id" class="slide bg-white rounded-lg shadow-sm p-4 py-4 w-fit h-fit" :style="displayStyle[i]">
-          <!-- :style="`display: ${hidden ? 'none': 'flex'}`" -->
-          <div class="flex-container pb-4">
-            <div class="flex-items h-fit">
-              <h3 class="font-semibold text-2xl md:text-lg text-gray-700 mb-2">{{ service.name }}</h3>
-              <p class="text-gray-600 text-2xl md:text-sm h-fit">{{ service.description }}</p>
-              <UButton
-                v-if="!isBookingDown && service.type !== 'plans'"
-                class="mt-2"
-                color="primary"
-                variant="solid"
-                label="Request Service"
-                @click="$router.push({path: '/booking', query: {service: service.name}})"/>
-            </div>
-            <div class="flex-items">
-              <GalleryItem :image-src="service.type" :alt-text="service.description" loading="lazy"/>
-            </div> 
-          </div>
+        <div class="relative grid grid-cols-2 grid-rows-3 gap-3 w-full h-full mx-auto">
+            <ServiceBlock :services="services.slice(0, 3)" :col="1"/>
+            <ServiceBlock :services="services.slice(3, 6)" :col="2"/>
         </div>
-      </TransitionGroup>
     </ClientOnly>  
   </section>
 </template>
 
 <script lang="ts" setup>
 import { services } from '~/data/constants.json'
-
-const hiddenPages = useState<string[] | undefined>('hiddenPages')
-const isBookingDown = computed(() => hiddenPages.value?.includes('/booking') ?? false)
-
-
-const displayStyle: Array<Object> = reactive([])
-for (const i in services){
-  displayStyle[i] = {display: 'none'}
-}
-const showEl = () => { 
-  displayStyle.forEach( async (_, i) => {
-    const delay = 200 * (i)
-    await new Promise(function (resolve) { 
-        setTimeout(() => {resolve(true)}, delay); 
-    })
-    displayStyle[i] = {display: 'block'}
-  })
-} 
-
-if (import.meta.client) {
-//   onMounted(() => {
-    showEl()
-    const unlink = useState('unlink')
-    if(unlink.value) document.querySelector(`#${unlink.value}`)!.classList.remove('router-link-active')
-//   })
-}
 
 definePageMeta({
   layout: "default",
@@ -105,51 +62,104 @@ useHead({
 
   ]
 })
-
 </script>
 
-<style scoped>
-  .flex-container {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    align-items: flex-start;
-    align-content: stretch;
-  }
+<style>
+/*     
+    @keyframes move-1 {
+        0% { 
+            transform: translate(0, 0) scale(0) rotate(0deg);
+            opacity: 0;
+        }
+        50% {
+            transform: translate(-50px, -100px) scale(0.8) rotate(180deg);
+            opacity: 0.8;
+        }
+        100% { 
+            transform: translate(-100px, -200px) scale(1) rotate(360deg);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes move-2 {
+        0% { 
+            transform: translate(0, 0) scale(0) rotate(0deg);
+            opacity: 0;
+        }
+        50% {
+            transform: translate(50px, -50px) scale(0.8) rotate(-180deg);
+            opacity: 0.8;
+        }
+        100% { 
+            transform: translate(100px, -200px) scale(1) rotate(-360deg);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes move-3 {
+        0% { 
+            transform: translate(0, 0) scale(0) rotate(0deg);
+            opacity: 0;
+        }
+        50% {
+            transform: translate(-80px, 50px) scale(0.8) rotate(270deg);
+            opacity: 0.8;
+        }
+        100% { 
+            transform: translate(-100px, -100px) scale(1) rotate(540deg);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes move-4 {
+        0% { 
+            transform: translate(0, 0) scale(0) rotate(0deg);
+            opacity: 0;
+        }
+        50% {
+            transform: translate(80px, 80px) scale(0.8) rotate(-270deg);
+            opacity: 0.8;
+        }
+        100% { 
+            transform: translate(100px, -100px) scale(1) rotate(-540deg);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes move-5 {
+        0% { 
+            transform: translate(0, 0) scale(0) rotate(0deg);
+            opacity: 0;
+        }
+        50% {
+            transform: translate(-120px, 120px) scale(0.8) rotate(450deg);
+            opacity: 0.8;
+        }
+        100% { 
+            transform: translate(-100px, 0px) scale(1) rotate(720deg);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes move-6 {
+        0% { 
+            transform: translate(0, 0) scale(0) rotate(0deg);
+            opacity: 0;
+        }
+        50% {
+            transform: translate(120px, -120px) scale(0.8) rotate(-450deg);
+            opacity: 0.8;
+        }
+        100% { 
+            transform: translate(100px, 0px) scale(1) rotate(-720deg);
+            opacity: 1;
+        }
+    }
 
-  .slide {
-    opacity: 1;
-    transform: translateY(0px);
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-  }
-
-  .flex-items {
-    display: block;
-    flex-grow: 0;
-    flex-shrink: 1;
-    flex-basis: auto;
-    align-self: auto;
-  }
-
-  .flex-items:nth-child(1) {
-    order: 0;
-  }
-
-  .flex-items:nth-child(2) {
-    order: 1;
-    max-height: 100%;
-  }
-
-  .service-enter-active {
-    transition: all 0.5s ease;
-  }
-  .service-enter-from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  .service-enter-to {
-    opacity: 0;
-    transform: translateY(-60px);
-  }
+    .move-1 { animation: move-1 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards; }
+    .move-2 { animation: move-2 1.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards; }
+    .move-3 { animation: move-3 1.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards; }
+    .move-4 { animation: move-4 1.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards; }
+    .move-5 { animation: move-5 2.0s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards; }
+    .move-6 { animation: move-6 2.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards; } */
 </style>
