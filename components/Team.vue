@@ -5,7 +5,7 @@
           :src="staff.image_url" 
           :alt="staff.name"
           size="xl" 
-          class="mx-auto"
+          class="mx-auto w-24 h-24"
           icon="i-heroicons-user-20-solid"
         />
         <h3 class="font-semibold text-lg mt-2">{{ staff.name }}</h3>
