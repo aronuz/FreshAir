@@ -20,12 +20,16 @@ export default defineNuxtConfig({
       ],
       link: [
         {rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'}
-      ]
-    }
+      ],
+    },
+    pageTransition: { name: 'page', mode: 'out-in' }
   },
   modules: [// Install this module
   '@nuxtjs/sitemap', '@nuxtjs/supabase', '@nuxt/ui', '@nuxt/image', '@pinia/nuxt', '@nuxt/devtools'],
-  css: ['~/assets/css/main.css'],
+  css: [
+    '~/assets/css/main.css',
+    '~/assets/css/transitions.css'
+  ],
   image: {
     //domains: ['picsum.photos', 'www.google.com'],
     format: ['webp', 'jpeg', 'jpg', 'png'],
