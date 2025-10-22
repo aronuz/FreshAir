@@ -66,7 +66,7 @@
                 </template>
               </div>
             </template>
-            <template v-else>
+            <template v-else-if="item.label === 'Page Access'">
               <div class="grid grid-cols-2 md:grid-cols-4 font-semibold bg-gray-100 p-2 rounded">
                 <div>Page</div>
                 <div class="hidden md:block">Show/Hide</div>
@@ -88,6 +88,10 @@
                 </div>
                 <UButton class="col-span-2 md:col-span-1 justify-self-end flex items-center justify-center w-1/4 md:w-1/2 bg-blue-500 text-white rounded" @click="savePageInfo(page)" label="Save" />
               </div> 
+            </template>
+            <template v-else>
+              <Team admin/>
+              <StaffForm />
             </template>
             
             <template #footer v-if="item.label === 'User Management'">
@@ -157,6 +161,10 @@ const tabItems = ref<TabsItem[]>([
   {
     label: 'Page Access',
     icon: 'i-lucide-library',
+  },
+  {
+    label: 'Staff Profiles',
+    icon: 'i-lucide-id-card-lanyard',
   }
 ])
 

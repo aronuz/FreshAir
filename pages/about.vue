@@ -45,15 +45,9 @@
     </div>
   </section>
 
-  <section class="py-6 bg-gray-100 rounded-lg shadow-md mb-8">
+  <section class="py-6 bg-gray-100 rounded-lg shadow-md mb-8">    
     <h2 class="text-2xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-6">Meet Our Team</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      <div class="text-center">
-        <UAvatar src="/images/team-member-1.jpg" size="xl" class="mx-auto" />
-        <h3 class="font-semibold text-lg mt-2">John Doe</h3>
-        <p class="text-gray-600 text-sm">Lead Technician</p>
-      </div>
-      </div>
+    <Team />
   </section>
 </template>
 

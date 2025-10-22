@@ -392,6 +392,60 @@ export const useFetchQueries = () => {
         return { error: deleteError, status: deleteStatus, isPending }
     };
 
+    const fetchStaffProfiles = async () => {
+        let fetchData = null,
+            fetchError = null,
+            fetchStatus = null
+
+        try {
+            const supabase = getSupabase()
+            const { data, error }  = await supabase.from('staff').select('*')
+            if (error) {
+                fetchError = error.message ?? 'Unkown error while fetching staff'
+                fetchStatus = error.code ?? ''                
+            }
+            if (data) fetchData = data
+        } catch (error) {
+            fetchError = error;
+            fetchStatus = "500"
+        }
+        
+        return { data: fetchData, error: fetchError, status: fetchStatus }
+    }
+
+    const saveStaffProfile = async (filePath, file, profile) => {
+        let saveError = null, 
+            saveStatus = null
+        try {
+            const supabase = getSupabase()
+            
+            if(file && filePath) {
+                // 1. Upload image to Supabase Storage
+                const { error: uploadError } = await supabase.storage
+                    .from('images') // Bucket name
+                    .upload(filePath, file)
+                
+                if (uploadError) throw uploadError
+
+                // 2. Get public URL for the uploaded image
+                const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(filePath)
+
+                profile.image_url = publicUrl
+            }
+
+            const { error } = await supabase.from('staff').insert([profile])
+            
+            if (error) {
+                saveError = error.message ?? 'Unkown error while creating staff profile'
+                saveStatus = error.code ?? ''
+            }
+        } catch (error) {
+            saveError = error;
+            saveStatus = "500"
+        }
+        return { error: saveError, status: saveStatus }
+    };
+
     return {
         fetchUsers,
         createUser,
@@ -403,6 +457,8 @@ export const useFetchQueries = () => {
         submitAppointment,
         updateAppointment,
         deleteAppointment,
+        fetchStaffProfiles,
+        saveStaffProfile,
         pending: isPending,
         updatedAppointment
     }
