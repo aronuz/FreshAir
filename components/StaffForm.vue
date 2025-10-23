@@ -36,15 +36,18 @@
             </UFormField>
 
             <!-- Image Preview -->
-            <div v-if="imagePreview && selectedFile" class="flex flex-col items-center justify-center border border-gray-300 rounded-md overflow-hidden p-4">
-                <img :src="imagePreview as string" :alt="selectedFile.name" class="w-40 h-40 object-cover rounded mb-2" />
-                <span class="text-xs text-gray-600 text-center truncate">{{ selectedFile.name }}</span>
+            <div v-if="imagePreview && fileName" class="flex flex-col items-center justify-center border border-gray-300 rounded-md overflow-hidden p-4">
+                <img :src="imagePreview as string" :alt="fileName" class="w-40 h-40 object-cover rounded mb-2" />
+                <span class="text-xs text-gray-600 text-center truncate">{{ fileName }}</span>
             </div>
         </div>
 
-        <!-- Submit Button -->
-        <div class="col-span-3 flex justify-center self-center">      
-            <UButton class="px-8 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed" type="submit" color="primary" variant="solid" label="Save Profile" :loading="pending" icon="i-heroicons-arrow-up-on-square" />
+        <div class="md:grid grid-cols-2 gap-4 py-2 px-4 flex justify-center" >
+            <!-- Submit Button -->
+            <UButton class="w-36 justify-self-end bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="!formHasData" type="submit" color="primary" variant="solid" label="Save Profile" :loading="pending" icon="i-heroicons-arrow-up-on-square" />
+
+            <!-- Cancel Button -->
+            <UButton class="w-36 text-blue rounded-md hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="!formHasData" color="primary" variant="outline" label="Clear Form" icon="i-heroicons-x-circle" @click="clearForm"/>
         </div>
 
         <!-- Error Messages -->
@@ -60,6 +63,19 @@
     import type { FormErrorEvent, FormSubmitEvent } from '@nuxt/ui'
     import { z } from 'zod'
 
+    interface staff {
+        id: number;
+        name: string;
+        bio: string;
+        'image_url': string;
+    }
+        
+    const props = defineProps<{
+        staffSelected?: staff
+    }>()
+
+    const emit = defineEmits(['formCleared'])
+
     const { saveStaffProfile } = useFetchQueries()
 
     const breakpoints = useBreakpoints(breakpointsTailwind)
@@ -74,14 +90,14 @@
     const baseState = reactive({
       profileImage: undefined as File | undefined,
       name: null as string | null,
-      bio: undefined
+      bio: null as string | null
     })
 
     const hasErrors = ref(false)
 
     const staffform = ref()
 
-    const formdata = reactive({...baseState})
+    const formdata = reactive({...baseState})    
     
     const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB
     const MIN_DIMENSIONS = { width: 200, height: 200 }
@@ -136,7 +152,22 @@
     })
 
     const selectedFile = ref<File | null>(null)
+    const fileName = ref<string>('')
     const imagePreview = ref<string | ArrayBuffer | null>(null)
+
+    watchEffect(() => {
+        if (props.staffSelected) {
+            formdata.name = props.staffSelected.name
+            formdata.bio = props.staffSelected.bio
+            imagePreview.value = props.staffSelected.image_url
+            fileName.value = props.staffSelected.image_url.split('/').pop() || ''
+        }
+    })
+
+    const formHasData = computed(() => {
+        return formdata.name !== null || formdata.bio !== null || formdata.profileImage !== undefined
+    })
+
     const fileInput = ref<HTMLInputElement | null>(null)
 
     const openFileDialog = () => {
@@ -150,6 +181,7 @@
         if (files && files.length > 0) {
             const file = files[0]
             selectedFile.value = file
+            fileName.value = selectedFile.value.name
             formdata.profileImage = file
             
             // Generate preview
@@ -159,6 +191,15 @@
             }
             reader.readAsDataURL(file)
         }
+    }
+
+    const clearForm = () => {
+        Object.assign(formdata, baseState)
+        selectedFile.value = null
+        imagePreview.value = null
+        fileName.value = ''
+        staffform.value.clear()
+        emit('formCleared')
     }
 
     const handleSubmit = async () => {
@@ -187,9 +228,7 @@
                 const error = e instanceof Error ? e.message : String(e)
                 showError(`There was an issue with submitting the form. Please try again later.\n${error}`, '500')
             } finally {
-                selectedFile.value = null
-                imagePreview.value = null
-                staffform.value.clear()     
+                clearForm() 
                 pending.value = false
             }
         }

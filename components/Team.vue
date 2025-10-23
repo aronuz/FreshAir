@@ -1,6 +1,6 @@
 <template>
     <div v-if="team.length > 0" :class="['grid', 'grid-cols-1', `md:grid-cols-${count - 2}`, `lg:grid-cols-${count - 1}`, 'gap-8']">
-      <div v-for="staff in team" :key="staff.id" class="text-center">
+      <div v-for="staff in team" :key="staff.id" class="text-center" @click="$emit('staffSelected', staff)" style="cursor: pointer;">
         <UAvatar 
           :src="staff.image_url" 
           :alt="staff.name"
@@ -23,6 +23,8 @@
             admin: false
         }
     )
+
+    defineEmits(['staffSelected'])
 
     const { fetchStaffProfiles } = useFetchQueries()
     const { toastBar } = useToastBar()

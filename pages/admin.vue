@@ -90,8 +90,8 @@
               </div> 
             </template>
             <template v-else>
-              <Team admin/>
-              <StaffForm />
+              <Team admin @staff-selected="staff = $event"/>
+              <StaffForm :staff-selected="staff" @form-cleared="staff = null"/>
             </template>
             
             <template #footer v-if="item.label === 'User Management'">
@@ -444,6 +444,8 @@ const savePageInfo = async ({ name, to, allowed, oldPath }: pages) => {
     onError(500, error)
   }
 }
+
+const staff = ref<any>(null)
 // const sendEmail = async () => {
 //   try {
 //     await $fetch('/api/send-email', {
