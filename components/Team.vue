@@ -16,11 +16,13 @@
 </template>
 
 <script lang="ts" setup>
-    withDefaults(
+    const props = withDefaults(
         defineProps<{
-            admin?: boolean
+            admin?: boolean,
+            profileAdded?: boolean
         }>(), {
-            admin: false
+            admin: false,
+            profileAdded: false
         }
     )
 
@@ -38,12 +40,22 @@
 
     const team = ref<Array<staff>>([])
     const count = ref<number>(0)
-    const { data, error, status } = await fetchStaffProfiles()
-    
-    if(error){
-        toastBar('error', status, `Failed to load team members. ${error.trim()}`)
-    } else {
-        team.value = data || []
-        count.value = team.value.length === 1 ? 3 : team.value.length
+
+    const loadTeamMembers = async () => {
+        const { data, error, status } = await fetchStaffProfiles()
+        if(error){
+            toastBar('error', status, `Failed to load team members. ${error.trim()}`)
+        } else {
+            team.value = data || []
+            count.value = team.value.length === 1 ? 3 : team.value.length
+        }
     }
+
+    onMounted(async () => {
+        loadTeamMembers()
+    })
+
+    watch(() => props.profileAdded, async (newVal) => {
+        if (newVal) await loadTeamMembers()
+    })
 </script>

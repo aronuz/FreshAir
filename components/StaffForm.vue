@@ -14,7 +14,7 @@
         </UFormField>
 
         <!-- Image Upload -->
-        <div :class="['grid gap-4', imagePreview && isMD ? 'grid-cols-2' : 'grid-cols-1']">
+        <div :class="['grid gap-4', imagePreview ? 'md:grid-cols-2' : 'grid-cols-1']">
                         
             <UFormField name="profileImage" label="Photo" description="Allowed file types: JPG or PNG. 2MB Max.">
                 <div class="flex items-center gap-3">
@@ -34,7 +34,7 @@
                     />
                 </div>
             </UFormField>
-
+            
             <!-- Image Preview -->
             <div v-if="imagePreview && fileName" class="flex flex-col items-center justify-center border border-gray-300 rounded-md overflow-hidden p-4">
                 <img :src="imagePreview as string" :alt="fileName" class="w-40 h-40 object-cover rounded mb-2" />
@@ -42,12 +42,13 @@
             </div>
         </div>
 
+        <!-- Submit Button -->
         <div class="md:grid grid-cols-2 gap-4 py-2 px-4 flex justify-center" >
             <!-- Submit Button -->
             <UButton class="w-36 justify-self-end bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="!formHasData" type="submit" color="primary" variant="solid" label="Save Profile" :loading="pending" icon="i-heroicons-arrow-up-on-square" />
 
             <!-- Cancel Button -->
-            <UButton class="w-36 text-blue rounded-md hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="!formHasData" color="primary" variant="outline" label="Clear Form" icon="i-heroicons-x-circle" @click="clearForm"/>
+            <UButton class="w-36 text-blue rounded-md hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="!formHasData || pending" color="primary" variant="outline" label="Clear Form" icon="i-heroicons-x-circle" @click="clearForm"/>
         </div>
 
         <!-- Error Messages -->
@@ -59,9 +60,10 @@
 </template>
 
 <script lang="ts" setup>
-    import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
     import type { FormErrorEvent, FormSubmitEvent } from '@nuxt/ui'
     import { z } from 'zod'
+
+    const emit = defineEmits(['saved', 'formCleared'])
 
     interface staff {
         id: number;
@@ -74,16 +76,20 @@
         staffSelected?: staff
     }>()
 
-    const emit = defineEmits(['formCleared'])
+    watchEffect(() => {
+        if (props.staffSelected) {
+            formdata.name = props.staffSelected.name
+            formdata.bio = props.staffSelected.bio
+            imagePreview.value = props.staffSelected.image_url
+            fileName.value = props.staffSelected.image_url.split('/').pop() || ''
+        }
+    })
+
+    const staffId = computed(() => props.staffSelected ? props.staffSelected.id : null)
 
     const { saveStaffProfile } = useFetchQueries()
 
-    const breakpoints = useBreakpoints(breakpointsTailwind)
-    const isMD = breakpoints?.greaterOrEqual('md')
-
     const pending = ref(false)
-    const submissionSuccess = ref(false)
-    const submissionError = ref(false)
 
     const { toastBar } = useToastBar()
 
@@ -97,7 +103,11 @@
 
     const staffform = ref()
 
-    const formdata = reactive({...baseState})    
+    const formdata = reactive({...baseState})
+
+    const formHasData = computed(() => {
+        return formdata.name !== null || formdata.bio !== null || selectedFile.value !== null
+    })
     
     const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB
     const MIN_DIMENSIONS = { width: 200, height: 200 }
@@ -119,55 +129,42 @@
     }
 
     const schema = z.object({
-        name: z.string(),        
-        bio: z.string().max(255, "Text is too long"),
-        profileImage: z.instanceof(File, {
-            message: 'Please select an image file.'
-        }).refine((file) => file.size <= MAX_FILE_SIZE, {
-            message: `The image is too large. Please choose an image smaller than ${formatBytes(MAX_FILE_SIZE)}.`
-        }).refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), {
-            message: 'Please upload a valid image file (JPEG, PNG, or WebP).'
-        }).refine(
-            (file) =>
-                new Promise((resolve) => {
-                const reader = new FileReader()
-                reader.onload = (e) => {
-                    const img = new Image()
-                    img.onload = () => {
-                    const meetsDimensions =
-                        img.width >= MIN_DIMENSIONS.width &&
-                        img.height >= MIN_DIMENSIONS.height &&
-                        img.width <= MAX_DIMENSIONS.width &&
-                        img.height <= MAX_DIMENSIONS.height
-                    resolve(meetsDimensions)
+        name: z.string().min(1, 'Name is required'),        
+        bio: z.string().min(1, 'Bio is required').max(255, "Text is too long"),
+        profileImage: z.union([
+            z.instanceof(File).refine((file) => file.size <= MAX_FILE_SIZE, {
+                message: `The image is too large. Please choose an image smaller than ${formatBytes(MAX_FILE_SIZE)}.`
+            }).refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), {
+                message: 'Please upload a valid image file (JPEG, PNG, or WebP).'
+            }).refine(
+                (file) =>
+                    new Promise((resolve) => {
+                    const reader = new FileReader()
+                    reader.onload = (e) => {
+                        const img = new Image()
+                        img.onload = () => {
+                        const meetsDimensions =
+                            img.width >= MIN_DIMENSIONS.width &&
+                            img.height >= MIN_DIMENSIONS.height &&
+                            img.width <= MAX_DIMENSIONS.width &&
+                            img.height <= MAX_DIMENSIONS.height
+                        resolve(meetsDimensions)
+                        }
+                        img.src = e.target?.result as string
                     }
-                    img.src = e.target?.result as string
+                    reader.readAsDataURL(file)
+                    }),
+                {
+                    message: `The image dimensions are invalid. Please upload an image between ${MIN_DIMENSIONS.width}x${MIN_DIMENSIONS.height} and ${MAX_DIMENSIONS.width}x${MAX_DIMENSIONS.height} pixels.`
                 }
-                reader.readAsDataURL(file)
-                }),
-            {
-                message: `The image dimensions are invalid. Please upload an image between ${MIN_DIMENSIONS.width}x${MIN_DIMENSIONS.height} and ${MAX_DIMENSIONS.width}x${MAX_DIMENSIONS.height} pixels.`
-            }
-        ).optional()
+            ),
+            z.string().url('Invalid image URL')
+        ]).optional()
     })
 
     const selectedFile = ref<File | null>(null)
     const fileName = ref<string>('')
     const imagePreview = ref<string | ArrayBuffer | null>(null)
-
-    watchEffect(() => {
-        if (props.staffSelected) {
-            formdata.name = props.staffSelected.name
-            formdata.bio = props.staffSelected.bio
-            imagePreview.value = props.staffSelected.image_url
-            fileName.value = props.staffSelected.image_url.split('/').pop() || ''
-        }
-    })
-
-    const formHasData = computed(() => {
-        return formdata.name !== null || formdata.bio !== null || formdata.profileImage !== undefined
-    })
-
     const fileInput = ref<HTMLInputElement | null>(null)
 
     const openFileDialog = () => {
@@ -203,34 +200,37 @@
     }
 
     const handleSubmit = async () => {
-        submissionSuccess.value = false;
-        submissionError.value = false;
         pending.value = true
-        if (selectedFile.value) {
-            try {
+        try {
+            let fileName: string | null = null, 
+                filePath: string | null = null
+
+            if (selectedFile.value) {
                 // Set image file metadata
                 const fileExt = selectedFile.value.name.split('.').pop()
-                const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`
-                const filePath = `staff/${fileName}`
+                fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`
+                filePath = `staff/${fileName}`
+            }
 
-                const { error, status } = await saveStaffProfile(filePath, selectedFile.value, {
+            const { error, status } = await saveStaffProfile(filePath, selectedFile.value, {
                     bio: formdata.bio,
                     name: formdata.name
-                })
-                
-                if(error) {
-                    const errorMessage = error instanceof Error ? error.message : String(error)
-                    showError(`There was an issue with submitting the form. Please try again later.\n${error}`, status || '500')
-                } else {
-                    toastBar('success', `Profile for ${formdata.name} submitted successfully!`)
-                }           
-            } catch (e) {
-                const error = e instanceof Error ? e.message : String(e)
-                showError(`There was an issue with submitting the form. Please try again later.\n${error}`, '500')
-            } finally {
-                clearForm() 
-                pending.value = false
-            }
+                }, staffId.value
+            )
+            
+            if(error) {
+                const errorMessage = error instanceof Error ? error.message : String(error)
+                showError(`There was an issue with submitting the form. Please try again later.\n${error}`, status || '500')
+            } else {
+                emit('saved')
+                toastBar('success', `Profile for ${formdata.name} submitted successfully!`)
+            }           
+        } catch (e) {
+            const error = e instanceof Error ? e.message : String(e)
+            showError(`There was an issue with submitting the form. Please try again later.\n${error}`, '500')
+        } finally {
+            clearForm()   
+            pending.value = false
         }
     }
 

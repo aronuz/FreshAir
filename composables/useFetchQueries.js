@@ -413,7 +413,7 @@ export const useFetchQueries = () => {
         return { data: fetchData, error: fetchError, status: fetchStatus }
     }
 
-    const saveStaffProfile = async (filePath, file, profile) => {
+    const saveStaffProfile = async (filePath, file, profile, id) => {
         let saveError = null, 
             saveStatus = null
         try {
@@ -433,7 +433,13 @@ export const useFetchQueries = () => {
                 profile.image_url = publicUrl
             }
 
-            const { error } = await supabase.from('staff').insert([profile])
+            let query = supabase.from('staff')
+            if (id) {
+                query.update(profile).eq('id', id)
+            } else {    
+                query.insert([profile])
+            }
+            const { error } = await query
             
             if (error) {
                 saveError = error.message ?? 'Unkown error while creating staff profile'
