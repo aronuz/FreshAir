@@ -66,22 +66,44 @@
     const emit = defineEmits(['saved', 'formCleared'])
 
     interface staff {
-        id: number;
+        id?: number;
         name: string;
         bio: string;
-        'image_url': string;
+        'image_url'?: string;
     }
         
     const props = defineProps<{
         staffSelected?: staff
     }>()
+    
+    const baseState = reactive({
+      profileImage: undefined as File | undefined,
+      name: null as string | null,
+      bio: null as string | null
+    })
+
+    const formdata = reactive({...baseState})
+
+    const initialData = ref<Record<string, any>>({})
+
+    const selectedFile = ref<File | null>(null)
+    const fileName = ref<string>('')
+    const imagePreview = ref<string | ArrayBuffer | null>(null)
+    const fileInput = ref<HTMLInputElement | null>(null)
 
     watchEffect(() => {
         if (props.staffSelected) {
             formdata.name = props.staffSelected.name
             formdata.bio = props.staffSelected.bio
-            imagePreview.value = props.staffSelected.image_url
-            fileName.value = props.staffSelected.image_url.split('/').pop() || ''
+            imagePreview.value = props.staffSelected.image_url || null
+            fileName.value = props.staffSelected.image_url?.split('/').pop() || ''
+
+            // Store initial data without triggering watchers
+            initialData.value = {
+                name: props.staffSelected.name,
+                bio: props.staffSelected.bio,
+                profileImage: undefined
+            }
         }
     })
 
@@ -93,20 +115,23 @@
 
     const { toastBar } = useToastBar()
 
-    const baseState = reactive({
-      profileImage: undefined as File | undefined,
-      name: null as string | null,
-      bio: null as string | null
-    })
-
     const hasErrors = ref(false)
 
     const staffform = ref()
 
-    const formdata = reactive({...baseState})
-
     const formHasData = computed(() => {
-        return formdata.name !== null || formdata.bio !== null || selectedFile.value !== null
+        const isNewData = Object.keys(initialData.value).length === 0
+        if (isNewData) {
+            // For new profiles: require name and bio (image is optional)
+            return (formdata.name !== null && formdata.name.trim() !== '') || 
+                   (formdata.bio !== null && formdata.bio.trim() !== '')
+        } else {
+            // For editing: detect changes between initialData and current formdata or if a new file is selected
+            const isChanged = selectedFile.value !== null || Object.keys(initialData.value).some(key => {
+                return initialData.value[key] !== (formdata as any)[key]
+            })
+            return isChanged
+        }
     })
     
     const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB
@@ -161,11 +186,6 @@
             z.string().url('Invalid image URL')
         ]).optional()
     })
-
-    const selectedFile = ref<File | null>(null)
-    const fileName = ref<string>('')
-    const imagePreview = ref<string | ArrayBuffer | null>(null)
-    const fileInput = ref<HTMLInputElement | null>(null)
 
     const openFileDialog = () => {
         fileInput.value?.click()
@@ -223,7 +243,8 @@
                 showError(`There was an issue with submitting the form. Please try again later.\n${error}`, status || '500')
             } else {
                 emit('saved')
-                toastBar('success', `Profile for ${formdata.name} submitted successfully!`)
+                const action = staffId.value ? 'updated' : 'added'
+                toastBar('success', `Profile for ${formdata.name} ${action} successfully!`)
             }           
         } catch (e) {
             const error = e instanceof Error ? e.message : String(e)

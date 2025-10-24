@@ -90,7 +90,7 @@
               </div> 
             </template>
             <template v-else>
-              <Team admin :profile-added="profileAdded" @staff-selected="staff = $event"/>
+              <Team admin :profile-added="profileAdded" @staff-selected="staff = $event" @update:profileAdded="profileAdded = false"/>
               <StaffForm :staff-selected="staff" @saved="profileAdded = true" @form-cleared="staff = null"/>
             </template>
             

@@ -435,9 +435,9 @@ export const useFetchQueries = () => {
 
             let query = supabase.from('staff')
             if (id) {
-                query.update(profile).eq('id', id)
+                query = query.update(profile).eq('id', id)
             } else {    
-                query.insert([profile])
+                query = query.insert([profile])
             }
             const { error } = await query
             

@@ -1,6 +1,6 @@
 <template>
     <div v-if="team.length > 0" :class="['grid', 'grid-cols-1', `md:grid-cols-${count - 2}`, `lg:grid-cols-${count - 1}`, 'gap-8']">
-      <div v-for="staff in team" :key="staff.id" class="text-center" @click="$emit('staffSelected', staff)" style="cursor: pointer;">
+      <div v-for="staff in team" :key="staff.id" class="w-fit justify-self-center text-center" @click="$emit('staffSelected', staff)" style="cursor: pointer;">
         <UAvatar 
           :src="staff.image_url" 
           :alt="staff.name"
@@ -26,7 +26,7 @@
         }
     )
 
-    defineEmits(['staffSelected'])
+    const emit = defineEmits(['staffSelected', 'update:profileAdded'])
 
     const { fetchStaffProfiles } = useFetchQueries()
     const { toastBar } = useToastBar()
@@ -47,7 +47,7 @@
             toastBar('error', status, `Failed to load team members. ${error.trim()}`)
         } else {
             team.value = data || []
-            count.value = team.value.length === 1 ? 3 : team.value.length
+            count.value = team.value.length + 2
         }
     }
 
@@ -56,6 +56,9 @@
     })
 
     watch(() => props.profileAdded, async (newVal) => {
-        if (newVal) await loadTeamMembers()
+        if (newVal) {
+            await loadTeamMembers()
+            emit('update:profileAdded', false)
+        }
     })
 </script>
