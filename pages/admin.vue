@@ -90,8 +90,8 @@
               </div> 
             </template>
             <template v-else>
-              <Team admin :profile-added="profileAdded" @staff-selected="staff = $event" @update:profileAdded="profileAdded = false"/>
-              <StaffForm :staff-selected="staff" @saved="profileAdded = true" @form-cleared="staff = null"/>
+              <Team admin :profile-updated="profileUpdated" @staff-selected="staff = $event" @delete-staff="deleteStaff" @update:profileUpdated="profileUpdated = false"/>
+              <StaffForm :staff-selected="staff" @saved="profileUpdated = true" @form-cleared="staff = null"/>
             </template>
             
             <template #footer v-if="item.label === 'User Management'">
@@ -364,6 +364,20 @@ const handleDeleteUsers = async (ids: string | Set<string>) => {
   } 
 }
 
+const deleteStaff = async ({ id: staffId, image_url }: { id: number, image_url: string }) => {
+  try {
+    const { error } = await useFetchQueries().deleteStaffProfile(staffId, image_url)
+    if (error) {
+      onError(500, error)
+      return
+    }
+    toastBar('success', 'Staff profile deleted successfully')
+    profileUpdated.value = true
+  } catch (error) {
+    onError(500, error)
+  }
+}
+
 const allSelected = computed(() => {
   return selectedUsers.value.size === users.value.length
 })
@@ -446,7 +460,7 @@ const savePageInfo = async ({ name, to, allowed, oldPath }: pages) => {
 }
 
 const staff = ref<any>(null)
-const profileAdded = ref(false)
+const profileUpdated = ref(false)
 // const sendEmail = async () => {
 //   try {
 //     await $fetch('/api/send-email', {

@@ -452,6 +452,39 @@ export const useFetchQueries = () => {
         return { error: saveError, status: saveStatus }
     };
 
+    const deleteStaffProfile = async (id, image_url) => {
+        let deleteError = null, 
+            deleteStatus = null
+        if (!id) {
+            deleteError = "Unable to remove selected staff profile"
+            deleteStatus = "500"
+        } else {
+            try {
+                const supabase = getSupabase()
+                
+                // 1. Delete image from Supabase Storage
+                if(image_url) {
+                    const filePath = image_url.split('/').pop()
+                    const { error: deleteImageError } = await supabase.storage
+                        .from('images').remove([filePath])
+                    
+                    if (deleteImageError) throw deleteImageError
+                }
+
+                // 2. Delete staff profile from database
+                const { error } = await supabase.from('staff').delete().eq('id', id)
+                if (error) {
+                    deleteError = error.message ?? 'Uknown error'
+                    deleteStatus = error.code ?? ''
+                }
+            } catch (error) {
+                deleteError = `${deleteError}\n${error}`;
+                deleteStatus = "500"
+            }
+        }
+        return { error: deleteError, status: deleteStatus }
+    };
+
     return {
         fetchUsers,
         createUser,
@@ -465,6 +498,7 @@ export const useFetchQueries = () => {
         deleteAppointment,
         fetchStaffProfiles,
         saveStaffProfile,
+        deleteStaffProfile,
         pending: isPending,
         updatedAppointment
     }
