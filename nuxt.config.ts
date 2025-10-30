@@ -42,7 +42,10 @@ export default defineNuxtConfig({
         component: resolve(__dirname, 'layouts/error.vue')
       });
     },
-    middleware: ['errorMiddleware']
+    middleware: ['errorMiddleware'],
+    options: {
+      strict: true
+    }  
   },
   plugins: [
     '~/plugins/userRole.js'
