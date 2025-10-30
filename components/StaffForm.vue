@@ -43,12 +43,15 @@
         </div>
 
         <!-- Submit Button -->
-        <div class="md:grid grid-cols-2 gap-4 py-2 px-4 flex justify-center" >
+        <div class="md:grid grid-cols-3 gap-4 py-2 flex justify-center" >
             <!-- Submit Button -->
             <UButton class="w-36 justify-self-end bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="!formHasData" type="submit" color="primary" variant="solid" label="Save Profile" :loading="pending" icon="i-heroicons-arrow-up-on-square" />
 
+            <!-- Clear Button -->
+            <UButton class="w-36 text-blue rounded-md hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="pending" color="primary" variant="outline" label="Clear Form" icon="i-heroicons-backspace" @click="clearForm"/>
+
             <!-- Cancel Button -->
-            <UButton class="w-36 text-blue rounded-md hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="!formHasData || pending" color="primary" variant="outline" label="Clear Form" icon="i-heroicons-x-circle" @click="clearForm"/>
+            <UButton class="w-36 text-blue rounded-md hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="pending" color="primary" variant="outline" label="Cancel" icon="i-heroicons-x-circle" @click="cancelEdit"/>
         </div>
 
         <!-- Error Messages -->
@@ -63,7 +66,7 @@
     import type { FormErrorEvent, FormSubmitEvent } from '@nuxt/ui'
     import { z } from 'zod'
 
-    const emit = defineEmits(['saved', 'formCleared'])
+    const emit = defineEmits(['saved', 'formCleared', 'hideForm'])
 
     interface staff {
         id?: number;
@@ -73,7 +76,7 @@
     }
         
     const props = defineProps<{
-        staffSelected?: staff
+        staffSelected?: staff,
     }>()
     
     const baseState = reactive({
@@ -91,19 +94,21 @@
     const imagePreview = ref<string | ArrayBuffer | null>(null)
     const fileInput = ref<HTMLInputElement | null>(null)
 
-    watchEffect(() => {
-        if (props.staffSelected) {
-            formdata.name = props.staffSelected.name
-            formdata.bio = props.staffSelected.bio
-            imagePreview.value = props.staffSelected.image_url || null
-            fileName.value = props.staffSelected.image_url?.split('/').pop() || ''
+    watch(() => props.staffSelected, (val) => {
+        if (val) {
+            formdata.name = val.name
+            formdata.bio = val.bio
+            imagePreview.value = val.image_url || null
+            fileName.value = val.image_url?.split('/').pop() || ''
 
             // Store initial data without triggering watchers
             initialData.value = {
-                name: props.staffSelected.name,
-                bio: props.staffSelected.bio,
+                name: val.name,
+                bio: val.bio,
                 profileImage: undefined
             }
+        } else {
+            clearForm()
         }
     })
 
@@ -121,16 +126,17 @@
 
     const formHasData = computed(() => {
         const isNewData = Object.keys(initialData.value).length === 0
+        const isEmpty = (formdata.name == null || formdata.name.trim() === '') || 
+                   (formdata.bio == null || formdata.bio.trim() === '')
         if (isNewData) {
             // For new profiles: require name and bio (image is optional)
-            return (formdata.name !== null && formdata.name.trim() !== '') || 
-                   (formdata.bio !== null && formdata.bio.trim() !== '')
+            return !isEmpty
         } else {
             // For editing: detect changes between initialData and current formdata or if a new file is selected
             const isChanged = selectedFile.value !== null || Object.keys(initialData.value).some(key => {
                 return initialData.value[key] !== (formdata as any)[key]
             })
-            return isChanged
+            return !isEmpty && isChanged
         }
     })
     
@@ -219,6 +225,11 @@
         emit('formCleared')
     }
 
+    const cancelEdit = () => {
+        clearForm()
+        emit('hideForm')
+    }
+
     const handleSubmit = async () => {
         pending.value = true
         try {
@@ -250,7 +261,8 @@
             const error = e instanceof Error ? e.message : String(e)
             showError(`There was an issue with submitting the form. Please try again later.\n${error}`, '500')
         } finally {
-            clearForm()   
+            clearForm()                
+            emit('hideForm')
             pending.value = false
         }
     }

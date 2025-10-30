@@ -90,8 +90,10 @@
               </div> 
             </template>
             <template v-else>
-              <Team admin :profile-updated="profileUpdated" @staff-selected="staff = $event" @delete-staff="deleteStaff" @update:profileUpdated="profileUpdated = false"/>
-              <StaffForm :staff-selected="staff" @saved="profileUpdated = true" @form-cleared="staff = null"/>
+              <KeepAlive>
+                <Team v-if="showForm === false" admin :profile-updated="profileUpdated" @staff-selected="staff = $event; showForm = true" @delete-staff="deleteStaff" @update:profileUpdated="profileUpdated = false" @show-form="showForm = true"/>
+              </KeepAlive> 
+              <StaffForm v-show="showForm" :staff-selected="staff" @saved="profileUpdated = true" @form-cleared="staff = null" @hide-form="showForm = false"/>
             </template>
             
             <template #footer v-if="item.label === 'User Management'">
@@ -373,6 +375,8 @@ const deleteStaff = async ({ id: staffId, image_url }: { id: number, image_url: 
     }
     toastBar('success', 'Staff profile deleted successfully')
     profileUpdated.value = true
+    if(staff.value) staff.value = null
+    showForm.value = false
   } catch (error) {
     onError(500, error)
   }
@@ -461,6 +465,8 @@ const savePageInfo = async ({ name, to, allowed, oldPath }: pages) => {
 
 const staff = ref<any>(null)
 const profileUpdated = ref(false)
+
+const showForm = ref(false)
 // const sendEmail = async () => {
 //   try {
 //     await $fetch('/api/send-email', {
