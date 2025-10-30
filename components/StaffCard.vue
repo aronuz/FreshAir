@@ -6,16 +6,16 @@
             size="xl" 
             class="mx-auto w-24 h-24"
             :icon="staff?.id ? 'i-heroicons-user-20-solid' : 'i-heroicons-plus'"
+            :ui="{icon: 'text-neutral-900 size-12'}"
         />
         
             <template #footer>
                 <div v-if="staff != null">
-                    <h3 class="font-semibold text-lg mt-2">{{ staff.name }}</h3>
+                    <h3 class="font-semibold text-lg">{{ staff.name }}</h3>
                     <p class="text-gray-600 text-sm">{{ staff.bio }}</p>
                 </div>
-                <div v-else class="mt-4">
-                    <p class="text-gray-600 text-sm">Add Staff Member</p>
-                </div>
+                <p  v-else class="font-semibold text-lg">Add Staff Member</p>
+   
             </template>
     </UCard>
     <UBadge
@@ -48,10 +48,10 @@
 
     const emit = defineEmits(['openDialog'])
 
-    const staffData = ref<{ id: number; name: string; image_url: string } | null>(null)
+    // const staffData = ref<{ id: number; name: string; image_url: string } | null>(null)
 
     const handleDeleteStaff = async (staff: { id: number; name: string; image_url: string }) => {
-        staffData.value = staff
+        // staffData.value = staff
         emit('openDialog', staff)
     }
 

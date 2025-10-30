@@ -9,7 +9,7 @@
                 <StaffCard ref="staffCard" v-bind='$attrs' :admin="admin" :staff="staff" @open-dialog="openDialog($event)"/>
             </div>
         </div>
-        <div v-else-if="admin" class="w-fit justify-self-center text-center cursor-pointer" @click="emit('showForm')">
+        <div v-else-if="admin" class="w-fit justify-self-center text-center cursor-pointer h-[300px]" @click="emit('showForm')">
             <StaffCard v-if="admin" v-bind='$attrs' :admin="admin"/>
         </div>
         <div v-else class="text-center text-gray-600">Something didn't go as planned. Our team is still in business!</div>
