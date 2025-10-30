@@ -1,21 +1,19 @@
 <template>
     <UCard class="flex flex-col gap-2 w-36 h-36 bg-white-50 text-center" variant="soft">
-        <UAvatar 
+        <UAvatar
             :src="staff?.id ? staff.image_url : ''" 
             :alt="staff?.name || 'Add Staff Member'"
             size="xl" 
             class="mx-auto w-24 h-24"
             :icon="staff?.id ? 'i-heroicons-user-20-solid' : 'i-heroicons-plus'"
             :ui="{icon: 'text-neutral-900 size-12'}"
-        />
-        
+        />        
             <template #footer>
                 <div v-if="staff != null">
                     <h3 class="font-semibold text-lg">{{ staff.name }}</h3>
                     <p class="text-gray-600 text-sm">{{ staff.bio }}</p>
                 </div>
-                <p  v-else class="font-semibold text-lg">Add Staff Member</p>
-   
+                <p v-else-if="admin" class="font-semibold text-lg">Add Staff Member</p>   
             </template>
     </UCard>
     <UBadge

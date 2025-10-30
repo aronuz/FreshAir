@@ -2,7 +2,7 @@
     <ConfirmationModal ref="confirmationModal" :item="message" @close="onClose" />
     <div class="flex flex-nowrap justify-center w-full -mt-4 mb-8 px-4">
         <div v-if="team.length > 0" class="grid gap-8 mx-auto border border-gray-300 rounded-lg py-8 bg-white shadow-md overflow-y-scroll overflow-x-hidden h-[300px] pr-4" :style="[gridColumns]">
-            <div class="w-fit justify-self-center text-center cursor-pointer" @click="emit('showForm')">
+            <div v-if="admin" class="w-fit justify-self-center text-center cursor-pointer" @click="emit('showForm')">
                 <StaffCard v-bind='$attrs' :admin="admin"/>
             </div>
             <div v-for="staff in team" :key="staff.id" class="w-fit justify-self-center text-center cursor-pointer" @click="$emit('staffSelected', staff)">
@@ -56,7 +56,7 @@
     }
 
     const gridColumns = computed(() => {
-        const count = team.value.length + 1 // +1 for add staff card
+        const count = props.admin ? team.value.length + 1 : team.value.length // +1 for add staff card
         const breakpoints = useBreakpoints(breakpointsTailwind)
  
         const bp = breakpoints?.greaterOrEqual('lg') ? 'lg' : 
