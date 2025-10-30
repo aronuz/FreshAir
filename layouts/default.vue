@@ -5,7 +5,7 @@
       <div class="absolute inset-0 opacity-30"></div>
     </div>
     <div class="relative z-10">
-    <UContainer class="w-full grid place-content-around mx-0 mb-8 pb-8 z-10 select-none" :key="$route.path"> 
+    <UContainer class="w-full grid place-content-around mx-auto mb-8 pb-8 z-10 select-none" :key="$route.path"> 
       <Header class="w-fit" />
       <NuxtPage :key="$route.fullPath"/>
       <Footer />
