@@ -1,61 +1,71 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
-  target: 'static',
   ssr: true,
+  
   nitro: { 
     prerender: {
-      crawLinks: true,
+      crawlLinks: true,
       routes: ['/']
     }
   },
+  
   app: {
     head: {
       title: 'HVAC Fresh Air',
       meta: [
-        {charset: 'utf-8'},
-        {name: 'viewport', content: 'width=device-width, initial-scale=1'},
-        { hid: 'description', name: 'description', content: 'Expert HVAC Servicesfor residential and comercial clients.'}
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'description', content: 'Expert HVAC Services for residential and commercial clients.' }
       ],
       link: [
-        {rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'}
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
       ],
     },
-    pageTransition: { name: 'page', mode: 'out-in' }
+    pageTransition: { name: 'page', mode: 'default' }
   },
-  modules: [// Install this module
-  '@nuxtjs/sitemap', '@nuxtjs/supabase', '@nuxt/ui', '@nuxt/image', '@pinia/nuxt', '@nuxt/devtools'],
+  
+  modules: [
+    '@nuxtjs/sitemap',
+    '@nuxtjs/supabase',
+    '@nuxt/ui',
+    '@nuxt/image',
+    '@pinia/nuxt',
+    '@nuxt/devtools'
+  ],
+  
   css: [
     '~/assets/css/main.css',
     '~/assets/css/transitions.css'
   ],
+  
   image: {
-    //domains: ['picsum.photos', 'www.google.com'],
     format: ['webp', 'jpeg', 'jpg', 'png'],
     provider: 'ipx',
   },
-  router: {
-    extendRoutes(routes, resolve) {
-      routes.push({
-        path: '*',
-        component: resolve(__dirname, 'layouts/error.vue')
-      });
-    },
-    middleware: ['errorMiddleware'],
-    options: {
-      strict: true
-    }  
+  
+  // Router middleware - now configured at the top level
+  routeRules: {
+    // Add any specific route rules here if needed
   },
+  
   plugins: [
     '~/plugins/userRole.js'
   ],
+  
   supabase: {
     redirect: false,
-    // redirectOptions: {
-    //   login: '/login', // Redirect unauthenticated users
-    //   callback: '/confirm', // Supabase callback page after OAuth
-    //   // exclude: ['/'], // Pages to exclude from redirect
-    // },
+  },
+  
+  // For strict router mode, create a plugin or use hooks
+  hooks: {
+    'pages:extend'(pages) {
+      // Add catch-all route for error page
+      pages.push({
+        name: 'error',
+        path: '/:pathMatch(.*)*',
+        file: '~/layouts/error.vue'
+      })
+    }
   }
 })

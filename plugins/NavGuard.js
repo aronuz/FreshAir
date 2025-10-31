@@ -1,3 +1,5 @@
+import { useMutationObserver } from '@vueuse/core'
+
 export default defineNuxtPlugin(() => {
   const router = useRouter()
   
@@ -32,19 +34,31 @@ export default defineNuxtPlugin(() => {
         setup: component?.setup?.toString()
       })
 
-      // Monitor DOM updates
-      const observer = new MutationObserver((mutations) => {
-        console.log('DOM updated:', {
-          path: to.path,
-          updates: mutations.length
+      const el = document?.body
+      if (!el) return
+      useMutationObserver(el, (mutations) => {
+            if (mutations[0]) {
+                console.log('DOM updated:', {
+                path: to.path,
+                updates: mutations.length
+                })
+            }
+        }, {
+        attributes: false,
         })
-        observer.disconnect()
-      })
+      // Monitor DOM updates
+    //   const observer = new MutationObserver((mutations) => {
+    //     console.log('DOM updated:', {
+    //       path: to.path,
+    //       updates: mutations.length
+    //     })
+    //     observer.disconnect()
+    //   })
 
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true
-      })
+    //   observer.observe(document.body, {
+    //     childList: true,
+    //     subtree: true
+    //   })
     })
   })
 })

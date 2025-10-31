@@ -483,7 +483,8 @@ const showForm = ref(false)
 // };
 
 definePageMeta({
-  layout: "default"
+  layout: "default",
+  pageTransition: false
 })
 </script>
 
