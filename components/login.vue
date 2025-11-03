@@ -1,5 +1,5 @@
 <template>
-    <div class="h-screen flex items-start justify-center font-sans">
+    <UContainer class="h-screen flex items-start justify-center font-sans">
         <ConfirmationCard v-if="success" :type="type" :email="email" :from-page="fromPage"/>
         <UCard v-else :ui="{header: 'p-2 sm:p4', body: 'p-2 sm:p4', footer: 'p-2 sm:p4'}" class="dialog-container max-w-xl px-2 rounded-lg sm:mx-4 sm:px-6 w-fit mx-auto"> 
             <template #header>
@@ -24,7 +24,7 @@
                 </div>
             </template>
         </UCard>
-    </div>
+    </UContainer>
 </template>
 
 <script lang="ts" setup>
