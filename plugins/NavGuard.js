@@ -34,18 +34,18 @@ export default defineNuxtPlugin(() => {
         setup: component?.setup?.toString()
       })
 
-      const el = document?.body
-      if (!el) return
-      useMutationObserver(el, (mutations) => {
-            if (mutations[0]) {
-                console.log('DOM updated:', {
-                path: to.path,
-                updates: mutations.length
-                })
-            }
-        }, {
-        attributes: false,
-        })
+    //   const el = document?.body
+    //   if (!el) return
+    //   useMutationObserver(el, (mutations) => {
+    //         if (mutations[0]) {
+    //             console.log('DOM updated:', {
+    //             path: to.path,
+    //             updates: mutations.length
+    //             })
+    //         }
+    //     }, {
+    //     attributes: false,
+    //     })
       // Monitor DOM updates
     //   const observer = new MutationObserver((mutations) => {
     //     console.log('DOM updated:', {
