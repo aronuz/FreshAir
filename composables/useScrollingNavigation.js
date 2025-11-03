@@ -8,6 +8,7 @@ export const useScrollingNavigation = () => {
   let timeoutId = null
   let scrollTop = 0
   let isAtBottom = false
+  let isAtTop = false
   let scrollAmount = 0
 
   // Prepare list of pages for navigation
@@ -19,6 +20,18 @@ export const useScrollingNavigation = () => {
 
   const getCurrentPageIndex = () => {
     return pageList.findIndex(page => route.path === page)
+  }
+
+  const getPrevPage = () => {
+    const currentIndex = getCurrentPageIndex()
+    console.log('Current page index:', currentIndex, pageList.length)
+    if (currentIndex === -1) {
+      return null
+    } else if (currentIndex === 0) {
+      console.log('Already at first page, cannot navigate further.')
+      return pageList.at(-1)
+    }
+    return pageList[currentIndex - 1]
   }
 
   const getNextPage = () => {
@@ -39,12 +52,19 @@ export const useScrollingNavigation = () => {
     clearTimeout(timeoutId)
     
     timeoutId = setTimeout(() => {
-      if(scrollAmount == 1 && scrollTop >= window.scrollY) {
+      if(scrollAmount == 1 && ((isAtBottom && scrollTop >= window.scrollY) || (isAtTop && scrollTop <= 5))) {
         scrollTop = 0
         scrollAmount = 0
-        isAtBottom = false
         console.log('Scroll event detected. Current scrollTop:', window.scrollY)
-        const nextPage = getNextPage()
+        let nextPage = null
+
+        if (isAtBottom) {
+          isAtBottom = false
+          nextPage = getNextPage()
+        } else if (isAtTop) {
+          isAtTop = false
+          nextPage = getPrevPage()
+        }
         
         if (nextPage) {
           isNavigating.value = true
@@ -61,10 +81,14 @@ export const useScrollingNavigation = () => {
         else isAtBottom = false
         // console.log('window.scrollY:', window.scrollY)
         // console.log('At bottom, waiting for more scrolls. Count:', scrollAmount)
+      } else if (isAtTop) {
+        if (scrollTop <= 5) scrollAmount += 1
+        else isAtTop = false
       } else {
         scrollTop = window.scrollY
         const windowHeight = window.innerHeight
         const documentHeight = document.documentElement.scrollHeight
+        isAtTop = scrollTop == 0
         isAtBottom = scrollTop + windowHeight == documentHeight
         // console.log('Scroll position:', {
         //   scrollTop,
@@ -76,7 +100,9 @@ export const useScrollingNavigation = () => {
         if (isAtBottom) {  
           // console.log('Scrolled to bottom. Preparing to navigate.')
           window.scrollTo({ top: window.scrollY - 5, behavior: 'smooth' })
-        }
+        } else if (isAtTop) {
+          window.scrollTo({ top: 5, behavior: 'smooth' })
+        }          
       }
     }, 150)
   }
