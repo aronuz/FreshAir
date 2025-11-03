@@ -17,7 +17,13 @@
               <div class="mb-4">
                 <UIcon name="i-heroicons-phone" class="text-primary-500 mr-2" />
                 <span class="text-gray-700 font-semibold">Phone:</span>
-                <p class="text-gray-600 ml-6">(555) 123-4567</p>
+                <p class="text-gray-600 ml-6">
+                  (555) 123-4567
+                  <PhoneActions v-if="!isMobile"
+                    :phone-number="phoneNumber"
+                    :default-message="defaultMessage"
+                  </PhoneActions>
+                </p>
               </div>
               <div class="mb-4">
                 <UIcon name="i-heroicons-envelope" class="text-primary-500 mr-2" />
@@ -75,9 +81,17 @@
       console.error('Caught error in onMounted setup:', error)
     }
     
-
     onBeforeUnmount(() => {
       console.log('Contact page before unmount')
+    })
+
+    const phoneNumber = ref('+1 (555) 123-4567')
+    const defaultMessage = ref("Hi, I'm interested in your services!")
+
+    const isMobile = computed(() => {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      )
     })
 
     definePageMeta({
