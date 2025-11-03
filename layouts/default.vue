@@ -7,8 +7,10 @@
     <div class="relative z-10">
     <UContainer class="w-full grid place-content-around mx-auto mb-8 pb-8 z-10 select-none"> <!-- key="$route.path">  -->
       <Header class="w-fit" />
+      <UContainer class="min-h-[80vh]">
         <NuxtPage/>
         <!-- :key="$route.fullPath" -->
+      </UContainer>
       <Footer />
     </UContainer>
   </div>
@@ -16,13 +18,15 @@
 </template>
 
 <script setup>
-import { Transition } from 'vue';
+  const { initScrollNavigation, destroyScrollNavigation } = useScrollingNavigation()
 
-  const links = [
-    {label: '',
-      to: '/'
-    },
-  ]
+  onMounted(() => {
+    initScrollNavigation()
+  })
+
+  onUnmounted(() => {
+    destroyScrollNavigation()
+  })
 
   useHead({
     link: [{
