@@ -1,8 +1,9 @@
 <template>
-  <UContainer class="contact-actions">
+  <ConfirmationModal :bind="$attrs" ref="confirmationModal" page="phone" :message="message" confirm-text="Send" @close="onClose" />
+  <UContainer class="contact-actions">    
     <!-- Call button -->
     <UButton 
-      @click="handleCall" 
+      @click="onClick()" 
       collor="primary"
       variant="solid"
       :disabled="!phoneNumber"
@@ -13,7 +14,7 @@
     
     <!-- SMS button -->
     <UButton 
-      @click="handleSMS" 
+      @click="onClick('sms')" 
       collor="primary"
       variant="solid"
       :disabled="!phoneNumber"
@@ -21,11 +22,11 @@
     >
       Text
     </UButton>
-    
+
     <!-- SMS with Custom Message Modal -->
     <UButton 
-      @click="showSMSModal = true"
-      collor="primary"
+      @click="onClick('sms', true)" 
+      color="primary"
       variant="solid"
       :disabled="!phoneNumber"
       trailing-icon="i-heroicons-chat-bubble-oval-left-ellipsis"
@@ -33,48 +34,45 @@
       Custom SMS
     </UButton>
     
-    <!-- Modal for Custom SMS -->
-    <UModal v-if="showSMSModal"> 
-      <!-- class="modal" -->
-        <UCard class="modal-content">
-            <template #header>
-                <h3>Send SMS to {{ formattedNumber }}</h3>
-            </template>
-             <UTextarea v-model="customMessage" :rows="4" />  
-            <template #footer>
-                <div class="modal-actions">
-                    <UButton @click="sendCustomSMS" 
-                        color="primary" 
-                        variant="solid" 
-                        trailing-icon="i-heroicons-paper-airplane">
-                            Send
-                    </UButton>
-                    <UButton @click="showSMSModal = false" 
-                        color="success" 
-                        variant="solid"
-                        trailing-icon="i-heroicons-x-mark">
-                            Cancel
-                    </UButton>
-                </div>
-            </template>            
-        </UCard>
-    </UModal>
+    <!-- Modal for Custom SMS
+    <UModal v-model:open="showSMSModal" title="Send Custom SMS" @close="showSMSModal = false"> 
+      <template #content>
+            <UTextarea v-model="customMessage" :rows="4" />
+      </template>  
+      <template #footer>
+          <div class="modal-actions">
+              <UButton @click="onClick('sms', true)" 
+                  color="primary" 
+                  variant="solid" 
+                  trailing-icon="i-heroicons-paper-airplane">
+                      Send
+              </UButton>
+              <UButton @click="showSMSModal = false" 
+                  color="success" 
+                  variant="solid"
+                  trailing-icon="i-heroicons-x-mark">
+                      Cancel
+              </UButton>
+          </div>
+      </template>
+    </UModal> -->
   </UContainer>
 </template>
 
 <script setup lang="ts">
+import ConfirmationModal from './ConfirmationModal.vue';
 
 interface Props {
   phoneNumber: string
-  defaultMessage: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  defaultMessage: ''
+  phoneNumber: ''
 })
 
-const showSMSModal = ref(false)
-const customMessage = ref(props.defaultMessage)
+const confirmationModal = ref<InstanceType<typeof ConfirmationModal> | null>(null);
+const message = ref('')
+let actionRoute = ref('')
 
 const formattedNumber = computed(() => {
   // Remove all non-digit characters except +
@@ -82,95 +80,28 @@ const formattedNumber = computed(() => {
   return number
 })
 
-const handleCall = () => {
-  window.location.href = `tel:${formattedNumber.value}`
+const onClick = async (action: string = 'tel', custom = false) => {
+  actionRoute.value = `${action}:${formattedNumber.value}`
+  if (action === 'sms' && custom) {    
+    message.value = `Send your message to ${formattedNumber.value}`
+    await confirmationModal!.value!.open()  
+  } else {
+    onClose({result: true})
+  }
 }
 
-const handleSMS = () => {
-  window.location.href = `sms:${formattedNumber.value}`
-}
-
-const sendCustomSMS = () => {
-  const encodedMessage = encodeURIComponent(customMessage.value)
-  window.location.href = `sms:${formattedNumber.value}?body=${encodedMessage}`
-  showSMSModal.value = false
+const onClose = ({result, customMessage}: {result: boolean, customMessage?: string}) => {
+  if(result) {
+    if (customMessage) {
+      const encodedMessage = encodeURIComponent(customMessage)
+      actionRoute.value += `?body=${encodedMessage}`
+    }
+    navigateTo(actionRoute.value, { external: true })
+  }
+  actionRoute.value = ''
+  message.value = ''
 }
 </script>
 
 <style scoped>
-.contact-actions {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-call {
-  background-color: #10b981;
-  color: white;
-}
-
-.btn-call:hover:not(:disabled) {
-  background-color: #059669;
-}
-
-.btn-sms {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.btn-sms:hover:not(:disabled) {
-  background-color: #2563eb;
-}
-
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 0.5rem;
-  max-width: 500px;
-  width: 90%;
-}
-
-.modal-content textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  margin: 1rem 0;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-}
 </style>
