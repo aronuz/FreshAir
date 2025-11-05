@@ -1,6 +1,11 @@
 <template>
-  <ConfirmationModal :bind="$attrs" ref="confirmationModal" page="phone" :message="message" confirm-text="Send" @close="onClose" />
-  <UContainer class="contact-actions">    
+  <UContainer class="px-0 sm:px-0 lg:px-0">
+    <ConfirmationModal v-bind="$attrs" ref="confirmationModal" :title="message" confirm-text="Send" @close="onClose" >
+      <template #content>
+        <UTextarea v-model="customMessage" :rows="4" class="w-full"/>
+      </template>
+    </ConfirmationModal>
+   
     <!-- Call button -->
     <UButton 
       @click="onClick()" 
@@ -32,30 +37,7 @@
       trailing-icon="i-heroicons-chat-bubble-oval-left-ellipsis"
     >
       Custom SMS
-    </UButton>
-    
-    <!-- Modal for Custom SMS
-    <UModal v-model:open="showSMSModal" title="Send Custom SMS" @close="showSMSModal = false"> 
-      <template #content>
-            <UTextarea v-model="customMessage" :rows="4" />
-      </template>  
-      <template #footer>
-          <div class="modal-actions">
-              <UButton @click="onClick('sms', true)" 
-                  color="primary" 
-                  variant="solid" 
-                  trailing-icon="i-heroicons-paper-airplane">
-                      Send
-              </UButton>
-              <UButton @click="showSMSModal = false" 
-                  color="success" 
-                  variant="solid"
-                  trailing-icon="i-heroicons-x-mark">
-                      Cancel
-              </UButton>
-          </div>
-      </template>
-    </UModal> -->
+    </UButton>    
   </UContainer>
 </template>
 
@@ -63,11 +45,13 @@
 import ConfirmationModal from './ConfirmationModal.vue';
 
 interface Props {
-  phoneNumber: string
+  phoneNumber: string,
+  defaultMessage: string,
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  phoneNumber: ''
+  phoneNumber: '', 
+  defaultMessage: '',
 })
 
 const confirmationModal = ref<InstanceType<typeof ConfirmationModal> | null>(null);
@@ -80,23 +64,25 @@ const formattedNumber = computed(() => {
   return number
 })
 
+const customMessage = ref(props.defaultMessage)
+
 const onClick = async (action: string = 'tel', custom = false) => {
   actionRoute.value = `${action}:${formattedNumber.value}`
   if (action === 'sms' && custom) {    
     message.value = `Send your message to ${formattedNumber.value}`
-    await confirmationModal!.value!.open()  
+    await confirmationModal!.value!.open()
   } else {
-    onClose({result: true})
+    onClose(true)
   }
 }
 
-const onClose = ({result, customMessage}: {result: boolean, customMessage?: string}) => {
+const onClose = (result: boolean) => {
   if(result) {
-    if (customMessage) {
-      const encodedMessage = encodeURIComponent(customMessage)
+    if (customMessage.value && customMessage.value !== '') {
+      const encodedMessage = encodeURIComponent(customMessage.value)
       actionRoute.value += `?body=${encodedMessage}`
     }
-    navigateTo(actionRoute.value, { external: true })
+    if(actionRoute.value !== '') navigateTo(actionRoute.value, { external: true })
   }
   actionRoute.value = ''
   message.value = ''

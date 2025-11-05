@@ -1,7 +1,7 @@
 <template>
     <UModal 
         v-model:open="isOpen"        
-        :title="page === 'phone' ? message : title"
+        :title="title"
         :close="{
         color: 'primary',
         variant: 'outline',
@@ -11,10 +11,11 @@
         :ui="{content: 'lg:left-[35%]', body: 'bg-linear-to-b from-sky-100 to-sky-400'}"
     >
         <template #body>
-            <UTextarea v-if="page === 'phone'" v-model="customMessage" :rows="4" class="w-full"/>
-            <div v-else class="p-4">
+          <slot name="content">
+            <div class="p-4">
                 <p>{{ message }}</p>
             </div>
+          </slot>
         </template>
 
         <template #footer>
@@ -24,9 +25,9 @@
                 @click="closeModal(false)">
                     Cancel
                 </UButton>
-                <UButton :color="page === 'phone' ? 'success' : 'error'" 
-                :trailing-icon = "page === 'phone' ? 'i-heroicons-paper-airplane' : 'i-heroicons-trash'"
-                @click="closeModal(true, customMessage)">
+                <UButton :color="confirmText === 'Delete' ? 'error' : 'success'" 
+                :trailing-icon = "confirmIcon"
+                @click="closeModal(true)">
                     {{ confirmText }}
                 </UButton>
             </div>
@@ -40,21 +41,17 @@ const props = defineProps({
     type: String,
     default: 'Confirm Deletion',
   },
-  page: {
-    type: String,
-    default: '',
-  },
   message: {
     type: String,
     default: 'this item',
   },
-  defaultMessage: {
-    type: String,
-    default: '',
-  },
   confirmText: {
     type: String,
     default: 'Delete',
+  },
+  confirmIcon: {
+    type: String,
+    default: 'i-heroicons-trash',
   },
 })
 
@@ -63,9 +60,9 @@ const emit = defineEmits(['close'])
 const isOpen = ref(false)
 // const resolvePromise = ref(null)
 
-const closeModal = (result: boolean, customMessage: string | null = null) => {
+const closeModal = (result: boolean) => {
   isOpen.value = false
-  emit('close', { result, customMessage })
+  emit('close', result)
 //   resolvePromise.value(result)
 }
 
@@ -77,15 +74,10 @@ const open = () => {
 }
 
 const message = computed(() => {
-  const message = props.page === 'phone' 
-    ? props.message
-    : `Are you sure you want to delete ${props.message}? \n
+  const message = `Are you sure you want to delete ${props.message}? \n
         This action cannot be undone.`
-
   return message
 })
-
-const customMessage = ref(props.defaultMessage)
 
 defineExpose({
   open,
