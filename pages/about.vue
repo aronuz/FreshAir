@@ -3,8 +3,8 @@
     <section class="pt-6">
       <h2 class="text-3xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-8">About Fresh Air HVAC</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-0">
-        <div class="grid justify-items-center md:justify-items-start w-full h-full">
-          <NuxtImg src="/images/about-us.png" alt="Our Team" class="rounded-lg shadow-lg w-full" />
+        <div class="flex items-center justify-center w-full h-full">
+          <NuxtImg src="/images/about-us.png" alt="Our Team" class="rounded-lg shadow-lg w-3/4" />
         </div>
         <div class="font-bold text-white bg-gray-500 ml-0 p-4 rounded opacity-70">
           <p class="text-lg mb-4">
