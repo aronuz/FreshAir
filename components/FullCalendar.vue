@@ -138,7 +138,7 @@
       },
     },
     events: events.value,
-    eventsSet: () => { emit('calendarReady') },
+    // eventsSet: () => { emit('calendarReady') },
     // Update reactive state when calendar changes
     datesSet: (dateInfo: DatesSetArg) => {
       currentView.value = dateInfo.view.type
@@ -146,6 +146,9 @@
     },    
     viewDidMount: (viewInfo: { view: ViewApi }) => {
       currentView.value = viewInfo.view.type
+      nextTick(() =>  
+        emit('calendarReady')
+      )
     }
   }
 

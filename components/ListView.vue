@@ -1,6 +1,6 @@
 <template>
     <ClientOnly>
-        <UCard class="col-span-12 text-4xl w-full lg:col-span-9" :ui="{ body: 'max-h-90 overflow-y-scroll!', footer: 'bg-sky-400'}">
+        <UCard class="col-span-12 lg:col-span-12 text-4xl" :ui="{ body: 'max-h-90 overflow-y-scroll!', footer: 'bg-sky-400'}">
             <section>
                 <template v-if="!loadingList && pageEvents && pageEvents.length" >
                     <template v-for="(pageEvent, arrIx) in pageEvents" :key="arrIx" class="mb-4"> 

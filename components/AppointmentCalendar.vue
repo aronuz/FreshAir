@@ -25,9 +25,9 @@
     <ClientOnly>
       <UCard v-if="user && showCalendar" class="lg:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
         <RangeSelector @dateRangeChanged="setRangeDates"/>
-        <FullCalendar v-show="isReady" :data-set="eventsParsed" @calendar-ready="isReady=true" @dataChanged="updateStoreName" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
+        <FullCalendar :data-set="eventsParsed" @dataChanged="updateStoreName" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
       </UCard>
-      <template v-else-if="user" class="col-span-12 lg:col-span-9">
+      <div v-else-if="user" class="grid grid-cols-12 grid-rows-2 col-span-12 lg:col-span-9">
         <template v-if="isXS">
           <UButton class="w-fit" :label="!showRange ? 'Pick Date Range' : 'Hide Date Range Panel'" @click="showRange = !showRange"/>
           <Transition enter-active-class="transition-transform duration-200 ease-in-out"                      
@@ -42,8 +42,8 @@
           </Transition>
         </template>  
         <RangeSelector v-else @dateRangeChanged="setRangeDates"/>
-        <ListView :groupped-events="grouppedEvents" />
-      </template>
+        <ListView :groupped-events="grouppedEvents"  />
+      </div>
     </ClientOnly>
     <UCard v-if="user && loadingList" class="w-[50vw] bg-linear-to-b from-sky-100 to-sky-400">
       <USkeleton v-for="i in 3" class="mx-auto my-4 h-8 w-5/6 bg-gray-600" as="div"/>
@@ -136,7 +136,7 @@ const showCalendar = computed(() => {
 })
 
 const loadingList = computed(() => {
-  return (!showCalendar && !grouppedEvents) || (showCalendar && !isReady)
+  return (!showCalendar.value && !grouppedEvents) || (showCalendar && !isReady)
 })
 
 watch(() => isOpen.value, (value) => {
@@ -173,6 +173,11 @@ const reload = async () => {
   } catch (error) {
     onError(500, error instanceof Error ? error.message : 'Failed to fetch events')
     return
+  } finally {
+    nextTick(() => {
+      isReady.value = true
+      console.log('calendar ready isReady')
+    })
   }
 }
 
