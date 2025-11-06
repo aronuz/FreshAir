@@ -29,9 +29,9 @@
               <span class="text-gray-700 font-semibold">Phone:</span>
               <span class="text-gray-600 font-bold grow text-right">{{ phoneNumber }}</span>
             </div>
-            <div class="flex items-center gap-2 ml-6 text-right">              
+            <div>              
               <PhoneActions 
-                v-if="!isMobile"
+                v-if="isMobile"
                 :phone-number="phoneNumber"
                 :default-message="defaultMessage"
               />

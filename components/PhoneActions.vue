@@ -1,5 +1,5 @@
 <template>
-  <UContainer class="px-0 sm:px-0 lg:px-0">
+  <UContainer class="flex gap-2 px-0 sm:px-0 lg:px-0 justify-end">
     <ConfirmationModal v-bind="$attrs" ref="confirmationModal" :title="message" confirm-text="Send" @close="onClose" >
       <template #content>
         <UTextarea v-model="customMessage" :rows="4" class="w-full"/>
