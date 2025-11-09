@@ -7,7 +7,7 @@
         <UCard>
           <template #header class="text-xl font-semibold">Admin Panel</template>
 
-          <UTabs :unmount-on-hide="false" :items="tabItems" orientation="vertical" class="w-full" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }">
+          <UTabs :unmount-on-hide="false" :items="tabItems" :orientation="isMD ? 'horizontal' : 'vertical'" class="w-full" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }">
             <template #content="{ item }">
               <UCard>
                 <template #header class="text-xl font-semibold">{{ item.label }}</template>
