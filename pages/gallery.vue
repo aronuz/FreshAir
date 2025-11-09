@@ -2,7 +2,7 @@
   <UContainer>
     <section class="pt-6 mb-8">
       <h2 class="text-3xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-8">Our Services</h2>
-      <div class="relative grid grid-cols-2 grid-rows-3 gap-3 w-full h-full mx-auto">
+      <div class="relative grid grid-cols-1 md:grid-cols-2 grid-rows-3 gap-3 w-full h-full mx-auto">
       <ClientOnly>
         <ServiceBlock :services="services.slice(0, 3)" :col="1"/>
         <ServiceBlock :services="services.slice(3, 6)" :col="2"/>

@@ -2,7 +2,7 @@
     <ConfirmationModal ref="confirmationModal" page="team" :message="message" @close="onClose" />
     <div class="flex flex-nowrap justify-center w-full -mt-4 mb-8 px-4">
         <div v-if="team.length > 0" class="grid gap-8 border border-gray-300 rounded-lg py-8 bg-white shadow-md overflow-y-scroll overflow-x-hidden h-[300px] pr-4" :style="[gridColumns]">
-            <div v-if="admin" class="w-fit justify-self-center text-center cursor-pointer" @click="emit('showForm')">
+            <div v-if="admin" class="w-fit justify-self-center text-center cursor-pointer max-[1023px]:mb-10" @click="emit('showForm')">
                 <StaffCard v-bind='$attrs' :admin="admin"/>
             </div>
             <div v-for="staff in team" :key="staff.id" class="w-fit justify-self-center text-center cursor-pointer max-[1023px]:mb-10" @click="$emit('staffSelected', staff)">

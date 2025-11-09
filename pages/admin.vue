@@ -7,7 +7,7 @@
         <UCard>
           <template #header class="text-xl font-semibold">Admin Panel</template>
 
-          <UTabs :unmount-on-hide="false" :items="tabItems" class="w-full">
+          <UTabs :unmount-on-hide="false" :items="tabItems" orientation="vertical" class="w-full" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }">
             <template #content="{ item }">
               <UCard>
                 <template #header class="text-xl font-semibold">{{ item.label }}</template>
@@ -24,7 +24,7 @@
                         tbody: 'block md:table-row-group'
                       }">
                         <template #appointments-cell="{ row }">
-                          <UButton @click="loadUserEvents(row.original as userType)" label="See Appointments" />
+                          <UButton @click="loadUserEvents(row.original as userType)" label="See Appointments" icon="i-heroicons-document-magnifying-glass" />
                         </template>
                         <template #actions-cell="{ row }">
                           <template v-if="selectedUsers.has((row.original as userType).user_id)">
@@ -49,10 +49,10 @@
                           <UCheckbox :default-value="selectedUsers.has(user.user_id)" @update:modelValue="updateSelectedUsers($event, user.user_id)" />
                           <div>{{ user.title }} - {{ user.phone }}<span v-if="user.email">/{{ user.email }}</span></div>
                           <div>Joined On: {{ dayjs(user.created_at).format('DD/MM/YY') }}</div>
-                          <UButton class="ml-4" @click="loadUserEvents(user)" label="See Appointments" />
+                          <UButton class="ml-4 px-1 h-fit w-fit my-auto" @click="loadUserEvents(user)" label="See Appointments" icon="i-heroicons-document-magnifying-glass" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }"/>
                           <div v-if="selectedUsers.has(user.user_id)" class="space-x-2">
-                            <UButton class="bg-blue-500 text-white px-2 py-1 rounded" @click="handleUpdateUser(user)" label="Edit" />
-                            <UButton class="bg-red-500 text-white px-2 py-1 rounded" @click="handleDeleteUsers(user.user_id)" label="Remove" />
+                            <UButton class="bg-blue-500 text-white px-2 py-1 rounded" @click="handleUpdateUser(user)" label="Edit" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }" />
+                            <UButton class="bg-red-500 text-white px-2 py-1 rounded" @click="handleDeleteUsers(user.user_id)" label="Remove" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }" />
                           </div>
                         </div>
                       </div>
@@ -98,8 +98,8 @@
                 </template>
                 
                 <template #footer v-if="item.label === 'User Management'">
-                  <UButton icon="i-heroicons-plus-circle" color="primary" variant="solid" label="Add" @click="isOpenUser = true"/>
-                  <UButton v-if="selectedUsers.size" icon="i-heroicons-x-circle" color="error" variant="solid" label="Remove" @click="handleDeleteUsers(selectedUsers)"/>
+                  <UButton icon="i-heroicons-plus-circle" color="primary" variant="solid" label="Add" @click="isOpenUser = true" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }" />
+                  <UButton v-if="selectedUsers.size" icon="i-heroicons-x-circle" color="error" variant="solid" label="Remove" @click="handleDeleteUsers(selectedUsers)" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }" />
                 </template>
               </UCard>
             </template>
@@ -124,7 +124,7 @@ import dayjs from 'dayjs'
 const UCheckbox = resolveComponent('UCheckbox')
 const { toastBar } = useToastBar()
 const breakpoints = useBreakpoints(breakpointsTailwind)
-const isMD = breakpoints?.greaterOrEqual('md')
+const isMD = ref(breakpoints?.greaterOrEqual('md'))
 
 interface userType {
   title: string,
@@ -159,15 +159,15 @@ interface pathType {
 
 const tabItems = ref<TabsItem[]>([
   {
-    label: 'User Management',
+    label: isMD ? 'User Management' : '',
     icon: 'i-lucide-user',
   },
   {
-    label: 'Page Access',
+    label: isMD ? 'Page Access' : '',
     icon: 'i-lucide-library',
   },
   {
-    label: 'Staff Profiles',
+    label: isMD ? 'Staff Profiles' : '',
     icon: 'i-lucide-id-card-lanyard',
   }
 ])
