@@ -28,8 +28,8 @@
                         </template>
                         <template #actions-cell="{ row }">
                           <template v-if="selectedUsers.has((row.original as userType).user_id)">
-                            <UButton class="bg-blue-500 text-white px-2 py-1 rounded" @click="handleUpdateUser(row.original as userType)" label="Edit" />
-                            <UButton class="bg-red-500 text-white px-2 py-1 rounded" @click="handleDeleteUsers((row.original as userType).user_id)" label="Remove" />
+                            <UButton class="bg-blue-500 text-white px-2 py-1 rounded" icon="i-heroicons-pencil-square" @click="handleUpdateUser(row.original as userType)" label="Edit" />
+                            <UButton class="bg-red-500 text-white px-2 py-1 rounded" icon="i-heroicons-trash" @click="handleDeleteUsers((row.original as userType).user_id)" label="Remove" />
                           </template>
                         </template>
                       </UTable>                  
@@ -45,14 +45,18 @@
                     <template v-else>
                       <UCheckbox :default-value="allSelected" v-model="allSelected" @update:modelValue="updateSelectedUsers($event)" class="m-3" :label="selectAction"/>
                       <div v-for="user in pageUsers" :key="user.user_id" class="flex justify-between p-3 bg-gray-100 rounded">
-                        <div class="grid grid-cols-5 grid-rows-1 gap-4">
-                          <UCheckbox :default-value="selectedUsers.has(user.user_id)" @update:modelValue="updateSelectedUsers($event, user.user_id)" />
-                          <div>{{ user.title }} - {{ user.phone }}<span v-if="user.email">/{{ user.email }}</span></div>
-                          <div>Joined On: {{ dayjs(user.created_at).format('DD/MM/YY') }}</div>
-                          <UButton class="ml-4 px-1 h-fit w-fit my-auto" @click="loadUserEvents(user)" label="See Appointments" icon="i-heroicons-document-magnifying-glass" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }"/>
-                          <div v-if="selectedUsers.has(user.user_id)" class="space-x-2">
-                            <UButton class="bg-blue-500 text-white px-2 py-1 rounded" @click="handleUpdateUser(user)" label="Edit" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }" />
-                            <UButton class="bg-red-500 text-white px-2 py-1 rounded" @click="handleDeleteUsers(user.user_id)" label="Remove" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }" />
+                        <div class="grid xs:grid-cols-[10px_minmax(0, 1fr)_minmax(0, 1fr)] sm:grid-cols-12 grid-flow-row-dense grid-rows-[repeat(5,auto)] sm:grid-rows-2 auto-rows-min sm:gap-0">
+                          <div class="sm:col-span-1">
+                            <UCheckbox :default-value="selectedUsers.has(user.user_id)" @update:modelValue="updateSelectedUsers($event, user.user_id)" />
+                          </div>
+                          <div class="col-span-2 sm:col-span-5 h-fit" >{{ user.title }} - {{ user.phone }}<span v-if="user.email">/{{ user.email }}</span></div>
+                          <div class="col-span-3 sm:col-span-6 h-fit flex justify-end sm:justify-start" >Joined On: {{ dayjs(user.created_at).format('DD/MM/YY') }}</div>
+                          <div class="col-span-1 sm:col-span-3 h-fit" >
+                            <UButton class="sm:ml-4 px-1 h-fit w-fit sm:my-auto" @click="loadUserEvents(user)" label="See Appointments" icon="i-heroicons-document-magnifying-glass" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }"/>
+                          </div>
+                          <div v-if="!selectedUsers.has(user.user_id)" class="space-x-2 col-span-2 sm:col-span-6 sm:col-start-9 flex justify-end ml-2">
+                            <UButton class="bg-blue-500 text-white px-1 py-1 rounded h-fit w-fit my-auto" icon="i-heroicons-pencil-square" @click="handleUpdateUser(user)" label="Edit" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }" />
+                            <UButton class="bg-red-500 text-white px-1 py-1 rounded h-fit w-fit my-auto" icon="i-heroicons-trash" @click="handleDeleteUsers(user.user_id)" label="Remove" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }" />
                           </div>
                         </div>
                       </div>
@@ -99,7 +103,7 @@
                 
                 <template #footer v-if="item.label === 'User Management'">
                   <UButton icon="i-heroicons-plus-circle" color="primary" variant="solid" label="Add" @click="isOpenUser = true" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }" />
-                  <UButton v-if="selectedUsers.size" icon="i-heroicons-x-circle" color="error" variant="solid" label="Remove" @click="handleDeleteUsers(selectedUsers)" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }" />
+                  <UButton v-if="selectedUsers.size" icon="i-heroicons-trash" color="error" variant="solid" label="Remove" @click="handleDeleteUsers(selectedUsers)" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }" />
                 </template>
               </UCard>
             </template>
