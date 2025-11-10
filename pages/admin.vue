@@ -47,7 +47,7 @@
                       <div v-for="user in pageUsers" :key="user.user_id" class="flex justify-between p-3 bg-gray-100 rounded">
                         <div class="grid xs:grid-cols-[10px_minmax(0, 1fr)_minmax(0, 1fr)] sm:grid-cols-12 grid-flow-row-dense grid-rows-[repeat(5,auto)] sm:grid-rows-2 auto-rows-min sm:gap-0">
                           <div class="sm:col-span-1">
-                            <UCheckbox :default-value="selectedUsers.has(user.user_id)" @update:modelValue="updateSelectedUsers($event, user.user_id)" />
+                            <UCheckbox :model-value="selectedUsers.has(user.user_id)" @update:modelValue="updateSelectedUsers($event, user.user_id)" />
                           </div>
                           <div class="col-span-2 sm:col-span-5 h-fit" >{{ user.title }} - {{ user.phone }}<span v-if="user.email">/{{ user.email }}</span></div>
                           <div class="col-span-3 sm:col-span-6 h-fit flex justify-end sm:justify-start" >Joined On: {{ dayjs(user.created_at).format('DD/MM/YY') }}</div>
