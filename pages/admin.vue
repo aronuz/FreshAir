@@ -54,7 +54,7 @@
                           <div class="col-span-1 sm:col-span-3 h-fit" >
                             <UButton class="sm:ml-4 px-1 h-fit w-fit sm:my-auto" @click="loadUserEvents(user)" label="See Appointments" icon="i-heroicons-document-magnifying-glass" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }"/>
                           </div>
-                          <div v-if="!selectedUsers.has(user.user_id)" class="space-x-2 col-span-2 sm:col-span-6 sm:col-start-9 flex justify-end ml-2">
+                          <div v-if="selectedUsers.has(user.user_id)" class="space-x-2 col-span-2 sm:col-span-6 sm:col-start-9 flex justify-end ml-2">
                             <UButton class="bg-blue-500 text-white px-1 py-1 rounded h-fit w-fit my-auto" icon="i-heroicons-pencil-square" @click="handleUpdateUser(user)" label="Edit" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }" />
                             <UButton class="bg-red-500 text-white px-1 py-1 rounded h-fit w-fit my-auto" icon="i-heroicons-trash" @click="handleDeleteUsers(user.user_id)" label="Remove" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }" />
                           </div>
