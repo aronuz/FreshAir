@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import Fuse from 'fuse.js'
 
+import type { IFuseOptions } from 'fuse.js'
+
 export interface fetchParams {
     pending: boolean,
     limit?: number,
@@ -36,8 +38,8 @@ export function getDynamicStore(storeId: StoreID) {
     } else {
         
         // Configure fuse.js options
-        const fuseOptions: Fuse.IFuseOptions<Event> = {
-            keys: ['title', 'address', 'service'],
+        const fuseOptions: IFuseOptions<Event> = {
+            keys: ['title', 'notes'],
             threshold: 0.4, // Sensitivity: 0.0 requires a perfect match, 1.0 matches anything
         }
 
@@ -65,7 +67,7 @@ export function getDynamicStore(storeId: StoreID) {
                 // Getter to perform the fuzzy search
                 filteredEvents: (state) => {
                     if (!state.searchTerm) {
-                    return state.events // Return all events if search term is empty
+                        return state.events // Return all events if search term is empty
                     }
 
                     const fuse = new Fuse(state.events, fuseOptions);

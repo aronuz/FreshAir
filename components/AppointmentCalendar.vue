@@ -24,7 +24,7 @@
     <FormModal v-model="isOpen" :selected-date="selectedDate" :existing-records="existingRecords" :service="service" @saved="reload"/>
     <ClientOnly>
       <UCard v-if="user && showCalendar" class="lg:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
-        <AppointmentFilter @dateRangeChanged="setRangeDates"/>
+        <AppointmentFilter :event-store-id="eventStoreID" @dateRangeChanged="setRangeDates"/>
         <FullCalendar :data-set="eventsParsed" @dataChanged="updateStoreName" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
       </UCard>
       <div v-else-if="user" class="grid grid-cols-12 grid-rows-2 col-span-12 lg:col-span-9">
@@ -37,11 +37,11 @@
                       leave-from-class="translate-y-0"
                       leave-to-class="-translate-y-full">       
             <div v-if="showRange" class="fixed top-0 left-0 shadow-lg z-[100] max-w-min">
-              <AppointmentFilter @dateRangeChanged="setRangeDates"/>
+              <AppointmentFilter :event-store-id="eventStoreID" @dateRangeChanged="setRangeDates"/>
             </div>
           </Transition>
         </template>  
-        <AppointmentFilter v-else @dateRangeChanged="setRangeDates"/>
+        <AppointmentFilter v-else :event-store-id="eventStoreID" @dateRangeChanged="setRangeDates"/>
         <ListView :groupped-events="grouppedEvents"  />
       </div>
     </ClientOnly>
@@ -66,7 +66,9 @@ const props = defineProps({
 })
 
 const defaultDate = dayjs(new Date()).format('MMMM')
+const eventStoreID = ref(null)
 let storeId = reactive({ range: defaultDate, type: 'month', user_id: null })
+eventStoreID.value = {...storeId}
 let eventsStore = getDynamicStore(storeId)
 
 const { toastBar } = useToastBar()
@@ -114,6 +116,7 @@ const updateStoreName = ({ date = null, type }) => {
     viewType = match[2].toLowerCase()
   }
   Object.assign(storeId, { range, type: viewType, user_id: null })
+  eventStoreID.value = storeId
   eventsStore = getDynamicStore(storeId)
 }
 
@@ -184,7 +187,7 @@ const reload = async () => {
 }
 
 const eventsParsed = computed(() => {
-  let list = !searchTerm ? appointments.value : filteredEvents
+  let list = !searchTerm.value ? appointments.value : filteredEvents.value
   if(!showCalendar.value || !list) return []
 
   const eventsObject = list.map(item => {
