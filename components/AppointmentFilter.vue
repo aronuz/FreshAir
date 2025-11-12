@@ -2,7 +2,7 @@
     <div class="flex flex-col max-sm:justify-center md:items-stretch items-center sm:justify-center max-sm:mx-4 md:mb-6 p-4 gap-4 bg-gray-50 rounded-lg col-span-12">
         <div class="flex flex-row w-full">
             <UFormField label="Name/Address/Type">
-                <UInput icon="i-lucide-search" size="md" variant="outline" placeholder="Search..." />
+                <UInput v-model="searchWord" icon="i-lucide-search" size="md" variant="outline" placeholder="Search..." />
             </UFormField>
         </div>
         <div class="flex flex-row max-sm:flex-wrap gap-4 items-end w-full">
@@ -44,8 +44,9 @@
         </div>
 
         <!-- Current filter display -->
+        <div><strong>Current filter:</strong></div>
+        <div v-if="searchWord">{{ searchWord }}</div>
         <div v-if="currentDateRange.start || currentDateRange.end" class="mt-3 text-sm text-gray-600">
-            <strong>Current filter:</strong>
             <span v-if="currentDateRange.start">From {{ formatDate(currentDateRange.start) }}</span>
             <span v-if="currentDateRange.start && currentDateRange.end"> to </span>
             <span v-if="currentDateRange.end">{{ formatDate(currentDateRange.end) }}</span>
@@ -54,7 +55,14 @@
 </template>
 
 <script setup>
+    const eventsStore = getDynamicStore(storeId)
+
     const { toastBar } = useToastBar()
+
+    watchEffect(() => {
+        eventsStore.setSearchTerm(searchWord)
+    })
+
     const dateError = ref(false)
     const startDate = ref('')
     const endDate = ref('')

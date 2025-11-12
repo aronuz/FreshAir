@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import Fuse from 'fuse.js'
 
 export interface fetchParams {
     pending: boolean,
@@ -33,10 +34,18 @@ export function getDynamicStore(storeId: StoreID) {
     if (storeMap.has(storeKey)) {
         return storeMap.get(storeKey)
     } else {
+        
+        // Configure fuse.js options
+        const fuseOptions: Fuse.IFuseOptions<Event> = {
+            keys: ['title', 'address', 'service'],
+            threshold: 0.4, // Sensitivity: 0.0 requires a perfect match, 1.0 matches anything
+        }
+
         const { fetchAppointments,
                 submitAppointment,
                 deleteAppointment,
             } = useFetchQueries()
+
         const useEventsStore = defineStore(`events-${storeKey}`, {            
 
             state: () => ({
@@ -48,9 +57,22 @@ export function getDynamicStore(storeId: StoreID) {
                 lastFetched: null as Date | null,
                 cacheExpiry: 5 * 60 * 1000, // 5 minutes
                 hasBeenFetched: false, // Track if data has been fetched at least once
+                searchTerm: '',
             }),
 
             getters: {
+
+                // Getter to perform the fuzzy search
+                filteredEvents: (state) => {
+                    if (!state.searchTerm) {
+                    return state.events // Return all events if search term is empty
+                    }
+
+                    const fuse = new Fuse(state.events, fuseOptions);
+                    // fuse.search returns an array of objects with a 'item' property
+                    return fuse.search(state.searchTerm).map(result => result.item);
+                },
+
                 // Get events sorted by date
                 eventsByDate: (state) =>
                 state.events.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
@@ -72,6 +94,11 @@ export function getDynamicStore(storeId: StoreID) {
             },
 
             actions: {
+                // Action to update the search term
+                setSearchTerm(term: string) {
+                    this.searchTerm = term;
+                },
+
                 // Fetch events from database
                 async fetchEvents(fetchParams: fetchParams, forceRefresh = false) {
                     console.log('fetchEvents called, events length:', this.events?.length, 'lastFetched:', !!this.lastFetched)

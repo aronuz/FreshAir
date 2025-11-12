@@ -117,7 +117,9 @@ const updateStoreName = ({ date = null, type }) => {
   eventsStore = getDynamicStore(storeId)
 }
 
-const { events: storedEvents, loading, error } = storeToRefs(eventsStore)
+// const { events: storedEvents, loading, error } = storeToRefs(eventsStore)
+const { searchTerm, filteredEvents } = storeToRefs(eventsStore);
+
 // const { fetchAppointments,
 //         updateAppointment,
 //         deleteAppointment,
@@ -182,8 +184,9 @@ const reload = async () => {
 }
 
 const eventsParsed = computed(() => {
-  const list = appointments.value
+  let list = !searchTerm ? appointments.value : filteredEvents
   if(!showCalendar.value || !list) return []
+
   const eventsObject = list.map(item => {
     const { id, title, start_date: start, end_date: end } = item
 
