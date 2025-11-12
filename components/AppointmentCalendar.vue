@@ -24,7 +24,7 @@
     <FormModal v-model="isOpen" :selected-date="selectedDate" :existing-records="existingRecords" :service="service" @saved="reload"/>
     <ClientOnly>
       <UCard v-if="user && showCalendar" class="lg:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
-        <RangeSelector @dateRangeChanged="setRangeDates"/>
+        <AppointmentFilter @dateRangeChanged="setRangeDates"/>
         <FullCalendar :data-set="eventsParsed" @dataChanged="updateStoreName" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
       </UCard>
       <div v-else-if="user" class="grid grid-cols-12 grid-rows-2 col-span-12 lg:col-span-9">
@@ -37,11 +37,11 @@
                       leave-from-class="translate-y-0"
                       leave-to-class="-translate-y-full">       
             <div v-if="showRange" class="fixed top-0 left-0 shadow-lg z-[100] max-w-min">
-              <RangeSelector @dateRangeChanged="setRangeDates"/>
+              <AppointmentFilter @dateRangeChanged="setRangeDates"/>
             </div>
           </Transition>
         </template>  
-        <RangeSelector v-else @dateRangeChanged="setRangeDates"/>
+        <AppointmentFilter v-else @dateRangeChanged="setRangeDates"/>
         <ListView :groupped-events="grouppedEvents"  />
       </div>
     </ClientOnly>
