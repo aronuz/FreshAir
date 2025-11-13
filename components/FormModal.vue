@@ -282,22 +282,27 @@
   const services = ref(serviceList.map(service => ({label: service.name, id: service.id})))
   const servicePicked = ref(0)
   
-  onMounted(() => {
-    const serviceItem = props.service ? serviceList.find(item => item.name === props.service) : undefined
-    servicePicked.value = serviceItem ? serviceItem.id : 0
+  // onUpdated(() => {
+  //   if (props.service){
+  //     const serviceItem = serviceList.find(item => item.name === props.service)
+  //     servicePicked.value = serviceItem ? serviceItem.id : 0
+  //   }
+  // })
+  watchEffect(() => {
+    servicePicked.value = serviceList.find(item => item.name === props.service)?.id ?? 0
   })
 
   const appointmentData = formdata as stateType
 
   const blankForm = () => {
+    Object.assign(formdata, initState)
+
     if(props.selectedUser) {
       rolePicked.value = 'user'
-      Object.assign(formdata, createInitState())
     } else {
       formattedStartDate.value = null
       formattedEndDate.value = null
       servicePicked.value = 0
-      Object.assign(formdata, createInitState())
     }
     appform.value.clear()
   } 
@@ -326,10 +331,16 @@
   }
 
   const submitForm = (event: FormSubmitEvent<stateType | roleType>) => {
-    props.selectedUser ? saveUser(event) : saveAppointment(event)
+    const data: Record<string, any> = {}
+    Object.keys(event.data).forEach((key) => {
+      if (key in initState) {
+        data[key] = (event.data as any)[key]
+      }
+    })
+    props.selectedUser ? saveUser(data) : saveAppointment(data)
   }
   
-  const saveUser = async (user: FormSubmitEvent<roleType>) => {
+  const saveUser = async (user: Record<string, any>) => {
     const { title, phone, email, user_id } = user//?.data
     const userInfo = { title, phone, email, user_id }
     const userData = Object.fromEntries(
@@ -354,7 +365,7 @@
     return { error } 
   }
 
-  const saveAppointment = async (event: FormSubmitEvent<stateType>) => {
+  const saveAppointment = async (event: Record<string, any>) => {
     const noChange = updatedAppointment.value && JSON.stringify(formdata) === JSON.stringify(updatedAppointment.value)
     if(noChange) return
     console.log('Form Data:', event)
@@ -366,9 +377,9 @@
       showError(errors, '500')
     } else {
       pending.value = true
-      console.log(appointmentData)
+      console.log(appointmentData, event)
       const {title, phone, email, ...sanitizedAppointment} = Object.fromEntries(
-        Object.entries(appointmentData).map(([key, value]) => [key, value === undefined ? null : value])
+        Object.entries(event).map(([key, value]) => [key, value === undefined ? null : value])
       )
 
       const user_id = useState('user_id').value
