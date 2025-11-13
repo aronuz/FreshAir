@@ -1,8 +1,8 @@
 <template>
     <div class="flex flex-col max-sm:justify-center md:items-stretch items-center sm:justify-center max-sm:mx-4 md:mb-6 p-4 gap-4 bg-gray-50 rounded-lg col-span-12">
         <div class="flex flex-row w-full">
-            <UFormField label="Name/Address/Type">
-                <UInput v-model="searchTerm" icon="i-lucide-search" size="md" variant="outline" placeholder="Search..." @blur="onBlur"/>
+            <UFormField label="User Data">
+                <UInput v-model="searchTerm" icon="i-lucide-search" size="md" variant="outline" placeholder="Search..." @update:modelValue="onChange"/>
             </UFormField>
         </div>
         <div class="flex flex-row max-sm:flex-wrap gap-4 items-end w-full">
@@ -84,7 +84,7 @@
         }
     })
 
-    const onBlur = () => {
+    const onChange = () => {
         searchWord.value = searchTerm.value 
     }
 

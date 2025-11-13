@@ -186,8 +186,17 @@ const reload = async () => {
   }
 }
 
+const eventList = computed(() => {
+  let list = appointments.value
+
+  if (searchTerm.value) list = appointments.value.filter(app => filteredEvents.value.includes(app.id))
+
+  return list
+})
+
 const eventsParsed = computed(() => {
-  let list = !searchTerm.value ? appointments.value : filteredEvents.value
+  const list = eventList.value
+
   if(!showCalendar.value || !list) return []
 
   const eventsObject = list.map(item => {
@@ -210,8 +219,10 @@ const eventsParsed = computed(() => {
 })
 
 const grouppedEvents = computed( () => {
-    const list = appointments.value
+    const list = eventList.value
+
     if (showCalendar.value || !list) return null
+
     let group = {}
     for (const entry of list){
         const date = entry.start_date

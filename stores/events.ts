@@ -39,8 +39,8 @@ export function getDynamicStore(storeId: StoreID) {
         
         // Configure fuse.js options
         const fuseOptions: IFuseOptions<Event> = {
-            keys: ['title', 'notes'],
-            threshold: 0.4, // Sensitivity: 0.0 requires a perfect match, 1.0 matches anything
+            keys: ['address', 'notes', 'users.title', 'users.email', 'users.phone'],
+            threshold: 0.3, // Sensitivity: 0.0 requires a perfect match, 1.0 matches anything
         }
 
         const { fetchAppointments,
@@ -72,7 +72,7 @@ export function getDynamicStore(storeId: StoreID) {
 
                     const fuse = new Fuse(state.events, fuseOptions);
                     // fuse.search returns an array of objects with a 'item' property
-                    return fuse.search(state.searchTerm).map(result => result.item);
+                    return fuse.search(state.searchTerm).map(result => result.item.id);
                 },
 
                 // Get events sorted by date
