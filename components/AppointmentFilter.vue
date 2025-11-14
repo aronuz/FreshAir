@@ -69,12 +69,12 @@
         get() {
             return searchTerm.value
         },
-        set(value) {
-            const eventsStore = getDynamicStore(props.eventStoreId)
+        set(value) {          
             if (value === '' || !props.eventStoreId) {
                 searchTerm.value = ''
             }
-            else if (value  === '' || value.length > 2) {
+            if (props.eventStoreId && (value  === '' || value.length > 2)) {
+                const eventsStore = getDynamicStore(props.eventStoreId)
                 try {
                     eventsStore.setSearchTerm(value)
                 } catch (error) {

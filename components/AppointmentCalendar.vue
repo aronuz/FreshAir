@@ -60,7 +60,6 @@ import dayjs from 'dayjs'
 import { storeToRefs } from 'pinia'
 import { getDynamicStore } from '~/stores/events'
 
-
 const props = defineProps({
   service: String | undefined
 })
@@ -248,7 +247,13 @@ const pageEvents = computed(() => {
   return eventArray.slice(start, end);
 });
 
-reload()
+onMounted(() => {  
+  reload()
+})
+
+onUnmounted(() => {
+  searchTerm.value = ''
+})
 
 const createEvent = (event) => {
   if(event){
