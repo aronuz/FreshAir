@@ -1,11 +1,11 @@
 <template>
     <ConfirmationModal ref="confirmationModal" page="team" :message="message" @close="onClose" />
-    <div class="flex flex-nowrap justify-center w-full -mt-4 mb-8 px-4">
-        <div v-if="team.length > 0" class="grid gap-8 border border-gray-300 rounded-lg py-8 bg-white shadow-md overflow-y-scroll overflow-x-hidden h-[300px] pr-4" :style="[gridColumns]">
-            <div v-if="admin" class="w-fit justify-self-center text-center cursor-pointer max-[1023px]:mb-10" @click="emit('showForm')">
+    <div class="flex flex-nowrap justify-center w-full max-h-fit -mt-4 mb-8 px-4">
+        <div v-if="team.length > 0" class="grid gap-4 mb:gap-8 border border-gray-300 rounded-lg py-4 bg-white shadow-md overflow-y-scroll overflow-x-hidden max-h-fit pr-4" :style="[gridColumns]">
+            <div v-if="admin" class="w-fit h-fit justify-self-center text-center cursor-pointer" @click="emit('showForm')"> <!--max-[1023px]:mb-10 -->
                 <StaffCard v-bind='$attrs' :admin="admin"/>
             </div>
-            <div v-for="staff in team" :key="staff.id" class="w-fit justify-self-center text-center cursor-pointer max-[1023px]:mb-10" @click="$emit('staffSelected', staff)">
+            <div v-for="staff in team" :key="staff.id" class="flex flex-col lg:flex-row w-fit justify-self-center text-center" :class="{'cursor-pointer': admin}" @click="$emit('staffSelected', staff)"> <!-- max-[1023px]:mb-0 -->
                 <StaffCard ref="staffCard" v-bind='$attrs' :admin="admin" :staff="staff" @open-dialog="openDialog($event)"/>
             </div>
         </div>
