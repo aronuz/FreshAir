@@ -7,7 +7,7 @@
     <div class="relative z-10">
     <UContainer class="w-full grid place-content-around mx-auto mb-8 pb-8 z-10 select-none"> <!-- key="$route.path">  -->
       <Header class="w-fit" />
-      <UContainer class="min-h-[80vh]">
+      <UContainer class="min-h-[80vh] max-sm:w-fit overflow-x-auto">
         <NuxtPage/>
         <!-- :key="$route.fullPath" -->
       </UContainer>
