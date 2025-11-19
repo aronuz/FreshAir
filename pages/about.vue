@@ -45,6 +45,10 @@
       <h2 class="text-2xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-6">Meet Our Team</h2>
       <Team />
     </section>
+
+    <section class="py-6 bg-gray-100 rounded-lg shadow-md mb-8">
+      <Testimonial />
+    </section>
   </UContainer>
 </template>
 

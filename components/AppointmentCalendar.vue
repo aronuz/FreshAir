@@ -53,7 +53,6 @@
 
 <script setup>
 import { ref } from 'vue';
-import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 
 import dayjs from 'dayjs'
 
@@ -127,9 +126,10 @@ const { searchTerm, filteredEvents } = storeToRefs(eventsStore);
 //         deleteAppointment,
 //       } = useFetchQueries()
 
-const breakpoints = useBreakpoints(breakpointsTailwind)
-const isMD = breakpoints?.greaterOrEqual('md')
-const isXS = breakpoints?.smaller('sm')
+const screenSize = useNuxtApp().$screenSize
+
+const isMD = screenSize == 'md'
+const isXS = screenSize == 'xs'
 console.log('isMD', isMD.value)
 
 watch(() => isMD.value, (value) => isCalendar.value = value, {immediate: true})

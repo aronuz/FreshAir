@@ -7,7 +7,8 @@
         <UCard>
           <template #header class="text-xl font-semibold">Admin Panel</template>
 
-          <UTabs :unmount-on-hide="false" :items="tabItems" :orientation="isMD ? 'horizontal' : 'vertical'" class="w-full" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }">
+          <div v-if="isXS" class="text-xl">Device not Supported</div>
+          <UTabs v-else :unmount-on-hide="false" :items="tabItems" :orientation="isMD ? 'horizontal' : 'vertical'" class="w-full" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }">
             <template #content="{ item }">
               <UCard>
                 <template #header class="text-xl font-semibold">{{ item.label }}</template>
@@ -117,7 +118,6 @@
 <script lang="ts" setup>
 import { h, ref, resolveComponent } from 'vue'
 import type { TableColumn, TabsItem } from '@nuxt/ui'
-import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 
 import { PAGES_CONFIG, ROUTE_CONFIG } from '~/config/routes'
 import { storeToRefs } from 'pinia'
@@ -125,10 +125,13 @@ import { useUsersStore } from '~/stores/users'
 import { getDynamicStore } from '~/stores/events'
 import dayjs from 'dayjs'
 
+const screenSize = useNuxtApp().$screenSize
+
+const isMD = screenSize == 'md'
+const isXS = screenSize == 'xs'
+
 const UCheckbox = resolveComponent('UCheckbox')
 const { toastBar } = useToastBar()
-const breakpoints = useBreakpoints(breakpointsTailwind)
-const isMD = ref(breakpoints?.greaterOrEqual('md'))
 
 interface userType {
   title: string,

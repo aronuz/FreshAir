@@ -17,8 +17,6 @@
 </template>
 
 <script lang="ts" setup>
-    import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
-
     const props = withDefaults(
         defineProps<{
             admin?: boolean,
@@ -56,15 +54,11 @@
     }
 
     const gridColumns = computed(() => {
-        const breakpoints = useBreakpoints(breakpointsTailwind) 
-        const bp = breakpoints?.greaterOrEqual('lg') ? 'lg' : 
-            breakpoints?.greaterOrEqual('md') ? 'md' : 
-            breakpoints?.greaterOrEqual('sm') ? 'sm' : 'xs'
-
-        const count = props.admin || bp !== 'lg' ? team.value.length + 1 : team.value.length // +1 for add staff card
+        const screenSize = useNuxtApp().$screenSize
+        const count = props.admin || screenSize !== 'lg' ? team.value.length + 1 : team.value.length // +1 for add staff card
         
         let base
-        switch (bp) {
+        switch (screenSize) {
             case 'lg':
                 base = Math.max(1, Math.min(4, count))
                 break
