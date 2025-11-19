@@ -1,7 +1,7 @@
 <template>
   <UModal
     v-model:open="isOpen"
-    :title="`${user}\'s Appointments`"
+    :title="isReview ? 'New Review' : `${user}'s Appointments`"
     :close="{
       color: 'info',  
       variant: 'outline',
@@ -10,16 +10,23 @@
     }"
     :ui="{content: 'lg:left-[35%]', body: 'bg-linear-to-b from-sky-100 to-sky-400'}"
   >
-    <template #body>      
-      <ListView v-bind="$attrs" />
+    <template #body>
+      <NewReview v-if="isReview" v-bind="$attrs" />
+      <ListView v-else v-bind="$attrs" />
     </template>  
   </UModal>   
 </template>
 
 <script lang="ts" setup>
-    const props = defineProps({
-        modelValue: Boolean,
-        user: String
+    interface Props {
+      modelValue: boolean,
+      user?: string,
+      isReview: boolean
+    }
+
+    const props = withDefaults(defineProps<Props>(), {
+      modelValue: false,
+      isReview: false
     })
 
     const emit = defineEmits(['update:modelValue'])

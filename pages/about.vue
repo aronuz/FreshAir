@@ -20,39 +20,46 @@
       </div>
     </section>
 
-    <section class="py-6 bg-white rounded-lg shadow-md my-8">
-      <h2 class="text-2xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-6">Our Values</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="text-center">
-          <UIcon name="i-heroicons-hand-thumb-up" class="text-primary-500 text-4xl mx-auto mb-2" />
-          <h3 class="font-semibold text-lg text-gray-700">Integrity</h3>
-          <p class="text-gray-600">We operate with honesty and transparency in all our dealings.</p>
-        </div>
-        <div class="text-center">
-          <UIcon name="i-heroicons-light-bulb" class="text-green-500 text-4xl mx-auto mb-2" />
-          <h3 class="font-semibold text-lg text-gray-700">Expertise</h3>
-          <p class="text-gray-600">Our technicians are highly trained and knowledgeable in the latest HVAC technologies.</p>
-        </div>
-        <div class="text-center">
-          <UIcon name="i-heroicons-heart" class="text-red-500 text-4xl mx-auto mb-2" />
-          <h3 class="font-semibold text-lg text-gray-700">Customer Focus</h3>
-          <p class="text-gray-600">Your satisfaction is our top priority, and we strive to exceed your expectations.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="py-6 bg-gray-100 rounded-lg shadow-md mb-8">
+    <section class="p-2 bg-gray-100/25 rounded-lg shadow-md my-8">
       <h2 class="text-2xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-6">Meet Our Team</h2>
       <Team />
     </section>
 
-    <section class="py-6 bg-gray-100 rounded-lg shadow-md mb-8">
-      <Testimonial />
+    <section class="px-12 py-3 bg-gray-100/25 rounded-lg shadow-md mb-8">
+      <div class="w-fit h-fit px-2 mx-auto bg-white rounded-lg">
+        <h2 class="text-2xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-6">Our Values</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="text-center">
+            <UIcon name="i-heroicons-hand-thumb-up" class="text-primary-500 text-4xl mx-auto mb-2" />
+            <h3 class="font-semibold text-lg text-gray-700">Integrity</h3>
+            <p class="text-gray-600">We operate with honesty and transparency in all our dealings.</p>
+          </div>
+          <div class="text-center">
+            <UIcon name="i-heroicons-light-bulb" class="text-green-500 text-4xl mx-auto mb-2" />
+            <h3 class="font-semibold text-lg text-gray-700">Expertise</h3>
+            <p class="text-gray-600">Our technicians are highly trained and knowledgeable in the latest HVAC technologies.</p>
+          </div>
+          <div class="text-center">
+            <UIcon name="i-heroicons-heart" class="text-red-500 text-4xl mx-auto mb-2" />
+            <h3 class="font-semibold text-lg text-gray-700">Customer Focus</h3>
+            <p class="text-gray-600">Your satisfaction is our top priority, and we strive to exceed your expectations.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-3 bg-gray-100/25 rounded-lg shadow-md mb-8">
+      <h2 class="text-2xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-6">
+        Don't just take our word for it - hear from our clients!
+      </h2>
+      <Reviews />
     </section>
   </UContainer>
 </template>
 
 <script lang="ts" setup>
+import Reviews from '~/components/Reviews.vue'
+
     onMounted(async () => {
       const unlink = useState('unlink')
       if(unlink.value) document.querySelector(`#${unlink.value}`)!.classList.remove('router-link-active')

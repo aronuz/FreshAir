@@ -392,6 +392,48 @@ export const useFetchQueries = () => {
         return { error: deleteError, status: deleteStatus, isPending }
     };
 
+    const fetchReviews = async () => {
+        let fetchData = null,
+            fetchError = null,
+            fetchStatus = null
+
+        try {
+            const supabase = getSupabase()
+            const { data, error } = await supabase.from('reviews').select('*')
+            if (error) {
+                fetchError = error.message ?? 'Unkown error while creating user'
+                fetchStatus = error.code ?? ''                
+            }
+            if (data) fetchData = data
+        } catch (error) {
+            fetchError = error;
+            fetchStatus = "500"
+        }
+        return { data: fetchData, error: fetchError, status: fetchStatus, isPending }
+    }
+
+    const addReview = async (review) => {
+        let saveData = null
+        let saveError = null
+        let saveStatus = null
+
+        try {
+            const supabase = getSupabase()
+            const { data, error } = await supabase.from('reviews').insert([review]).select('id, name, rating, content, verified, created_at').single()
+            if (error) {
+                saveError = error.message ?? 'Uknown error - appointment data not saved'
+                saveStatus = error.code ?? ''
+            } else {
+                saveData = data
+            }
+
+        } catch (error) {
+            saveError = `${saveError}\n${error}`;
+            saveStatus = "500"
+        }
+        return { data: saveData, error: saveError, status: saveStatus }
+    }
+
     const fetchStaffProfiles = async () => {
         let fetchData = null,
             fetchError = null,
@@ -496,6 +538,8 @@ export const useFetchQueries = () => {
         submitAppointment,
         updateAppointment,
         deleteAppointment,
+        fetchReviews,
+        addReview,
         fetchStaffProfiles,
         saveStaffProfile,
         deleteStaffProfile,
