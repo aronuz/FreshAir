@@ -1,7 +1,7 @@
 <template>
   <UModal
     v-model:open="isOpen"
-    :title="isReview ? 'New Review' : `${user}'s Appointments`"
+    :title="title"
     :close="{
       color: 'info',  
       variant: 'outline',
@@ -11,8 +11,8 @@
     :ui="{content: 'lg:left-[35%]', body: 'bg-linear-to-b from-sky-100 to-sky-400'}"
   >
     <template #body>
-      <NewReview v-if="isReview" v-bind="$attrs" />
-      <ListView v-else v-bind="$attrs" />
+      <NewReview v-if="newReview === 1" v-bind="$attrs" />
+      <ListView :event-list="newReview === -1" v-else v-bind="$attrs" />
     </template>  
   </UModal>   
 </template>
@@ -21,15 +21,22 @@
     interface Props {
       modelValue: boolean,
       user?: string,
-      isReview: boolean
+      newReview: number
     }
 
     const props = withDefaults(defineProps<Props>(), {
       modelValue: false,
-      isReview: false
+      newReview: -1
     })
 
     const emit = defineEmits(['update:modelValue'])
+
+    const title = computed(() => {
+      let title = `${props.user}'s Appointments`
+      if (props.newReview === 0) title = `Our reviews`
+      else if (props.newReview === 1) title = "New Review"
+      return title
+    })
 
     const isOpen = computed({
         get: () => props.modelValue,

@@ -2,24 +2,16 @@
     <ClientOnly>
         <UCard class="col-span-12 lg:col-span-12 text-4xl" :ui="{ body: 'max-h-90 overflow-y-scroll!', footer: 'bg-sky-400'}">
             <section>
-                <template v-if="!loadingList && pageEvents && pageEvents.length" >
-                    <template v-for="(pageEvent, arrIx) in pageEvents" :key="arrIx" class="mb-4"> 
-                        <template v-for="(group, key, index) in pageEvent" :key="key">
-                            <div class="flex justify-end">{{ key }}</div>
-                            <UCard v-for="event in group" :key="event.id" class="flex flex-col" :class="`even:bg-sky-${index + 1 < 7 ? index + 1 : 7}00 odd:bg-sky-${group.length + (2 * index + 1) < 9 ? group.length + (2 * index + 1) : 9}00`">
-                                <strong>
-                                    <span v-if="event.service">{{ event.service }}</span>
-                                    <span v-else>Service</span>
-                                </strong> 
-                                <span class="ml-2">@ <strong>{{ event.address }}</strong></span>
-                                <span v-if="event.title" class="ml-2">for <strong>{{ event.title }}</strong></span> 
-                            </UCard>
-                        </template>
+                <template v-if="!loadingList && pageItems && pageItems.length" >
+                    <template v-for="(item, arrIx) in pageItems" :key="arrIx" class="mb-4">
+                        <EventCard v-if="eventList" :groups="item"/>
+                        <ReviewCard v-else :review="item" />
                     </template>
                 </template>
-                <div v-else>No Appointments</div>
+                <div v-else-if="eventList">No Appointments</div>
+                <div v-else>Be the first to give us feedback!</div>
             </section>
-            <template v-if="!loadingList && pageEvents && pageEvents.length" #footer>
+            <template v-if="!loadingList && pageItems && pageItems.length" #footer>
                 <div class="flex justify-center mt-4">
                     <UPagination
                         v-model:page="currentPage"
@@ -34,10 +26,31 @@
     </ClientOnly>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup>  
+    import type { PropType } from 'vue'
 
+    interface EventType {
+        id: number,
+        address: string,
+        service: string,
+        title: string
+    }
+    
+    interface ReviewType {
+        id?: number
+        name: string,
+        rating: number,
+        content: string,
+        created_at?: Date,
+        verified?: boolean,
+    }
+    
     const props = defineProps({
-        grouppedEvents: Object,
+        eventList: {type: Boolean, default: false},
+        grouppedEvents: {
+            type: Object as PropType<Record<string, EventType[]>> | null,
+        },
+        reviews: {type: Array<ReviewType>, default: []},
         loadingList: {type: Boolean, default: false}
     })
 
@@ -45,16 +58,17 @@
 
     const currentPage = ref(1)
     const itemsPerPage = ref(20)
-    const total = computed(() => props.grouppedEvents ? Object.keys(props.grouppedEvents).length : 0)
+    const itemList = props.eventList && props.grouppedEvents ? Object.keys(props.grouppedEvents) : props.reviews
+    const total = computed(() => itemList ? itemList.length : 0)
     const totalPages = computed(() => Math.ceil(total.value / itemsPerPage.value))
 
-    const pageEvents = computed((): Array<typeof props.grouppedEvents> => {
+    const pageItems = computed((): Array<typeof props.grouppedEvents | ReviewType> => {
       const start = (currentPage.value - 1) * itemsPerPage.value
       const end = start + itemsPerPage.value
 
       const eventArray = props.grouppedEvents ? Object.entries(props.grouppedEvents).map(([key, val]) => {
         return { [key]: val }
-      }) : [];
+      }) : props.reviews;
 
       return eventArray.slice(start, end)
     })

@@ -42,7 +42,7 @@
           </Transition>
         </template>  
         <AppointmentFilter v-else :event-store-id="eventStoreID" @dateRangeChanged="setRangeDates"/>
-        <ListView :groupped-events="grouppedEvents"  />
+        <ListView event-list :groupped-events="grouppedEvents"  />
       </div>
     </ClientOnly>
     <UCard v-if="user && loadingList" class="w-[50vw] bg-linear-to-b from-sky-100 to-sky-400">
