@@ -43,7 +43,7 @@
             <UCard class="mt-8 text-center text-white bg-secondary-500 shadow-md">
                 <template #header>
                     <div class="text-3xl text-shadow-lg text-shadow-cyan-500 mb-4">
-                        <div v-if="!isBookingDown" class="flex flex-col">
+                        <div v-if="isBookingDown" class="flex flex-col">
                             <p>Booking Service is Currently Unavailable.</p>
                             <p>Please Contact Us Directly.</p>
                         </div>
