@@ -1,7 +1,7 @@
 <template>
     <UContainer class="my-8">
       <FormModal v-model="isOpenUser" :selected-user="selectedUser" @saved="updateSelectedUser"/>
-      <EventsModal v-if="selectedUser && isOpenEvents" v-model="isOpenEvents" :groupped-events="appointments" :user="selectedUser.title"/>
+      <ListModal v-if="selectedUser && isOpenEvents" v-model="isOpenEvents" :groupped-events="appointments" :user="selectedUser.title"/>
         
       <ClientOnly>
         <UCard>

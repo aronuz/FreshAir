@@ -392,14 +392,16 @@ export const useFetchQueries = () => {
         return { error: deleteError, status: deleteStatus, isPending }
     };
 
-    const fetchReviews = async () => {
+    const fetchReviews = async (all) => {
         let fetchData = null,
             fetchError = null,
             fetchStatus = null
 
         try {
             const supabase = getSupabase()
-            const { data, error } = await supabase.from('reviews').select('*')
+            let query = supabase.from('reviews').select('*').order('created_at', { ascending: false })
+            if (!all) query = query.limit(3)
+            const { data, error } = await query
             if (error) {
                 fetchError = error.message ?? 'Unkown error while creating user'
                 fetchStatus = error.code ?? ''                

@@ -5,7 +5,7 @@
                 <template v-if="!loadingList && pageItems && pageItems.length" >
                     <template v-for="(item, arrIx) in pageItems" :key="arrIx" class="mb-4">
                         <EventCard v-if="eventList" :groups="item"/>
-                        <ReviewCard v-else :review="item" />
+                        <ReviewCard v-else all :review="item" />
                     </template>
                 </template>
                 <div v-else-if="eventList">No Appointments</div>

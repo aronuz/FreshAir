@@ -1,6 +1,6 @@
 <template>
   <UCard
-    class="w-full md:w-fit"
+    class="['w-full', { 'md:w-fit': !all }]"
     :ui="{ body: 'px-6 sm:px-6 py-3 sm:py-3' }"
   >
     <template #header>
@@ -68,7 +68,7 @@
       verified?: boolean,
     }
 
-    defineProps<{ review: reviewType }>()
+    defineProps<{ review: reviewType, all: boolean }>()
 
     // Calculate the fill percentage for each star
     const getStarFillPercentage = (starIx: number, rating: number) => {
