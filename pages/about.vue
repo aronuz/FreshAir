@@ -2,21 +2,19 @@
   <UContainer>
     <section class="pt-6">
       <h2 class="text-3xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-8">About Fresh Air HVAC</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-0">
-        <div class="flex items-center justify-center w-full h-full">
-          <NuxtImg src="/images/about-us.png" alt="Our Team" class="rounded-lg shadow-lg w-3/4" />
+        <div class="flex justify-center">
+          <div class="font-bold text-white bg-gray-500 mb-4 ml-0 p-4 rounded opacity-70" style="width: 25vw">Welcome to Fresh Air HVAC, your trusted partner for all your heating, ventilation, and air conditioning needs in the [Your Service Area] area. With over [Number] years of experience in the industry, we have built a reputation for providing reliable, efficient, and high-quality HVAC services to residential and commercial clients alike.</div>
         </div>
-        <div class="font-bold text-white bg-gray-500 ml-0 p-4 rounded opacity-70">
-          <p class="text-lg mb-4">
-            Welcome to Fresh Air HVAC, your trusted partner for all your heating, ventilation, and air conditioning needs in the [Your Service Area] area. With over [Number] years of experience in the industry, we have built a reputation for providing reliable, efficient, and high-quality HVAC services to residential and commercial clients alike.
-          </p>
-          <p class="text-lg mb-4">
+        <div class="flex flex-col sm:flex-row gap-0">
+          <div class="flex-1/2 font-bold text-white bg-gray-500 mb-4 ml-0 p-4 rounded opacity-70">
             Our mission is simple: to ensure your comfort and satisfaction by delivering exceptional service and expert solutions. We understand the importance of a comfortable indoor environment, and our team of certified technicians is dedicated to keeping your HVAC systems running smoothly and efficiently, no matter the season.
-          </p>
-          <p class="text-lg">
+          </div>
+          <div class="flex items-center justify-center w-full h-full">
+            <NuxtImg src="/images/about-us.png" alt="AC System" class="rounded-lg shadow-lg w-3/4" />
+          </div>
+          <div class="flex-1/2 font-bold text-white bg-gray-500 mb-4 ml-0 p-4 rounded opacity-70">
             At Fresh Air HVAC, we believe in honesty, integrity, and transparent communication. We take the time to understand your specific needs and provide tailored solutions that fit your budget and requirements. Our commitment to quality workmanship and customer care sets us apart.
-          </p>
-        </div>
+          </div>
       </div>
     </section>
 
