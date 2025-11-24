@@ -176,7 +176,7 @@
       } = useFetchQueries()
 
   const baseSchema = z.object({
-    title: z.string(),
+    title: z.string().min(3).regex(/^[a-zA-Z]+(?:[-'\s][a-zA-Z]+)*$/, "Name provided has invalid characters"),
     email: z.string().email("Invalid email address").optional(),
     phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid Phone number')    
   })
