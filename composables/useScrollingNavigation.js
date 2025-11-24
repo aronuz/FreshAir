@@ -19,7 +19,11 @@ export const useScrollingNavigation = () => {
   pageList = pageList.map(page => page.to === '/index' ? '/' : page.to)
 
   const getCurrentPageIndex = () => {
-    return pageList.findIndex(page => route.path === page)
+    let path = route.path
+    if (['/loginLink', '/registration'].includes(route.path)) {
+      path = '/booking'
+    }
+    return pageList.findIndex(page => path === page)
   }
 
   const getPrevPage = () => {
