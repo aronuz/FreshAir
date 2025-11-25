@@ -5,11 +5,11 @@ export const useScrollingNavigation = () => {
   const router = useRouter()
   const route = useRoute()
   const isNavigating = ref(false)
-  let timeoutId = null
-  let scrollTop = 0
+  let scrollTimeout = null
+  let scrollReady = false
   let isAtBottom = false
   let isAtTop = false
-  let scrollAmount = 0
+  let savedScrollY = 0
 
   // Prepare list of pages for navigation
   let pageList = PAGES_CONFIG
@@ -53,62 +53,68 @@ export const useScrollingNavigation = () => {
   const handleScroll = () => {
     if (isNavigating.value) return
 
-    clearTimeout(timeoutId)
+    clearTimeout(scrollTimeout)
     
-    timeoutId = setTimeout(() => {
-      if(scrollAmount == 1 && ((isAtBottom && scrollTop >= window.scrollY) || (isAtTop && scrollTop <= 5))) {
-        scrollTop = 0
-        scrollAmount = 0
-        console.log('Scroll event detected. Current scrollTop:', window.scrollY)
-        let nextPage = null
-
-        if (isAtBottom) {
-          isAtBottom = false
-          nextPage = getNextPage()
-        } else if (isAtTop) {
-          isAtTop = false
-          nextPage = getPrevPage()
+    scrollTimeout = setTimeout(() => {
+      const documentHeight = document.documentElement.scrollHeight
+      const windowHeight = window.innerHeight
+      const scrollTop = window.scrollY
+      const scrollHeight = scrollTop + windowHeight
+      isAtTop = scrollTop <= 5
+      isAtBottom = scrollHeight >= (documentHeight - 50)
+      if (scrollReady && (isAtBottom || isAtTop)) {
+        navigateToPage(isAtBottom, isAtTop)        
+      } else if (scrollHeight >= (documentHeight - 200)) {
+        if (savedScrollY < window.scrollY) {
+          if (scrollHeight >= (documentHeight - 50)) {
+            navigateToPage(isAtBottom, isAtTop)
+            return
+          }
+          scrollReady = true
+          savedScrollY = window.scrollY
+        } else {
+          scrollReady = false
         }
-        
-        if (nextPage) {
-          isNavigating.value = true
-          
-          router.push(nextPage).then(() => {
-            // Reset flags after navigation completes
-            setTimeout(() => {
-              isNavigating.value = false
-            }, 500)
-          })
+      } else if (scrollTop <= 200) {
+        if (scrollTop < 5) {
+          navigateToPage(isAtBottom, isAtTop)
+          return
         }
-      } else if (isAtBottom) {
-        if (scrollTop >= window.scrollY) scrollAmount += 1
-        else isAtBottom = false
-        // console.log('window.scrollY:', window.scrollY)
-        // console.log('At bottom, waiting for more scrolls. Count:', scrollAmount)
-      } else if (isAtTop) {
-        if (scrollTop <= 5) scrollAmount += 1
-        else isAtTop = false
-      } else {
-        scrollTop = window.scrollY
-        const windowHeight = window.innerHeight
-        const documentHeight = document.documentElement.scrollHeight
-        isAtTop = scrollTop == 0
-        isAtBottom = scrollTop + windowHeight == documentHeight
-        // console.log('Scroll position:', {
-        //   scrollTop,
-        //   windowHeight,
-        //   documentHeight,
-        //   isAtBottom
-        // })
-        // Check if scrolled to bottom
-        if (isAtBottom) {  
-          // console.log('Scrolled to bottom. Preparing to navigate.')
-          window.scrollTo({ top: window.scrollY - 5, behavior: 'smooth' })
-        } else if (isAtTop) {
-          window.scrollTo({ top: 5, behavior: 'smooth' })
-        }          
+        if (scrollTop === 0 || (scrollTop != 5 && savedScrollY > window.scrollY)) {
+          scrollReady = true
+          savedScrollY = window.scrollY 
+        }
+        else {
+          scrollReady = false
+        }
       }
-    }, 150)
+    }, 250)
+  }
+
+  const navigateToPage = (isAtBottom, isAtTop) => {
+    scrollReady = false
+    savedScrollY = 0
+    console.log('Scroll event detected. Current scrollTop:', window.scrollY)
+    let nextPage = null
+
+    if (isAtBottom) {
+      isAtBottom = false
+      nextPage = getNextPage()
+    } else if (isAtTop) {
+      isAtTop = false
+      nextPage = getPrevPage()
+    }
+    
+    if (nextPage) {
+      isNavigating.value = true
+      
+      router.push(nextPage).then(() => {
+        // Reset flags after navigation completes
+        setTimeout(() => {
+          isNavigating.value = false
+        }, 500)
+      })
+    }
   }
 
   const initScrollNavigation = () => {
@@ -116,7 +122,7 @@ export const useScrollingNavigation = () => {
   }
 
   const destroyScrollNavigation = () => {
-    clearTimeout(timeoutId)
+    clearTimeout(scrollTimeout)
     window.removeEventListener('scroll', handleScroll)
   }
 
