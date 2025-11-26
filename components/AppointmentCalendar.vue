@@ -8,7 +8,7 @@
             unchecked-icon="i-lucide-x"
             checked-icon="i-lucide-check"
             v-model="isCalendar"
-            :label="isCalendar ? 'Calendar' : 'List'"
+            :label="showCalendar ? 'Calendar' : 'List'"
             :disabled="!isMD"
             class="flex justify-end mb-4" 
             :ui="{ root: 'items-center', label: 'md:lg:text-xl lg:text-2xl align-top' }"
@@ -23,7 +23,7 @@
     </div>
     <FormModal v-model="isOpen" :selected-date="selectedDate" :existing-records="existingRecords" :service="service" @saved="reload"/>
     <ClientOnly>
-      <UCard v-if="user && showCalendar" class="lg:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !isCalendar, 'col-span-12': isCalendar }">
+      <UCard v-if="user && showCalendar" class="lg:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !showCalendar, 'col-span-12': showCalendar }">
         <AppointmentFilter :event-store-id="eventStoreID" @dateRangeChanged="setRangeDates"/>
         <FullCalendar :data-set="eventsParsed" @dataChanged="updateStoreName" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
       </UCard>
@@ -73,7 +73,6 @@ const { toastBar } = useToastBar()
 const user = useSupabaseUser()
 const guestUser = useGuestUser()
 const onError = useNuxtApp().$onError
-const isCalendar = ref(true)
 const pending = ref(false)
 const isOpen = ref(false)
 const isReady = ref(false)
@@ -128,19 +127,22 @@ const { searchTerm, filteredEvents } = storeToRefs(eventsStore);
 
 const screenSize = useNuxtApp().$screenSize
 
-const isMD = screenSize == 'md'
-const isXS = screenSize == 'xs'
-console.log('isMD', isMD.value)
+const isMD = computed(() => ['md', 'lg'].includes(screenSize))
+const isXS = computed(() => screenSize == 'xs')
 
-watch(() => isMD.value, (value) => isCalendar.value = value, {immediate: true})
+const showCalendar = ref(isMD.value)
 
-const showCalendar = computed(() => {
-  console.log('ic: ', isCalendar.value, 'bp: ', breakpoints.greaterOrEqual('md').value)
-  return isCalendar.value && isMD.value
+const isCalendar = computed({
+  get: () => {
+    return showCalendar.value
+  },
+  set: (value) => {
+    showCalendar.value = value
+  }    
 })
 
 const loadingList = computed(() => {
-  return (!showCalendar.value && !grouppedEvents) || (showCalendar && !isReady)
+  return (!isCalendar.value && !grouppedEvents) || (isCalendar && !isReady)
 })
 
 watch(() => isOpen.value, (value) => {
@@ -196,7 +198,7 @@ const eventList = computed(() => {
 const eventsParsed = computed(() => {
   const list = eventList.value
 
-  if(!showCalendar.value || !list) return []
+  if(!isCalendar.value || !list) return []
 
   const eventsObject = list.map(item => {
     const { id, title, start_date: start, end_date: end } = item
@@ -220,7 +222,7 @@ const eventsParsed = computed(() => {
 const grouppedEvents = computed( () => {
     const list = eventList.value
 
-    if (showCalendar.value || !list) return null
+    if (isCalendar.value || !list) return null
 
     let group = {}
     for (const entry of list){
