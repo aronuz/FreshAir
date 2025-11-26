@@ -5,10 +5,10 @@
         
       <ClientOnly>
         <UCard>
-          <template #header class="text-xl font-semibold">Admin Panel</template>
+          <template #header class="text-xl font-semibold">Admin Panel {{ isMD }}</template>
 
           <div v-if="isXS" class="text-xl">Device not Supported</div>
-          <UTabs v-else :unmount-on-hide="false" :items="tabItems" :orientation="isMD ? 'horizontal' : 'vertical'" class="w-full" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }">
+          <UTabs v-else :unmount-on-hide="false" :items="tabItems" :orientation="isMD ? 'horizontal' : 'vertical'" class="w-full" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }">
             <template #content="{ item }">
               <UCard>
                 <template #header class="text-xl font-semibold">{{ item.label }}</template>
@@ -53,11 +53,11 @@
                           <div class="col-span-2 sm:col-span-5 h-fit" >{{ user.title }} - {{ user.phone }}<span v-if="user.email">/{{ user.email }}</span></div>
                           <div class="col-span-3 sm:col-span-6 h-fit flex justify-end sm:justify-start" >Joined On: {{ dayjs(user.created_at).format('DD/MM/YY') }}</div>
                           <div class="col-span-1 sm:col-span-3 h-fit" >
-                            <UButton class="sm:ml-4 px-1 h-fit w-fit sm:my-auto" @click="loadUserEvents(user)" label="See Appointments" icon="i-heroicons-document-magnifying-glass" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }"/>
+                            <UButton class="sm:ml-4 px-1 h-fit w-fit sm:my-auto" @click="loadUserEvents(user)" label="See Appointments" icon="i-heroicons-document-magnifying-glass" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }"/>
                           </div>
                           <div v-if="selectedUsers.has(user.user_id)" class="space-x-2 col-span-2 sm:col-span-6 sm:col-start-9 flex justify-end ml-2">
-                            <UButton class="bg-blue-500 text-white px-1 py-1 rounded h-fit w-fit my-auto" icon="i-heroicons-pencil-square" @click="handleUpdateUser(user)" label="Edit" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }" />
-                            <UButton class="bg-red-500 text-white px-1 py-1 rounded h-fit w-fit my-auto" icon="i-heroicons-trash" @click="handleDeleteUsers(user.user_id)" label="Remove" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }" />
+                            <UButton class="bg-blue-500 text-white px-1 py-1 rounded h-fit w-fit my-auto" icon="i-heroicons-pencil-square" @click="handleUpdateUser(user)" label="Edit" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
+                            <UButton class="bg-red-500 text-white px-1 py-1 rounded h-fit w-fit my-auto" icon="i-heroicons-trash" @click="handleDeleteUsers(user.user_id)" label="Remove" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
                           </div>
                         </div>
                       </div>
@@ -103,8 +103,8 @@
                 </template>
                 
                 <template #footer v-if="item.label === 'User Management'">
-                  <UButton icon="i-heroicons-plus-circle" color="primary" variant="solid" label="Add" @click="isOpenUser = true" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }" />
-                  <UButton v-if="selectedUsers.size" icon="i-heroicons-trash" color="error" variant="solid" label="Remove" @click="handleDeleteUsers(selectedUsers)" :ui="{ label: `${isMD ? 'inline-block' : 'hidden'}`, leadingIcon: `${ isMD ? 'size-10' : 'size-14' }` }" />
+                  <UButton icon="i-heroicons-plus-circle" color="primary" variant="solid" label="Add" @click="isOpenUser = true" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
+                  <UButton v-if="selectedUsers.size" icon="i-heroicons-trash" color="error" variant="solid" label="Remove" @click="handleDeleteUsers(selectedUsers)" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
                 </template>
               </UCard>
             </template>
@@ -125,10 +125,10 @@ import { useUsersStore } from '~/stores/users'
 import { getDynamicStore } from '~/stores/events'
 import dayjs from 'dayjs'
 
-const screenSize = useNuxtApp().$screenSize
+const screenSize = computed(() => useNuxtApp().$screenSize)
 
-const isMD = screenSize == 'md'
-const isXS = screenSize == 'xs'
+const isMD = computed(() => ['md', 'lg'].includes(screenSize.value as string))
+const isXS = computed(() => screenSize.value == 'xs')
 
 const UCheckbox = resolveComponent('UCheckbox')
 const { toastBar } = useToastBar()

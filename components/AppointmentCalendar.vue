@@ -125,9 +125,9 @@ const { searchTerm, filteredEvents } = storeToRefs(eventsStore);
 //         deleteAppointment,
 //       } = useFetchQueries()
 
-const screenSize = useNuxtApp().$screenSize
+const screenSize = computed(() => useNuxtApp().$screenSize)
 
-const isMD = computed(() => ['md', 'lg'].includes(screenSize))
+const isMD = computed(() => ['md', 'lg'].includes(screenSize.value))
 const isXS = computed(() => screenSize == 'xs')
 
 const showCalendar = ref(isMD.value)
