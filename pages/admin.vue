@@ -5,7 +5,7 @@
         
       <ClientOnly>
         <UCard>
-          <template #header class="text-xl font-semibold">Admin Panel {{ isMD }}</template>
+          <template #header class="text-xl font-semibold">Admin Panel</template>
 
           <div v-if="isXS" class="text-xl">Device not Supported</div>
           <UTabs v-else :unmount-on-hide="false" :items="tabItems" :orientation="isMD ? 'horizontal' : 'vertical'" class="w-full" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }">
