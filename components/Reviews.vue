@@ -2,7 +2,7 @@
     <ListModal v-if="isOpen" v-model="isOpen" :new-review="newReview" :reviews="reviews" @saved="onSave" @update:modelValue="isOpen = false"/>
     <UContainer>
         <div class="w-full md:max-w-7xl mx-auto px-2 sm:px-1 lg:px-4 py-3">
-            <div class="flex flex-col lg:flex-row sm:mx-[25%] lg:mx-10 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 sm:mx-[5vw] gap-3">
                 <ReviewCard 
                     v-for="review in reviewsTop"
                     :key="review.id"
