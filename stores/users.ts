@@ -58,7 +58,7 @@ export const useUsersStore = defineStore('users', {
         async updateUser(user: userType) {
             this.error = null
             let status = null
-            debugger
+            
             try {                               
                 const index = this.users.findIndex((user: userType) => user.user_id === user.user_id)
                 if (index !== -1) this.users[index] = user
