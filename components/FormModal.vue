@@ -1,18 +1,20 @@
 <template>
   <UModal
     v-model:open="isOpen"
+    scrollable
     :title="title"
+    class="sm:max-h-[100dvh] top-4/8"
     :close="{
       color: 'info',  
       variant: 'outline',
       class: 'rounded-full',
       onClick: () => {isOpen = false; hasErrors = false}
     }"
-    :ui="{content: 'lg:left-[35%]'}"
+    :ui="{ content: 'lg:m-auto' }"
   >
     <template #body>
-        <UForm class="grid bg-gradient-to-b from-white to-blue-300 -m-4 sm:-m-6 p-4 pt-6" style="grid-template-rows: repeat(6, minmax(0, .99fr));" :state="formdata" :schema="schema" ref="appform" @submit.prevent="submitForm" @error="onError">
-          <div class="grid grid-cols-2">
+        <UForm class="grid bg-gradient-to-b from-white to-blue-300 -m-4 sm:-m-6 px-4 pt-3 gap-1" style="grid-template-rows: repeat(auto-fit, minmax(min-content, auto));" :state="formdata" :schema="schema" ref="appform" @submit.prevent="submitForm" @error="onError">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <UFormField required label="Name" name="title">
               <UInput placeholder="Name" v-model="formdata.title"/>
             </UFormField>
@@ -20,57 +22,65 @@
               <UInput placeholder="Email" v-model="formdata.email"/>
             </UFormField>
           </div>
-          <div class="grid" :class="[props.selectedUser ? 'grid-cols-2': 'grid-cols-3']">
-            <UFormField required label="Phone" name="phone">
-              <UInput placeholder="Phone" v-model="formdata.phone"/>
-            </UFormField>
+          <div class="grid" :class="'grid-cols-1', [props.selectedUser ? 'sm:grid-cols-2': 'sm:grid-cols-[7rem_auto_8rem]'], 'gap-2'">
+            <div class="w-[7rem]">
+              <UFormField required label="Phone" name="phone">
+                <UInput placeholder="Phone" v-model="formdata.phone"/>
+              </UFormField>
+            </div>
             <template v-if="!props.selectedUser">
-              <UFormField required label="Address" name="address">
-                <UInput type="text" v-model="formdata.address" placeholder="Address" />
-              </UFormField>
-              <UFormField required label="Zip" name="zip">
-                <UInput v-model="formdata.zip" placeholder="Zip Code" />
-              </UFormField>
+              <div class="w-full">
+                <UFormField required label="Address" name="address" help="Location where service is needed">
+                  <AddressLookup ref="addressLookup" :saved-address="formdata.address" :saved-zip="formdata.zip"/>
+                </UFormField>
+              </div>
+              <div class="w-full">
+                <UFormField required label="Zip" name="zip" help="Used to determine availability.">
+                  <UInput v-model="formdata.zip" placeholder="Zip Code" />
+                </UFormField>
+              </div>
             </template>
             <UFormField v-else label="User Role" name="user_role">
               <USelect class="w-full sm:w-9/12" v-model="rolePicked" :items="roles" placeholder="User Role" arrow />
             </UFormField>
           </div>
           <template v-if="!props.selectedUser">
-            <div class="grid grid-cols-3">
-              <UFormField required label="Start Date" name="start_date">
-                <UInput type="date" v-model="formattedStartDate" @update:modelValue="updateStartDate"/>
-              </UFormField>
-              <UFormField required label="Start Time" name="start_time">
-                <UInput type="time" v-model="appointmentData.start_time" />
-              </UFormField>
-            </div>
-            <div class="grid grid-cols-3">
-              <UFormField label="End Date" name="end_date">
-                <UInput type="date" v-model="formattedEndDate" @update:modelValue="updateEndDate"/>
-              </UFormField>
-              <UFormField label="End Time" name="end_time" :required="!!appointmentData.end_date">
-                <UInput type="time" v-model="appointmentData.end_time" />
-              </UFormField>
-            </div>
-            <div class="grid grid-cols-3 gap-4">
-              <div class="flex justify-start">
-                <UFormField label="Service" name="service" class="w-full">
-                  <USelect v-model="servicePicked" :items="services" value-key="id" class="w-full" placeholder="Service reason" arrow @update:modelValue="updateService"/>
+            <div class="grid gap-2">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <UFormField required label="Start Date" name="start_date">
+                  <UInput type="date" v-model="formattedStartDate" @update:modelValue="updateStartDate"/>
+                </UFormField>
+                <UFormField required label="Start Time" name="start_time">
+                  <UInput type="time" v-model="appointmentData.start_time" />
                 </UFormField>
               </div>
-              <div class="col-span-2">
-                <UFormField label="Notes" name="notes">
-                  <UTextarea class="w-[100%]" :rows="2" :maxrows="2" resize="none" :autoresize="false" variant="outline" v-model="appointmentData.notes" placeholder="Request details" />
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4 md:gap-2">
+                <UFormField label="End Date" name="end_date">
+                  <UInput type="date" v-model="formattedEndDate" @update:modelValue="updateEndDate"/>
                 </UFormField>
+                <UFormField label="End Time" name="end_time" :required="!!appointmentData.end_date">
+                  <UInput type="time" v-model="appointmentData.end_time" />
+                </UFormField>
+              </div>
+              <div class="grid grid-cols-1">
+                <div class="flex justify-start flex-wrap gap-1 sm:gap-4 md:gap-2">
+                  <UFormField label="Service" name="service" help="Select the service reason">
+                    <USelect v-model="servicePicked" :items="services" value-key="id" class="w-full" placeholder="Service reason" arrow @update:modelValue="updateService"/>
+                  </UFormField>
+                  <div class="flex-1">
+                    <UFormField label="Notes" name="notes">
+                      <UTextarea class="min-w-[10rem] w-full" :rows="2" :maxrows="2" resize="none" :autoresize="false" variant="outline" v-model="appointmentData.notes" placeholder="Request details" />
+                    </UFormField>
+                  </div>
+                </div>
               </div>
             </div>
           </template>
-          <div class="grid grid-rows-2 grid-cols-3 content-around"> 
-            <div class="col-span-3 flex justify-center self-center">      
+          <div class="grid grid-cols-3 gap-2 content-around" :class="[hasErrors ? 'grid-rows-2' : 'grid-rows-1']"> 
+            <div class="col-span-3 flex justify-center m-auto">      
               <UButton class="px-8" type="submit" color="primary" variant="solid" :label="saveLabel" :loading="pending" />
             </div>
-            <div v-show="hasErrors" class="col-span-3">          
+            <div v-if="hasErrors" class="col-span-3">          
               <UFormField name="errors"/>
             </div>
           </div>
@@ -90,6 +100,8 @@
   
   import { services as serviceList } from '~/data/constants.json'
 
+  const addressLookup = ref<InstanceType<typeof import('./AddressLookup.vue').default> | null>(null);
+  
   interface userType {
     id?: number,
     title: string | undefined,
@@ -368,7 +380,7 @@
   const saveAppointment = async (event: Record<string, any>) => {
     const noChange = updatedAppointment.value && JSON.stringify(formdata) === JSON.stringify(updatedAppointment.value)
     if(noChange) return
-    console.log('Form Data:', event)
+    //console.log('Form Data:', event)
     if (appform.value.errors.length) {
       let errors = ''
       for (const error in appform.value.errors) {
@@ -377,7 +389,7 @@
       showError(errors, '500')
     } else {
       pending.value = true
-      console.log(appointmentData, event)
+      //console.log(appointmentData, event)
       const {title, phone, email, ...sanitizedAppointment} = Object.fromEntries(
         Object.entries(event).map(([key, value]) => [key, value === undefined ? null : value])
       )
@@ -470,7 +482,7 @@
         rolePicked.value = role!
         Object.assign(formdata, {...rest, email: email ?? undefined, role: role ?? undefined})
         const val = schema.value.parse(formdata)
-        console.log('Parsed User Data:', val)
+        //console.log('Parsed User Data:', val)
       } catch(error) {
         const errorMessage = error instanceof z.ZodError ? error.errors : error
         console.error('Validation Error:', errorMessage)
@@ -498,10 +510,10 @@
       }
       servicePicked.value = value.service ?? 0
       saveLabel.value = 'Update'
-      console.log(value.service)
+      //console.log(value.service)
       try{
         const val = schema.value.parse(formdata)
-        console.log('Parsed User Data:', val)
+        //console.log('Parsed User Data:', val)
       }catch(error){
         const errorMessage = error instanceof z.ZodError ? error.errors : error
         console.error('Validation Error:', errorMessage)
@@ -513,7 +525,8 @@
 
   const zipCodes = [11201, 11203, 11204, 11205, 11206, 11207, 11208, 11209, 11210, 11211, 11212, 11213, 11214, 11215, 11216, 11217, 11218, 11219, 11220, 11221, 11222, 11223, 11224, 11225, 11226, 11228, 11229, 11230, 11231, 11232, 11233, 11234, 11235, 11236, 11237, 11238, 11239, 11241, 11243, 11249]
   const isCoveredZip = (zip: string) => {
-    return zipCodes.includes(parseInt(zip))
+    const simpleZip = zip.split('-')[0]
+    return zipCodes.includes(parseInt(simpleZip))
   }
 
   const isTimeOverlap = (newStartDate: Date, newStartTime: string) => {
@@ -550,13 +563,26 @@
     return true // No overlap found
   }
 
+  const addressValid = computed(() => !!(addressLookup.value?.addressValid)) //?.value
+  const addressError = ref(null)
+  watchEffect(() => {
+      if (addressValid.value) {
+        formdata.address = addressLookup.value?.addressInput ?? undefined //?.value
+        formdata.zip = addressLookup.value?.zipCode ?? undefined //?.value
+      } else {
+        formdata.address = undefined
+        formdata.zip = undefined
+      }
+  });
+
+  watch(() => addressLookup.value?.lookupError, (error) => {  //?.value
+    if (error && (!addressError.value || addressError.value !== error)) {
+      addressError.value = error
+      showError(addressError.value)
+    }
+  });
+
   const showError = (error: string, status = 'Form Error') => {
     toastBar('error', status, error.trim())
   }
 </script>
-
-<style>
-  div[role="dialog"] div {
-    overflow: hidden;
-  }
-</style>
