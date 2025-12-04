@@ -1,9 +1,9 @@
 import { PAGES_CONFIG } from '~/config/routes'
-const userRole = useState('userRole')
 
 export const useScrollingNavigation = () => {
   const router = useRouter()
   const route = useRoute()
+  const userRole = useState('userRole')
   const isNavigating = ref(false)
   let scrollTimeout = null
   let scrollReady = false
@@ -28,11 +28,11 @@ export const useScrollingNavigation = () => {
 
   const getPrevPage = () => {
     const currentIndex = getCurrentPageIndex()
-    console.log('Current page index:', currentIndex, pageList.length)
+    //console.log('Current page index:', currentIndex, pageList.length)
     if (currentIndex === -1) {
       return null
     } else if (currentIndex === 0) {
-      console.log('Already at first page, cannot navigate further.')
+      //console.log('Already at first page, cannot navigate further.')
       return pageList.at(-1)
     }
     return pageList[currentIndex - 1]
@@ -40,11 +40,11 @@ export const useScrollingNavigation = () => {
 
   const getNextPage = () => {
     const currentIndex = getCurrentPageIndex()
-    console.log('Current page index:', currentIndex, pageList.length)
+    //console.log('Current page index:', currentIndex, pageList.length)
     if (currentIndex === -1) {
       return null
     } else if (currentIndex === pageList.length - 1) {
-      console.log('Already at last page, cannot navigate further.')
+      //console.log('Already at last page, cannot navigate further.')
       return pageList[0]
     }
     return pageList[currentIndex + 1]
@@ -94,7 +94,7 @@ export const useScrollingNavigation = () => {
   const navigateToPage = (isAtBottom, isAtTop) => {
     scrollReady = false
     savedScrollY = 0
-    console.log('Scroll event detected. Current scrollTop:', window.scrollY)
+    //console.log('Scroll event detected. Current scrollTop:', window.scrollY)
     let nextPage = null
 
     if (isAtBottom) {

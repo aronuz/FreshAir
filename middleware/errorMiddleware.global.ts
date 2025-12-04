@@ -77,7 +77,7 @@ const handleRouteAccess = async (
     })
   } else if (routeAccess.path !== to.path) {
     // Only navigate if the target path is different from current route
-    console.log(`Redirecting from ${to.path} to ${routeAccess.path}`)
+    //console.log(`Redirecting from ${to.path} to ${routeAccess.path}`)
     return await navigateTo(routeAccess.path)
   }
 }
@@ -168,7 +168,7 @@ export default defineNuxtRouteMiddleware(async (to: RouteLocationNormalized, fro
   //     })
   //   } else if (routeAccess.path !== to.path) {
   //     // Only navigate if the target path is different from current route
-  //     console.log(`Redirecting from ${to.path} to ${routeAccess.path}`)
+  //     //console.log(`Redirecting from ${to.path} to ${routeAccess.path}`)
   //     return navigateTo(routeAccess.path)
   //   }
   // } catch (err) {
@@ -189,7 +189,7 @@ export default defineNuxtRouteMiddleware(async (to: RouteLocationNormalized, fro
 //   allRoutes.forEach((route) => {
 //     const page = data.find(({ name }) => {
 //       const pageName = name.includes(' ') ? name.slice(0, name.indexOf(' ')) : name
-//       console.log(pageName, name, name.includes(' '))
+//       //console.log(pageName, name, name.includes(' '))
 //       return pageName === route.name
 //     })
 //     if (page) {
@@ -197,7 +197,7 @@ export default defineNuxtRouteMiddleware(async (to: RouteLocationNormalized, fro
 //     }
 //   })
 
-//   console.log('to Route:', availableRoutes)
+//   //console.log('to Route:', availableRoutes)
 //   // If route is not available, throw an error
 //   const isRouteAvailable = availableRoutes.find(({ route }) => route === to.name)
 //   if (!isRouteAvailable) {
@@ -205,14 +205,14 @@ export default defineNuxtRouteMiddleware(async (to: RouteLocationNormalized, fro
 //   } else if (!isRouteAvailable.allowed) {
 //     throw createError({ statusCode: 403, message: `${to.name} is currently unavailable` });
 //   } else {
-//     console.log('Navigating to:', isRouteAvailable.path)
+//     //console.log('Navigating to:', isRouteAvailable.path)
 //     return await navigateTo(isRouteAvailable.path)
 //   }
 // })
 
   // // If current route is blocked, throw error
   // if (data && data.some(page => {
-  //     console.log(page.to, to.name)
+  //     //console.log(page.to, to.name)
   //     // const path = page.to === '/index' ? '/' : page.to
   //     return page.to === to.name && page.allowed === false
   //   })) {

@@ -61,7 +61,7 @@
     message: props.defaultMessage,
   });
 
-console.log("CF default message:", props.defaultMessage)
+//console.log("CF default message:", props.defaultMessage)
   const emailform = ref()
 
   const emailState = reactive({...contactInitState})
@@ -85,7 +85,7 @@ console.log("CF default message:", props.defaultMessage)
     if(result) {
       sendEmail({ data: emailState } as FormSubmitEvent<typeof emailState>)
     }
-    console.log("closing contact form")
+    //console.log("closing contact form")
     emit('close')
   }
 
@@ -110,7 +110,7 @@ console.log("CF default message:", props.defaultMessage)
       })
 
       const resp = await response.json();
-      console.log("Success:", resp);
+      //console.log("Success:", resp);
       if (resp.success) {
         Object.assign(emailState, contactInitState)
         emailform.value.clear()

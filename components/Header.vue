@@ -126,7 +126,7 @@
       })
       const bookingIndex = data.findIndex((page: {to: string }) => page.to === '/booking')
       if (bookingIndex < 0) hiddenPages.value.push('/booking')
-      console.log('Hidden pages:', hiddenPages.value)   
+      //console.log('Hidden pages:', hiddenPages.value)   
     }
   })
 
@@ -159,7 +159,7 @@
   // })
   watch(
       () => route.path, (currentPage) => {
-        console.log('currentPath', route.path)
+        //console.log('currentPath', route.path)
         currentPath.value = route.path
         notOnLogin.value = !['/loginLink', '/registration'].includes(currentPage)
       }, {immediate: true}

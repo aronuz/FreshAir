@@ -103,26 +103,26 @@ export function getDynamicStore(storeId: StoreID) {
 
                 // Fetch events from database
                 async fetchEvents(fetchParams: fetchParams, forceRefresh = false) {
-                    console.log('fetchEvents called, events length:', this.events?.length, 'lastFetched:', !!this.lastFetched)
+                    //console.log('fetchEvents called, events length:', this.events?.length, 'lastFetched:', !!this.lastFetched)
                     
                     // If we already have data and this isn't a force refresh, return cached data
                     // This handles the case where useAsyncData runs multiple times during hydration
                     if (!forceRefresh && this.lastFetched && this.events?.length > 0) {
-                        console.log('Returning already fetched data from store cache')
+                        //console.log('Returning already fetched data from store cache')
                         return { data: this.events, timesData: this.timesData, isPending: false }
                     }
                     
                     // Return cached data if valid and not forcing refresh (normal cache behavior)
                     if (!forceRefresh && this.isCacheValid && this.events?.length > 0) {
-                        console.log('Returning valid cached data')
+                        //console.log('Returning valid cached data')
                         return { data: this.events, timesData: this.timesData, isPending: false }
                     }
 
-                    console.log('Calling fetchAppointments')
+                    //console.log('Calling fetchAppointments')
                     try {
                         const { data, timesData, isPending, error, status } = await fetchAppointments(fetchParams)
                         
-                        console.log('fetchAppointments returned, data length:', data?.length, 'error:', !!error)
+                        //console.log('fetchAppointments returned, data length:', data?.length, 'error:', !!error)
                         
                         if(error){
                             return { error, status, isPending }
@@ -133,7 +133,7 @@ export function getDynamicStore(storeId: StoreID) {
                         if (fetchParams.limit) this.timesData = [...(timesData || [])]
                         this.lastFetched = new Date()
                         
-                        console.log('Store updated, events length:', this.events.length)
+                        //console.log('Store updated, events length:', this.events.length)
                         return { data: this.events, timesData: this.timesData, isPending }
                     } catch (error) {
                         console.error('Error in fetchEvents:', error)

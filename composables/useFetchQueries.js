@@ -160,7 +160,7 @@ export const useFetchQueries = () => {
     }
 
     const fetchAppointments = async ({pending, limit = 0, id = null, list = false, index = false, startDate = null, endDate = null}) => {
-        console.log('fetchAppointments called')
+        //console.log('fetchAppointments called')
         isPending.value = pending.value
         let saveError = null
         let saveStatus = null
@@ -209,7 +209,7 @@ export const useFetchQueries = () => {
         } else {
             // Use useAsyncData but always return the data, whether from cache or fresh fetch
             const { data } = await useAsyncData(`${prefix}-${dateFrom}-${dateTo}`, async () => {
-                console.log('useAsyncData callback executing - fetching from database')
+                //console.log('useAsyncData callback executing - fetching from database')
                 const { data, error } = await query
                 if (error) {
                     saveError = error

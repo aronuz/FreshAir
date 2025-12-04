@@ -25,5 +25,5 @@ export default defineNuxtRouteMiddleware((to, from) => {
   } else {
     unlink.value = null
   }
-  console.log('ov', origin.value)
+  //console.log('ov', origin.value)
 })

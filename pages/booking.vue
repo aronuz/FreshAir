@@ -17,7 +17,7 @@ const userRole = useState('userRole')
 const guestUser = useGuestUser()
 
 const roleSet = ref(false)
-console.log('in booking')
+//console.log('in booking')
 onMounted(async () => {
   const supabase = useSupabaseClient()
   const { data: { session } } = await supabase.auth.getSession()
@@ -33,11 +33,11 @@ onMounted(async () => {
     origin.value = `${fromPage}_booking`
     return navigateTo('/loginLink')
   } else if (!userRole.value && session?.user) {
-    console.log("User session:", session)
-    console.log('before cr')
+    //console.log("User session:", session)
+    //console.log('before cr')
     const userId = session.user.id
     userRole.value = await useCheckRole(userId)
-    console.log('before sr')
+    //console.log('before sr')
     if(!userRole.value) {
       const { error } = await createUser(userId)
       if (error) {

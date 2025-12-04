@@ -1,7 +1,7 @@
 const userRole = useState<string | null>('userRole', () => null)
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
-    console.log('to', to, 'from', from)
+    //console.log('to', to, 'from', from)
     const supabase = useSupabaseClient()
     const guestUser = useGuestUser()
 
@@ -13,20 +13,20 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     await new Promise((resolve) => {
         setTimeout(() => resolve('Success!'), 1000);
     })
-    console.log('session:',session)
+    //console.log('session:',session)
     if (!guestUser.value && (!session || !session.user)) {
         return navigateTo('/login')
         // if(!['/login','/registration'].includes(from.path)) {
         //     return navigateTo('/login')
         // } else {
-        //     console.log('an')
+        //     //console.log('an')
         //     return abortNavigation()
         // }
     } else if (!userRole.value && session?.user) {
-        console.log('before cr')
+        //console.log('before cr')
         const userId = session.user.id
         userRole.value = await useCheckRole(userId)
-        console.log('before sr')
+        //console.log('before sr')
         await useSetRole(userId, userRole.value!)
         return navigateTo(from.path)
     }
@@ -37,7 +37,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     // })
     // console.log('user', user.value)
     // if(to.fullPath.includes('code')) {
-    //     console.log('-fp-', to.fullPath)
+    //     //console.log('-fp-', to.fullPath)
     //     return navigateTo(to.path)
     // } else {
     // // if(!user.value) {

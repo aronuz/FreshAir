@@ -28,7 +28,7 @@
   
   const submitForm = () => {
     // Handle form submission (e.g., send data to server)
-    console.log("Form submitted", name.value, email.value, selectedDate.value);
+    //console.log("Form submitted", name.value, email.value, selectedDate.value);
   };
   
   // You'll likely need to integrate a booking system or API here.

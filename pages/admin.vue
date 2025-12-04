@@ -353,7 +353,7 @@ const handleLoadUsers = async () => {
     }
     users.value = data || []
   } catch (error) {
-    console.log(error)
+    //console.log(error)
     onError(500, error)
     pending.value = false
   }
@@ -418,7 +418,7 @@ onMounted(async () => {
           pages.allowed = pageItem ? pageItem.allowed : true
         }
       })
-      console.log('Page access loaded:', pages)
+      //console.log('Page access loaded:', pages)
     }
   }).catch(error => { 
     onError(500, error)

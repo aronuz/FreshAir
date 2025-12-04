@@ -94,18 +94,18 @@
   
   <script lang="ts" setup>
     onBeforeMount(() => {
-      console.log('Contact page before mount')
+      //console.log('Contact page before mount')
     })
 
-    onErrorCaptured((err) => {
-      console.error('Error captured in contact page:', err)
-      return false // prevents error propagation
-    })
+    // onErrorCaptured((err) => {
+    //   console.error('Error captured in contact page:', err)
+    //   return false // prevents error propagation
+    // })
 
     try {
       onMounted(async () => {      
-        console.log('Contact page mounted')
-        console.log('Current route:', useRoute().path)
+        //console.log('Contact page mounted')
+        //console.log('Current route:', useRoute().path)
         const unlink = useState('unlink')
         if(unlink.value && document.querySelector(`#${unlink.value}`)) {
           document.querySelector(`#${unlink.value}`)?.classList.remove('router-link-active')
@@ -116,7 +116,7 @@
     }
     
     onBeforeUnmount(() => {
-      console.log('Contact page before unmount')
+      //console.log('Contact page before unmount')
     })
 
     const phoneNumber = ref('+1 (555) 123-4567')

@@ -29,7 +29,7 @@
 
   const bookService = () => {
     if (!!selectedDate?.value ) {
-      console.log("Form submitted", name.value, email.value, selectedDate.value);
+      //console.log("Form submitted", name.value, email.value, selectedDate.value);
         confirmation.value = `Booking confirmed for ${(selectedDate.value as Date).toDateString()}!`
     }
   }

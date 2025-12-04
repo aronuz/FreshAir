@@ -110,10 +110,10 @@
     let eventsStore = getDynamicStore(storeId)
     
     const loadAppointments = async () => {
-        console.log('loadAppointments called')
+        //console.log('loadAppointments called')
         const { data, error, status, isPending } = await eventsStore.fetchEvents({ pending: pending, limit, index: true })
         pending.value = isPending.value
-        console.log('Store returned:', { dataLength: data?.length, error, status })
+        //console.log('Store returned:', { dataLength: data?.length, error, status })
         
         if(error) {
             console.error('Error fetching appointments:', error, status)
@@ -123,7 +123,7 @@
         appointments.value = data ?? []
         showTable.value = !error && data && data.length > 0
         
-        console.log('Component updated, appointments length:', appointments.value.length)
+        //console.log('Component updated, appointments length:', appointments.value.length)
     }
 
     onBeforeMount(async () => {

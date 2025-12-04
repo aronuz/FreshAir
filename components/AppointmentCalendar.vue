@@ -182,7 +182,7 @@ const reload = async () => {
   } finally {
     nextTick(() => {
       isReady.value = true
-      console.log('calendar ready isReady')
+      //console.log('calendar ready isReady')
     })
   }
 }
@@ -242,7 +242,7 @@ const total = computed(() => grouppedEvents ? Object.keys(grouppedEvents).length
 const pageEvents = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
   const end = start + itemsPerPage.value;
-  console.log('grouppedEvents', grouppedEvents)
+  //console.log('grouppedEvents', grouppedEvents)
   const eventArray = grouppedEvents.value ? Object.entries(grouppedEvents.value).map(([key, val]) => {
     return { [key]: val };
   }) : [];
