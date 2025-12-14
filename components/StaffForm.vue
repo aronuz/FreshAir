@@ -25,11 +25,10 @@
                         @change="handleFileChange"
                         class="hidden"
                     />
-                    <UButton 
+                    <MyButton 
                         @click="openFileDialog"
                         icon="i-heroicons-photo"
-                        color="info"
-                        variant="outline"
+                        variant="infoOutline"
                         label="Select Image"
                     />
                 </div>
@@ -45,13 +44,13 @@
         <!-- Submit Button -->
         <div class="md:grid grid-cols-3 gap-4 py-2 flex justify-center" >
             <!-- Submit Button -->
-            <UButton class="w-36 justify-self-end bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="!formHasData" type="submit" color="primary" variant="solid" label="Save Profile" :loading="pending" icon="i-heroicons-arrow-up-on-square" />
+            <MyButton class="w-36 justify-self-end bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="!formHasData" type="submit" color="primary" variant="solid" label="Save Profile" :loading="pending" icon="i-heroicons-arrow-up-on-square" />
 
             <!-- Clear Button -->
-            <UButton class="w-36 text-blue rounded-md hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="pending" color="primary" variant="outline" label="Clear Form" icon="i-heroicons-backspace" @click="clearForm"/>
+            <MyButton class="w-36 text-blue rounded-md hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="pending" color="primary" variant="outline" label="Clear Form" icon="i-heroicons-backspace" @click="clearForm"/>
 
             <!-- Cancel Button -->
-            <UButton class="w-36 text-blue rounded-md hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="pending" color="primary" variant="outline" label="Cancel" icon="i-heroicons-x-circle" @click="cancelEdit"/>
+            <MyButton class="w-36 text-blue rounded-md hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="pending" color="primary" variant="outline" label="Cancel" icon="i-heroicons-x-circle" @click="cancelEdit"/>
         </div>
 
         <!-- Error Messages -->

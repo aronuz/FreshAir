@@ -14,13 +14,13 @@
                     <div class="text-xs text-gray-900 mt-1">A confirmation link will be sent to your email.</div>
                 </UFormField>
 
-                <UButton type="submit" class="mb-2" variant="solid" color="info" :label="sendLabel" :loading="pending" :disabled="pending"/>
-                <UButton :to="fromPage" class="ml-2" variant="outline" color="neutral" label="Cancel" :disabled="pending"/>
+                <MyButton type="submit" class="mb-2" variant="info" :label="sendLabel" :loading="pending" :disabled="pending"/>
+                <MyButton :to="fromPage" class="ml-2" variant="successOutline" label="Cancel" :disabled="pending"/>
             </UForm>
         </template>
 
         <template #switch>
-            Click <UButton to="/registration">here</UButton> to sign in or register using an email and password.
+            Click <MyButton to="/registration">here</MyButton> to sign in or register using an email and password.
         </template>
     </login>
 </template>

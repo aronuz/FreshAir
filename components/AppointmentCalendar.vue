@@ -1,5 +1,6 @@
 <template>
-  <div class="grid grid-cols-12 grid-rows-1 gap-2 w-fit lg:w-full" :class="{'md:flex md:justify-center': guestUser}">
+  
+  <div class="grid grid-cols-12  gap-2 w-fit lg:w-full" :class="{'grid-rows-1 md:flex md:justify-center': guestUser}">
     <div v-if="user || guestUser" class="col-span-12 h-full lg:flex" :class="{ 'lg:col-span-12 lg:justify-center': guestUser, 'lg:col-span-3 lg:justify-end': !guestUser }">
       <UCard v-if="!isOpen" class="lg:fixed bg-linear-to-b from-sky-100 to-sky-300 h-fit">
         <ClientOnly>
@@ -14,36 +15,45 @@
             :ui="{ root: 'items-center', label: 'md:lg:text-xl lg:text-2xl align-top' }"
           />
           <div v-if="!loadingList">
-            <UButton class="flex flex-wrap flex-row justify-between text-4xl md:text-lg p-3" block :icon="`i-heroicons${addIcon}`" size="xl" color="secondary" variant="solid" :label="addLabel" :ui="{leadingIcon: 'size-10'}" @click="setValues"/>
-            <UButton v-if="selectedAppointment" class="flex flex-row justify-between text-4xl md:text-lg mt-4 p-3 pr-11" block icon="i-heroicons-x-circle" size="xl" color="error" variant="solid" label="Remove" :ui="{leadingIcon: 'size-10'}" @click="handleRemove"/>
+            <MyButton class="flex flex-wrap flex-row justify-between text-4xl md:text-lg p-3" block :icon="`i-heroicons${addIcon}`" size="xl" color="secondary" variant="solid" :label="addLabel" :ui="{leadingIcon: 'size-10'}" @click="setValues"/>
+            <MyButton v-if="selectedAppointment" class="flex flex-row justify-between text-4xl md:text-lg mt-4 p-3 pr-11" block icon="i-heroicons-x-circle" size="xl" color="error" variant="solid" label="Remove" :ui="{leadingIcon: 'size-10'}" @click="handleRemove"/>
           </div>
         </ClientOnly>
         <USkeleton v-if="user && loadingList" class="mx-auto mt-8 h-8 w-[5vw] bg-gray-600" as="div"/>
       </UCard>
     </div>
+    <div v-if="user" class="grid grid-flow-row auto-rows-min col-span-12 md:col-start-4">
+      <div class="col-span-12 flex justify-end">
+        <MyButton class="w-fit justify-self-end" :label="!showFilters ? 'Show Filters' : 'Hide Filters'" @click="showFilters = !showFilters"/>
+      </div>
+      <AppointmentFilter v-if="showFilters && !isXS" :event-store-id="eventStoreID" @dateRangeChanged="setRangeDates"/>
+    </div>
     <FormModal v-model="isOpen" :selected-date="selectedDate" :existing-records="existingRecords" :service="service" @saved="reload"/>
     <ClientOnly>
-      <UCard v-if="user && showCalendar" class="lg:col-span-9 bg-linear-to-b from-sky-100 to-sky-400" :class="{ hidden: !showCalendar, 'col-span-12': showCalendar }">
-        <AppointmentFilter :event-store-id="eventStoreID" @dateRangeChanged="setRangeDates"/>
-        <FullCalendar :data-set="eventsParsed" @dataChanged="updateStoreName" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
-      </UCard>
-      <div v-else-if="user" class="grid grid-cols-12 grid-rows-2 col-span-12 lg:col-span-9">
+      <div v-if="user && showCalendar" class="col-span-12 lg:col-start-4">
+        <MyBlock padSize="medium" spacing="compact">
+          <UCard class="bg-linear-to-b from-sky-100 to-sky-400">
+            <FullCalendar :data-set="eventsParsed" @dataChanged="updateStoreName" @date-clicked="createEvent" @select="selectAppointment" @deselect="deselectAppointment"/> 
+          </UCard>
+        </MyBlock>
+      </div>
+      <div v-else-if="user" class="grid grid-cols-12 grid-rows-1 col-span-12 lg:col-start-4">        
         <template v-if="isXS">
-          <UButton class="w-fit" :label="!showRange ? 'Pick Date Range' : 'Hide Date Range Panel'" @click="showRange = !showRange"/>
           <Transition enter-active-class="transition-transform duration-200 ease-in-out"                      
                       enter-from-class="-translate-y-full"
                       enter-to-class="translate-y-0"
                       leave-active-class="transition-transform duration-200 ease-in-out"
                       leave-from-class="translate-y-0"
                       leave-to-class="-translate-y-full">       
-            <div v-if="showRange" class="fixed top-0 left-0 shadow-lg z-[100] max-w-min">
+            <div v-if="showFilters" class="fixed top-0 left-0 shadow-lg z-[100] max-w-min">
               <AppointmentFilter :event-store-id="eventStoreID" @dateRangeChanged="setRangeDates"/>
             </div>
           </Transition>
-        </template>  
-        <AppointmentFilter v-else :event-store-id="eventStoreID" @dateRangeChanged="setRangeDates"/>
-        <ListView event-list :groupped-events="grouppedEvents"  />
-      </div>
+        </template>
+        <MyBlock padSize="medium" spacing="compact" class="col-span-12">
+          <ListView class="w-full" event-list :groupped-events="grouppedEvents" /> 
+        </MyBlock>
+      </div>   
     </ClientOnly>
     <UCard v-if="user && loadingList" class="w-[50vw] bg-linear-to-b from-sky-100 to-sky-400">
       <USkeleton v-for="i in 3" class="mx-auto my-4 h-8 w-5/6 bg-gray-600" as="div"/>
@@ -86,7 +96,7 @@ const updatedAppointment =  useState('updatedAppointment', () => null)
 const selectedDate = ref(null)
 const startDate = ref(null)
 const endDate = ref(null)
-const showRange = ref(false)
+const showFilters = ref(false)
 
 watchEffect(() => {
   isOpen.value = !!props.service

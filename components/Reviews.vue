@@ -11,24 +11,23 @@
             </div>
 
             <div class="flex justify-center mt-6 gap-2">
-                <UButton
+                <MyButton
                     size="lg"
-                    color="success"
+                    variant="success"
                     icon="i-heroicons-arrow-right"
                     @click="loadReviews('all')"
                 >
                     View All Reviews
-                </UButton>
-                <UButton
+                </MyButton>
+                <MyButton
                     size="lg"
-                    color="success"
-                    variant="outline"
+                    variant="successOutline"
                     class="bg-white hover:bg-white/60"
                     icon="i-heroicons-plus"
                     @click="addReview"
                 >
                     Add Your Review
-                </UButton>
+                </MyButton>
             </div>
         </div>
     </UContainer>

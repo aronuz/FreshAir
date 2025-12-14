@@ -20,16 +20,22 @@
 
         <template #footer>
             <div class="flex justify-end gap-2 w-full">
-                <UButton color="primary" variant="ghost"
-                trailing-icon="i-heroicons-x-mark"
-                @click="closeModal(false)">
-                    Cancel
-                </UButton>
-                <UButton :color="confirmText === 'Delete' ? 'error' : 'success'" 
-                :trailing-icon = "confirmIcon"
-                @click="closeModal(true)">
-                    {{ confirmText }}
-                </UButton>
+                <MyButton 
+                  variant="ghostPrimary"
+                  icon="i-heroicons-x-mark"
+                  rightIcon
+                  @click="closeModal(false)"
+                >
+                  Cancel
+                </MyButton>
+                <MyButton 
+                  :variant="confirmText === 'Delete' ? 'danger' : 'success'"
+                  :icon="confirmIcon"
+                  rightIcon
+                  @click="closeModal(true)"
+                >
+                  {{ confirmText }}
+                </MyButton>
             </div>
         </template>
     </UModal>

@@ -25,12 +25,12 @@
                         tbody: 'block md:table-row-group'
                       }">
                         <template #appointments-cell="{ row }">
-                          <UButton @click="loadUserEvents(row.original as userType)" label="See Appointments" icon="i-heroicons-document-magnifying-glass" />
+                          <MyButton @click="loadUserEvents(row.original as userType)" label="See Appointments" icon="i-heroicons-document-magnifying-glass" />
                         </template>
                         <template #actions-cell="{ row }">
                           <template v-if="selectedUsers.has((row.original as userType).user_id)">
-                            <UButton class="bg-blue-500 text-white px-2 py-1 rounded" icon="i-heroicons-pencil-square" @click="handleUpdateUser(row.original as userType)" label="Edit" />
-                            <UButton class="bg-red-500 text-white px-2 py-1 rounded" icon="i-heroicons-trash" @click="handleDeleteUsers((row.original as userType).user_id)" label="Remove" />
+                            <MyButton class="bg-blue-500 text-white px-2 py-1 rounded" icon="i-heroicons-pencil-square" @click="handleUpdateUser(row.original as userType)" label="Edit" />
+                            <MyButton class="bg-red-500 text-white px-2 py-1 rounded" icon="i-heroicons-trash" @click="handleDeleteUsers((row.original as userType).user_id)" label="Remove" />
                           </template>
                         </template>
                       </UTable>                  
@@ -53,11 +53,11 @@
                           <div class="col-span-2 sm:col-span-5 h-fit" >{{ user.title }} - {{ user.phone }}<span v-if="user.email">/{{ user.email }}</span></div>
                           <div class="col-span-3 sm:col-span-6 h-fit flex justify-end sm:justify-start" >Joined On: {{ dayjs(user.created_at).format('DD/MM/YY') }}</div>
                           <div class="col-span-1 sm:col-span-3 h-fit" >
-                            <UButton class="sm:ml-4 px-1 h-fit w-fit sm:my-auto" @click="loadUserEvents(user)" label="See Appointments" icon="i-heroicons-document-magnifying-glass" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }"/>
+                            <MyButton class="sm:ml-4 px-1 h-fit w-fit sm:my-auto" @click="loadUserEvents(user)" label="See Appointments" icon="i-heroicons-document-magnifying-glass" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }"/>
                           </div>
                           <div v-if="selectedUsers.has(user.user_id)" class="space-x-2 col-span-2 sm:col-span-6 sm:col-start-9 flex justify-end ml-2">
-                            <UButton class="bg-blue-500 text-white px-1 py-1 rounded h-fit w-fit my-auto" icon="i-heroicons-pencil-square" @click="handleUpdateUser(user)" label="Edit" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
-                            <UButton class="bg-red-500 text-white px-1 py-1 rounded h-fit w-fit my-auto" icon="i-heroicons-trash" @click="handleDeleteUsers(user.user_id)" label="Remove" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
+                            <MyButton class="bg-blue-500 text-white px-1 py-1 rounded h-fit w-fit my-auto" icon="i-heroicons-pencil-square" @click="handleUpdateUser(user)" label="Edit" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
+                            <MyButton class="bg-red-500 text-white px-1 py-1 rounded h-fit w-fit my-auto" icon="i-heroicons-trash" @click="handleDeleteUsers(user.user_id)" label="Remove" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
                           </div>
                         </div>
                       </div>
@@ -92,7 +92,7 @@
                         <USelect v-model="pathPicked[page.name]" :items="[page.to, getOldPath(page)]" value-key="id" class="w-full" label="Path" arrow />
                       </UFormField> 
                     </div>
-                    <UButton class="col-span-2 md:col-span-1 justify-self-end flex items-center justify-center w-1/4 md:w-1/2 bg-blue-500 text-white rounded" @click="savePageInfo(page)" label="Save" />
+                    <MyButton class="col-span-2 md:col-span-1 justify-self-end flex items-center justify-center w-1/4 md:w-1/2 bg-blue-500 text-white rounded" @click="savePageInfo(page)" label="Save" />
                   </div> 
                 </template>
                 <template v-else>
@@ -103,8 +103,8 @@
                 </template>
                 
                 <template #footer v-if="item.label === 'User Management'">
-                  <UButton icon="i-heroicons-plus-circle" color="primary" variant="solid" label="Add" @click="isOpenUser = true" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
-                  <UButton v-if="selectedUsers.size" icon="i-heroicons-trash" color="error" variant="solid" label="Remove" @click="handleDeleteUsers(selectedUsers)" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
+                  <MyButton icon="i-heroicons-plus-circle" color="primary" variant="solid" label="Add" @click="isOpenUser = true" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
+                  <MyButton v-if="selectedUsers.size" icon="i-heroicons-trash" color="error" variant="solid" label="Remove" @click="handleDeleteUsers(selectedUsers)" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
                 </template>
               </UCard>
             </template>

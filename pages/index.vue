@@ -8,8 +8,8 @@
                 Our experienced technicians are dedicated to ensuring your comfort all year round.
                 </p>
                 <div class="mt-8 space-x-4 font-bold">
-                <UButton to="/contact" label="Request Service" color="info" size="lg" />
-                <UButton to="/gallery" label="Our Services" variant="outline" color="info" size="lg" />
+                <MyButton to="/contact" label="Request Service" variant="info" size="lg" />
+                <MyButton to="/gallery" label="Our Services" variant="infoOutline" size="lg" />
                 </div>
             </UCard>
         </section>
@@ -57,7 +57,7 @@
                 </div>
                 <div v-else class="p-4 font-bold rounded-lg">
                     <p class="text-lg mb-6">Get your HVAC system checked by a professional. Book your appointment today.</p>
-                    <UButton to="/booking" label="Book Appointment" color="neutral" size="lg" />
+                    <MyButton to="/booking" label="Book Appointment" variant="ghostPrimary" size="lg" />
                 </div>
             </UCard>
         </section>

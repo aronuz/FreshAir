@@ -6,7 +6,7 @@
             </UFormField>
             <UFormField label="Rate Us" name="rating" required>
                 <div class="flex items-center gap-2">
-                    <UButton
+                    <MyButton
                         v-for="star in [1, 2, 3, 4, 5]"
                         :key="star"
                         @click="formdata.rating = star"
@@ -19,7 +19,7 @@
                             :class="star <= (hoverRating || formdata.rating) ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'"
                             class="w-4 h-4 transition-transform hover:scale-150"
                         />
-                    </UButton>
+                    </MyButton>
                     <span v-if="formdata.rating" class="ml-2 text-sm text-gray-600 dark:text-gray-400">
                         {{ `${formdata.rating} star${formdata.rating !== 1 ? 's' : ''}` }}
                     </span>
@@ -36,7 +36,7 @@
             />
         </UFormField>
         <div class="flex justify-center self-center">      
-            <UButton class="px-8" type="submit" color="primary" variant="solid" label="save" />
+            <MyButton class="px-8" type="submit" variant="primary" label="save" />
         </div>
     </UForm>
 </template>

@@ -7,37 +7,34 @@
     </ConfirmationModal>
    
     <!-- Call button -->
-    <UButton 
+    <MyButton 
       @click="onClick()" 
-      collor="primary"
-      variant="solid"
+      variant="primary"
       :disabled="!phoneNumber"
       trailing-icon="i-heroicons-phone"
     >
       Call
-    </UButton>
+    </MyButton>
     
     <!-- SMS button -->
-    <UButton 
+    <MyButton 
       @click="onClick('sms')" 
-      collor="primary"
-      variant="solid"
+      variant="primary"
       :disabled="!phoneNumber"
       trailing-icon="i-heroicons-chat-bubble-oval-left"
     >
       Text
-    </UButton>
+    </MyButton>
 
     <!-- SMS with Custom Message Modal -->
-    <UButton 
+    <MyButton 
       @click="onClick('sms', true)" 
-      color="primary"
-      variant="solid"
+      variant="primary"
       :disabled="!phoneNumber"
       trailing-icon="i-heroicons-chat-bubble-oval-left-ellipsis"
     >
       Custom SMS
-    </UButton>    
+    </MyButton>    
   </UContainer>
 </template>
 

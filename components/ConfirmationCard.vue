@@ -14,8 +14,8 @@
       <div class="flex justify-between">
         <span>Please check your email.</span>
         <div>
-          <UButton v-if="!otpCode" :to="fromPage" variant="solid" color="success" label="OK" />
-          <UButton v-else variant="solid" color="success" label="Verify" @click="verifyOtpCode"/>
+          <MyButton v-if="!otpCode" :to="fromPage" label="OK" />
+          <MyButton v-else @click="verifyOtpCode"/>
         </div>
       </div>
     </template>

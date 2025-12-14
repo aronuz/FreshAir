@@ -3,11 +3,10 @@
             <div class="flex-items h-fit">
                 <h3 class="font-semibold text-2xl md:text-lg text-gray-700 mb-2">{{ service.name }}</h3>
                 <p class="text-gray-600 text-2xl md:text-sm h-fit">{{ service.description }}</p>
-                <UButton
+                <MyButton
                     v-if="!isBookingDown && service.type !== 'plans'"
                     class="mt-2"
-                    color="primary"
-                    variant="solid"
+                    variant="primary"
                     label="Request Service"
                     @click="$router.push({path: '/booking', query: {service: service.name}})"/>
             </div>

@@ -2,28 +2,27 @@
   <UContainer class="py-4">
     <div class="flex flex-row nowrap justify-between">
       <div class="nav-top-left">
-        <UButton color="secondary" class="w-fit hover:cursor-pointer p-1 bg-[url('/images/ac_unit.png')] bg-cover" @click.native="navigateTo('/')">
+        <MyButton variant="secondary" class="w-fit hover:cursor-pointer p-1 bg-[url('/images/ac_unit.png')] bg-cover" @click.native="navigateTo('/')">
           <UCard class="w-fit font-bold opacity-80 btn-card">
             <h1 class="text-2xl font-bold text-secondary-500">Fresh Air HVAC</h1>
             <p class="text-sm text-bold text-gray-500">Your Comfort, Our Priority</p>
           </UCard>
-        </UButton>
+        </MyButton>
       </div>
 
       <div class="justify-between align-center hidden md:flex">
           <NuxtLink v-if="isAdmin" to="/admin" class="relative bottom-1 bg-[#3ec271] mr-2 p-2 h-fit rounded-xl font-bold" :class="{'bottom-2 border-3 border-[#5879d4]': currentPath === '/admin'}">Admin</NuxtLink>
-          <UButton v-if="user" class="h-fit" color="secondary" variant="solid" @click="handleLogout" label="Log Out" />
+          <MyButton v-if="user" class="h-fit" color="secondary" variant="solid" @click="handleLogout" label="Log Out" />
           <div v-else class="flex h-fit flex-row gap-2">
             <UBadge v-if="guestUser" color="success" size="xl">Guest</UBadge>
-            <UButton v-if="notOnLogin" color="secondary" variant="solid" to="/loginLink" label="Log In" />
-            <UButton v-if="notOnLogin" color="secondary" variant="solid" to="/registration" label="Register" />
+            <MyButton v-if="notOnLogin" variant="secondary" to="/loginLink" label="Log In" />
+            <MyButton v-if="notOnLogin" variant="secondary" to="/registration" label="Register" />
           </div>
       </div>
-      <UButton
+      <MyButton
         icon="i-heroicons-bars-3-bottom-left"
         size="xl"
-        color="secondary"
-        variant="solid"
+        variant="secondary"
         class="md:hidden w-20 h-20 m-auto p-5"
         @click="toggleMobileMenu"
         :ui="{leadingIcon: 'size-10'}"
@@ -55,10 +54,10 @@
           <NuxtLink to="/contact" @click="isMobileMenuOpen = false">Contact Us</NuxtLink>
           <NuxtLink to="/about" @click="isMobileMenuOpen = false">About Us</NuxtLink>
           <NuxtLink v-if="isAdmin" to="/admin" label="Admin" @click="isMobileMenuOpen = false" /> -->
-          <UButton v-if="user" class="text-4xl/15 m-auto" color="info" variant="outline" @click="isMobileMenuOpen = false; handleLogout()" label="Log Out" />
+          <MyButton v-if="user" class="text-4xl/15 m-auto" variant="infoOutline" @click="isMobileMenuOpen = false; handleLogout()" label="Log Out" />
           <UButtonGroup v-else class="m-auto">
-            <UButton v-if="notOnLogin" class="text-4xl/15 pb-4" color="info" variant="outline" @click="handleLogin; isMobileMenuOpen = false" label="Log In" />
-            <UButton v-if="notOnLogin" class="text-4xl/15 pb-4" color="info" variant="outline" @click="handleRegister; isMobileMenuOpen = false" label="Register" />
+            <MyButton v-if="notOnLogin" class="text-4xl/15 pb-4" variant="infoOutline" @click="handleLogin; isMobileMenuOpen = false" label="Log In" />
+            <MyButton v-if="notOnLogin" class="text-4xl/15 pb-4" variant="infoOutline" @click="handleRegister; isMobileMenuOpen = false" label="Register" />
           </UButtonGroup>
         </nav>
             

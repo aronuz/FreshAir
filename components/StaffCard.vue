@@ -23,10 +23,9 @@
         size="md"
         class="relative bottom-55 left-25 lg:top-2 lg:-left-10 bg-white-50 h-fit"
     >
-        <UButton
+        <MyButton
             class
-            variant="ghost"
-            color="error"
+            variant="ghostError"
             rounded-xl
             size="md"
             icon="i-lucide-trash-2"

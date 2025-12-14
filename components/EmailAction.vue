@@ -1,13 +1,13 @@
 <template>
     <UContainer class="px-0 sm:px-0 lg:px-0">
-        <UButton  
-            collor="primary"
-            variant="solid"
-            trailing-icon="i-heroicons-envelope"
+        <MyButton  
+            variant="primary"
+            icon="i-heroicons-envelope"
+            rightIcon
             @click="showForm = true"
         >
         Send an Email
-        </UButton>        
+        </MyButton>        
         
         <!-- Contact Form -->
         <ContactForm 

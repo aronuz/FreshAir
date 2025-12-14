@@ -26,14 +26,14 @@
           <div v-show="hasErrors" class="col-span-2">          
             <UFormField name="errors"/>
           </div>      
-          <UButton class="px-8" type="submit" color="info" variant="solid" :label="submitLabel" :loading="pending"/>
-          <UButton :to="fromPage" variant="outline" color="neutral" label="Cancel" :disabled="pending"/>
+          <MyButton class="px-8" type="submit" variant="solid" :label="submitLabel" :loading="pending"/>
+          <MyButton :to="fromPage" variant="successOutline" label="Cancel" :disabled="pending"/>
         </div>
       </UForm>
     </template>
 
     <template #switch>
-      Click <UButton to="/loginLink">here</UButton> to sign in or register using a confirmation link.
+      Click <MyButton to="/loginLink">here</MyButton> to sign in or register using a confirmation link.
     </template>
   </login>
 </template>

@@ -1,7 +1,7 @@
 <template>
   <UContainer>
     <!-- Contact Section -->
-    <section class="flex flex-col pt-6 pb-3">
+    <MyBlock class="flex flex-col" padSize="large">
       <h2 class="text-3xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-8">
         Contact Us
       </h2>
@@ -68,10 +68,10 @@
           </div>
         </div>
       </div>
-    </section>
+    </MyBlock>
 
     <!-- Location Section -->
-    <section class="flex flex-col py-6 mb-8">
+    <MyBlock class="flex flex-col" padSize="large">
       <h2 class="text-3xl font-bold text-gray-900 text-center text-shadow-lg text-shadow-cyan-500 mb-6">
         Our Location
       </h2>
@@ -88,7 +88,7 @@
           class="w-full h-full"
         ></iframe>
       </div>
-    </section>
+    </MyBlock>
   </UContainer>
 </template>
   
