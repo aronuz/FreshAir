@@ -1,11 +1,10 @@
 <template>
   <div class="gallery-item">
     <NuxtImg :src="imagePath" :alt="altText" 
-      width="250px" height="250px" 
-      class="rounded-xl shadow-lg w-full"
-      sizes="sm:100px md:140px lg:200px xl:300px" 
+      class="w-48 md:w-36 lg:w-24 rounded-sm md:rounded-xl shadow-lg"
     />
   </div>
+      <!-- width="250px" height="250px" sizes="sm:100px md:140px lg:200px xl:300px"  -->
 </template>
 
 <script lang="ts" setup>

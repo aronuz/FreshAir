@@ -1,6 +1,6 @@
 <template>
     <UContainer>
-        <section>
+        <MyBlock class="w-fit mx-auto" padSize="large">
             <UCard class="p-6 text-center font-bold bg-gray-100 h-fit w-fit mx-auto opacity-80 rounded-lg shadow-md">
                 <h2 class="text-4xl text-gray-800 text-shadow-lg text-shadow-cyan-500 mt-6">Reliable HVAC Services You Can Trust</h2>
                 <p class="text-lg text-gray-600 mt-4 max-w-xl mx-auto">
@@ -12,10 +12,10 @@
                 <MyButton to="/gallery" label="Our Services" variant="infoOutline" size="lg" />
                 </div>
             </UCard>
-        </section>
+        </MyBlock>
 
-        <section>
-            <UCard class="py-12 bg-gray-100 rounded-lg shadow-md mt-8">
+        <MyBlock padSize="large">
+            <UCard class="py-12 bg-gray-100 rounded-lg shadow-md">
                 <template #header>
                     <h2 class="text-2xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-6">Why Choose Us?</h2>
                 </template>                
@@ -37,10 +37,10 @@
                     </div>
                 </div>
             </UCard>
-        </section>
+        </MyBlock>
 
-        <section>
-            <UCard class="mt-8 text-center text-white bg-secondary-500 shadow-md">
+        <MyBlock padSize="large">
+            <UCard class="text-center text-white bg-secondary-500 shadow-md">
                 <template #header>
                     <div class="text-3xl text-shadow-lg text-shadow-cyan-500 mb-4">
                         <div v-if="isBookingDown" class="flex flex-col">
@@ -60,13 +60,13 @@
                     <MyButton to="/booking" label="Book Appointment" variant="ghostPrimary" size="lg" />
                 </div>
             </UCard>
-        </section>
+        </MyBlock>
 
-        <section v-if="showTable" class="py-12 mt-8 bg-white rounded-lg shadow-md">
+        <MyBlock v-if="showTable" class="py-12 mt-8 bg-white rounded-lg shadow-md">
             <h2 class="text-2xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-6">Upcoming Appointments</h2>
             <UTable v-if="scheduledServices?.length > 0" class="mx-auto w-5/6" :data="scheduledServices" :columns="serviceColumns" />
             <USkeleton v-else v-for="i in 3" class="mx-auto mt-8 h-8 w-5/6 bg-gray-600" as="div"/>
-        </section>
+        </MyBlock>
     </UContainer>
 </template>
   

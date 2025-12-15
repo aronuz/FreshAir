@@ -20,6 +20,7 @@ const paddingMap = {
 };
 
 const spacingMap = {
+  none: 'my-0',
   compact: 'my-2',
   relaxed: 'my-4'
 };

@@ -1,22 +1,28 @@
 <template>
-        <div v-for="(service, i) in services" :key="service.id" v-show="blockVisible[i]?.visible" class="flex-container bg-white rounded-lg shadow-sm w-fit min-h-48 p-4" :class="`move-${i}`" :style="{ animation: blockVisible[i]?.animation }" >
-            <div class="flex-items h-fit">
-                <h3 class="font-semibold text-2xl md:text-lg text-gray-700 mb-2">{{ service.name }}</h3>
-                <p class="text-gray-600 text-2xl md:text-sm h-fit">{{ service.description }}</p>
-                <MyButton
-                    v-if="!isBookingDown && service.type !== 'plans'"
-                    class="mt-2"
-                    variant="primary"
-                    label="Request Service"
-                    @click="$router.push({path: '/booking', query: {service: service.name}})"/>
-            </div>
-            <div class="flex-items h-full">
-                <GalleryItem :image-src="service.type" :alt-text="service.description" loading="lazy"/>
-            </div>      
-        </div>
+        <MyBlock v-for="(service, i) in services" :key="service.id" class="h-fit -mb-2" padSize="large" spacing="none">
+            <div v-show="blockVisible[i]?.visible" v-bind="$attrs" :class="`move-${i}`" :style="{ animation: blockVisible[i]?.animation }" >
+                <div class="flex-items h-fit">
+                    <h3 class="font-semibold text-2xl md:text-lg text-gray-700 mb-2">{{ service.name }}</h3>
+                    <p class="text-gray-600 text-2xl md:text-sm h-fit">{{ service.description }}</p>
+                    <MyButton
+                        v-if="!isBookingDown && service.type !== 'plans'"
+                        class="mt-2"
+                        variant="primary"
+                        label="Request Service"
+                        @click="$router.push({path: '/booking', query: {service: service.name}})"/>
+                </div>
+                <div class="flex-items h-full">
+                    <GalleryItem :image-src="service.type" :alt-text="service.description" loading="lazy"/>
+                </div>
+            </div>     
+        </MyBlock>
 </template>
 
 <script lang="ts" setup>
+defineOptions({
+    inheritAttrs: false
+})
+
 const props = defineProps<{
     services: Array<{id: number; name: string; description: string; type: string}>;
     col: number;
