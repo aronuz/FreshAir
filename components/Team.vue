@@ -54,7 +54,8 @@
     }
 
     const gridColumns = computed(() => {
-        const screenSize = useNuxtApp().$screenSize
+        const { $screenSize } = useNuxtApp()
+        const screenSize = unref($screenSize)
         const count = props.admin || screenSize !== 'lg' ? team.value.length + 1 : team.value.length // +1 for add staff card
         
         let base

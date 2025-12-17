@@ -125,10 +125,9 @@ import { useUsersStore } from '~/stores/users'
 import { getDynamicStore } from '~/stores/events'
 import dayjs from 'dayjs'
 
-const screenSize = computed(() => useNuxtApp().$screenSize)
-
-const isMD = computed(() => ['md', 'lg'].includes(screenSize.value as string))
-const isXS = computed(() => screenSize.value == 'xs')
+const { $screenSize } = useNuxtApp()
+const isMD = computed(() => ['md', 'lg'].includes((unref($screenSize) as string)))
+const isXS = computed(() => (unref($screenSize) as string) === 'xs')
 
 const UCheckbox = resolveComponent('UCheckbox')
 const { toastBar } = useToastBar()

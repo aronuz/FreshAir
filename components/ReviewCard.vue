@@ -76,9 +76,8 @@
 
     dayjs.extend(LocalizedFormat);
 
-    const screenSize = useNuxtApp().$screenSize
-    
-    const isSM = screenSize == 'sm'
+    const { $screenSize } = useNuxtApp()    
+    const isSM = unref($screenSize) === 'sm'
     
     interface reviewType {
       id?: number
