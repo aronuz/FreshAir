@@ -8,7 +8,7 @@
 <script lang="ts" setup>
 import AppointmentCalendar from '../components/AppointmentCalendar.vue'
 
-const { createUser } = useFetchQueries()
+const { createUser } = useFetchUsers()
 const { toastBar } = useToastBar()
 const route = useRoute()
 const service = route.query.service as string | undefined

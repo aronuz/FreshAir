@@ -21,15 +21,15 @@
         <template #footer>
             <div class="flex justify-end gap-2 w-full">
                 <MyButton 
-                  variant="ghostPrimary"
+                  btnType="ghostPrimary"
                   icon="i-heroicons-x-mark"
                   rightIcon
                   @click="closeModal(false)"
                 >
-                  Cancel
+                  Cancels
                 </MyButton>
-                <MyButton 
-                  :variant="confirmText === 'Delete' ? 'danger' : 'success'"
+                <MyButton
+                  :btnType="confirmText === 'Delete' ? 'danger' : 'success'"
                   :icon="confirmIcon"
                   rightIcon
                   @click="closeModal(true)"

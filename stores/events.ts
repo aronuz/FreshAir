@@ -3,8 +3,9 @@ import Fuse from 'fuse.js'
 
 import type { IFuseOptions } from 'fuse.js'
 
-export interface fetchParams {
-    pending: boolean,
+import type { AppointmentData } from '../composables/useFetchAppointments'
+
+export interface FetchParams {
     limit?: number,
     user_id?: string | null,
     list?: boolean
@@ -38,7 +39,7 @@ export function getDynamicStore(storeId: StoreID) {
     } else {
         
         // Configure fuse.js options
-        const fuseOptions: IFuseOptions<Event> = {
+        const fuseOptions: IFuseOptions<AppointmentData> = {
             keys: ['address', 'notes', 'users.title', 'users.email', 'users.phone'],
             threshold: 0.3, // Sensitivity: 0.0 requires a perfect match, 1.0 matches anything
         }
@@ -46,12 +47,12 @@ export function getDynamicStore(storeId: StoreID) {
         const { fetchAppointments,
                 submitAppointment,
                 deleteAppointment,
-            } = useFetchQueries()
+            } = useFetchAppointments()
 
         const useEventsStore = defineStore(`events-${storeKey}`, {            
 
             state: () => ({
-                events: [] as Event[],
+                events: [] as AppointmentData[],
                 timesData: [] as TimesDataItem[],
                 loading: false,
                 error: null as string | null,
@@ -77,11 +78,11 @@ export function getDynamicStore(storeId: StoreID) {
 
                 // Get events sorted by date
                 eventsByDate: (state) =>
-                state.events.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+                state.events.sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime()),
                 
                 // Get upcoming events
                 upcomingEvents: (state) =>
-                state.events.filter(event => new Date(event.date) > new Date()),
+                state.events.filter(event => new Date(event.start_date) > new Date()),
                 
                 // Check if cache is still valid
                 isCacheValid: (state) => {
@@ -102,61 +103,61 @@ export function getDynamicStore(storeId: StoreID) {
                 },
 
                 // Fetch events from database
-                async fetchEvents(fetchParams: fetchParams, forceRefresh = false) {
+                async fetchEvents({fetchParams = {}, forceRefresh = false}: {fetchParams?: FetchParams, forceRefresh?: boolean} = {}, ) {
                     //console.log('fetchEvents called, events length:', this.events?.length, 'lastFetched:', !!this.lastFetched)
                     
                     // If we already have data and this isn't a force refresh, return cached data
                     // This handles the case where useAsyncData runs multiple times during hydration
                     if (!forceRefresh && this.lastFetched && this.events?.length > 0) {
                         //console.log('Returning already fetched data from store cache')
-                        return { data: this.events, timesData: this.timesData, isPending: false }
+                        return { data: this.events, timesData: this.timesData }
                     }
                     
                     // Return cached data if valid and not forcing refresh (normal cache behavior)
                     if (!forceRefresh && this.isCacheValid && this.events?.length > 0) {
                         //console.log('Returning valid cached data')
-                        return { data: this.events, timesData: this.timesData, isPending: false }
+                        return { data: this.events, timesData: this.timesData }
                     }
 
                     //console.log('Calling fetchAppointments')
                     try {
-                        const { data, timesData, isPending, error, status } = await fetchAppointments(fetchParams)
+                        const { data, timesData, error, status } = await fetchAppointments(fetchParams)
                         
                         //console.log('fetchAppointments returned, data length:', data?.length, 'error:', !!error)
                         
                         if(error){
-                            return { error, status, isPending }
+                            return { error, status }
                         }
 
                         // Always update store state with the returned data, even if it came from useAsyncData cache
-                        this.events = data || []
-                        if (fetchParams.limit) this.timesData = [...(timesData || [])]
+                        this.events = data as AppointmentData[]|| []
+                        if (fetchParams?.limit) this.timesData = [...(timesData || [])]
                         this.lastFetched = new Date()
                         
                         //console.log('Store updated, events length:', this.events.length)
-                        return { data: this.events, timesData: this.timesData, isPending }
+                        return { data: this.events, timesData: this.timesData }
                     } catch (error) {
                         console.error('Error in fetchEvents:', error)
                         throw error
                     }
                 },
                 // Add or update an event
-                async saveEvent(appointment: Omit<Event, 'id'> | Partial<Event>, update: boolean) {
+                async saveEvent(appointment: Omit<AppointmentData, 'id'> | Partial<AppointmentData>, update: boolean) {
                     try {
-                        const { data, error, status, isPending } = await submitAppointment(appointment)
+                        const { data, error, status } = await submitAppointment(appointment)
                         if (data) {      
-                            const record = data as Event                      
+                            const record = data as AppointmentData                      
                             if (!update) {
                                 this.events.push(record)    
                             } else {                                
                                 const index = this.events.findIndex(e => e.id === record.id)
-                                if (index !== -1) this.events[index] = data as Event
+                                if (index !== -1) this.events[index] = data as AppointmentData
                             }
                             const { id: record_id, ...rest } = record
                             const timesDataItem = { 'record_id': record_id, ...rest } as TimesDataItem
                             this.updateTimesData(record_id as number, timesDataItem)
                         }
-                        return { error, status, isPending }
+                        return { error, status}
                     } catch (error) {
                         // this.error = error instanceof Error ? error.message : `Failed to ${update? 'update' : 'add'} appointment`
                         throw error
@@ -164,24 +165,23 @@ export function getDynamicStore(storeId: StoreID) {
                 },
 
                 // Delete an event
-                async deleteEvent(id: number, pending: boolean) {
+                async deleteEvent(id: number) {
                     this.loading = true
                     this.error = null
                     this.status = null
                     try {
-                        const { error, status, isPending } = await deleteAppointment(id, pending)
+                        const { error, status } = await deleteAppointment(id)
                         if (!error) {                            
                             this.events = this.events.filter(e => e.id !== id)
                             await this.updateTimesData(id, null, true); // Remove from timesData
                         } else this.error = error
-                        this.loading = isPending.value
                         this.status = status
                     } catch (error) {
                         this.error = error instanceof Error ? error.message : 'Failed to delete event'
                         this.status = 500
-                        this.loading = false
                     } finally {
-                        return { error: this.error, status: this.status, isPending: this.loading }
+                        this.loading = false
+                        return { error: this.error, status: this.status }
                     }
                 },
 
@@ -209,7 +209,7 @@ export function getDynamicStore(storeId: StoreID) {
 
                 // Clear cache and force refresh
                 async refreshEvents() {
-                return this.fetchEvents({pending: true}, true)
+                    return this.fetchEvents({forceRefresh: true})
                 },
 
                 // Clear all data in current store

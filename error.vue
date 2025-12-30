@@ -42,6 +42,7 @@
 <script setup>
   // Get the error object passed by Nuxt
   const error = useError()
+  console.log('error', error)
   const errorMessage = error.value?.data && JSON.parse(error.value?.data) || 'An unexpected error occurred.'
   const errorData = errorMessage
   // Check if in dev mode

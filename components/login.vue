@@ -20,7 +20,7 @@
             <template #footer>
                 <div class="dialog-details grid grid-rows-2 gap-2 text-sm leading-4 md:text-lg md:leading-6">
                     <p class="sm:whitespace-nowrap"><slot name="switch"></slot></p>
-                    <p v-if="!isConfirmation" class="sm:whitespace-nowrap">Click <MyButton variant="successOutline" @click="setGuestUser">here</MyButton> to continue as guest to add an appointment.</p>
+                    <p v-if="!isConfirmation" class="sm:whitespace-nowrap">Click <MyButton btnType="successOutline" @click="setGuestUser">here</MyButton> to continue as guest to add an appointment.</p>
                 </div>
             </template>
         </UCard>

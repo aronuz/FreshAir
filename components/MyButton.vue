@@ -17,24 +17,32 @@
 <script lang="ts" setup>
   type Variant = 'ghost' | 'solid' | 'soft' | 'outline' | 'subtle' | 'link'
   type Color = 'error' | 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'neutral'
-  type ButtonVariant = Color | 'error' | 'nutural' | 'danger' | 'primary' | 'success' |'successOutline' | 'infoOutline' | 'ghost' | 'ghostError' | 'ghostPrimary'
+  type ButtonVariant = Color | 'primaryError' | 'error' | 'nutural' | 'danger' | 'primary' | 'success' |'successOutline' | 'infoOutline' | 'ghost' | 'ghostError' | 'ghostPrimary'
   type Size = 'sm' | 'md' | 'lg' | 'xl'
   type ButtonType = "button" | "submit" | "reset" | undefined
 
   interface Props {
-    variant?: Variant
+    btnType?: ButtonVariant
     loading?: boolean
     disabled?: boolean
     icon?: string
     rightIcon?: boolean
-    color?: Color,
-    size?: Size,
-    to?: string | object | undefined,
-    trackingId?: string
+    variant?: Variant
+    color?: Color
+    size?: Size
+    to?: string | object | undefined
+    trackingId?: string | undefined
   }
 
-  const props = withDefaults(defineProps<Props>(), {
-    variant: 'solid'
+  const props = withDefaults(defineProps<Omit<Props, 'variant' | 'color'>>(), {
+    btnType: 'primary',
+    loading: false,
+    disabled: false,
+    icon: '',
+    rightIcon: false,
+    size: 'md',
+    to: undefined,
+    trackingId: undefined
   })
 
   defineOptions({
@@ -51,6 +59,7 @@
 
   const buttonTypeMap: Partial<Record<ButtonVariant, {color: Color, variant: Variant}>> = {
     primary: { color: 'primary', variant: 'solid' },
+    primaryError: { color: 'error', variant: 'solid' },
     success: { color: 'success', variant: 'solid' },
     successOutline: { color: 'success', variant: 'outline' },
     info: { color: 'info', variant: 'solid' },
@@ -63,8 +72,8 @@
     ghostPrimary: { color: 'primary', variant: 'ghost' }
   }
 
-  const buttonProps = computed<Props>(() => ({
-    ...buttonTypeMap[props.variant as ButtonVariant],
+  const buttonProps = computed<Partial<Omit<Props, 'btnType'>>>(() => ({
+    ...(buttonTypeMap[props.btnType] as {color: Color, variant: Variant}),
     loading: props.loading,
     disabled: isDisabled.value,
     icon: props.icon,

@@ -88,7 +88,12 @@
       verified?: boolean,
     }
 
-    defineProps<{ review: reviewType, all: boolean }>()
+    import type { PropType } from 'vue'
+
+    const props = defineProps({ 
+        review: {type: Object as PropType<reviewType>, required: true}, 
+        all: {type: Boolean, default: false }
+    })
 
     // Calculate the fill percentage for each star
     const getStarFillPercentage = (starIx: number, rating: number) => {

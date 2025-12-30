@@ -25,7 +25,7 @@
     >
         <MyButton
             class
-            variant="ghostError"
+            btnType="ghostError"
             rounded-xl
             size="md"
             icon="i-lucide-trash-2"

@@ -36,7 +36,7 @@
             />
         </UFormField>
         <div class="flex justify-center self-center">      
-            <MyButton class="px-8" type="submit" variant="primary" label="save" />
+            <MyButton class="px-8" type="submit" label="save" />
         </div>
     </UForm>
 </template>
@@ -56,7 +56,7 @@
         verified?: boolean,
     }
 
-    const { addReview } = useFetchQueries()
+    const { addReview } = useFetchReviews()
     
     const { toastBar } = useToastBar()
 
@@ -91,9 +91,8 @@
         }
 
         const verified = useGuestUser().value !== null
-        const reviewData = { verified }
-        Object.assign(reviewData, event.data)
-        const { error, status } = await addReview(event.data)
+        const reviewData = { verified, ...event.data } as reviewType
+        const { error, status } = await addReview(reviewData)
         if (error) {
             toastBar('error', `Unfortunately, failed to add your review. ${status}`, (error && typeof error === 'object' && 'message' in error ? (error as any).message : 'Unknown error'))
             return

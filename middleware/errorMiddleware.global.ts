@@ -2,6 +2,8 @@ import { ROUTE_CONFIG } from '~/config/routes'
 
 import type { NavigationGuardReturn, RouteLocationNormalized } from 'vue-router'
 
+import { useFetchPages } from '~/composables/useFetchPages' 
+
 interface RouteAccess {
   path: string
   allowed: boolean
@@ -46,7 +48,6 @@ const buildRouteAccessMap = (pageData: any[], routeConfig: typeof ROUTE_CONFIG) 
   
   return accessMap
 }
-
 const handleRouteAccess = async (
   to: RouteLocation, 
   from: RouteLocation | undefined, 
@@ -78,6 +79,7 @@ const handleRouteAccess = async (
   } else if (routeAccess.path !== to.path) {
     // Only navigate if the target path is different from current route
     //console.log(`Redirecting from ${to.path} to ${routeAccess.path}`)
+    console.log(`Redirecting from ${to.path} to ${routeAccess.path}`)
     return await navigateTo(routeAccess.path)
   }
 }
@@ -88,10 +90,11 @@ export default defineNuxtRouteMiddleware(async (to: RouteLocationNormalized, fro
   if (isCacheValid()) {
     const routeAccess: RouteAccess | undefined = (routeAccessMapCache as Map<string, RouteAccess>).get(to.name as string)
     // Handle route logic with cached data...
+    console.log("isCacheValid", to.fullPath)
     return handleRouteAccess(to, from, routeAccess)
   }
 
-  const { getPageAccess } = useFetchQueries()
+  const { getPageAccess } = useFetchPages()
 
   try {
     const { data: pageAccessData, error } = await getPageAccess()
@@ -114,9 +117,11 @@ export default defineNuxtRouteMiddleware(async (to: RouteLocationNormalized, fro
 
     const toName = to.name as string
     const routeAccess = routeAccessMapCache.get(toName)
+    console.log("fetched routeAccess", to, from, routeAccess)
     return handleRouteAccess(to, from, routeAccess)
 
   } catch (err) {
+    console.log("error in page access middleware", err)
     if (typeof err === 'object' && err !== null && 'statusCode' in err) throw err
     
     console.error('Middleware error:', err)

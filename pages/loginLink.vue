@@ -14,8 +14,8 @@
                     <div class="text-xs text-gray-900 mt-1">A confirmation link will be sent to your email.</div>
                 </UFormField>
 
-                <MyButton type="submit" class="mb-2" variant="info" :label="sendLabel" :loading="pending" :disabled="pending"/>
-                <MyButton :to="fromPage" class="ml-2" variant="successOutline" label="Cancel" :disabled="pending"/>
+                <MyButton type="submit" class="mb-2" btnType="info" :label="sendLabel" :loading="pending" :disabled="pending"/>
+                <MyButton :to="fromPage" class="ml-2" btnType="successOutline" label="Cancel" :disabled="pending"/>
             </UForm>
         </template>
 

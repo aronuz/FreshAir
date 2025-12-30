@@ -9,13 +9,21 @@
   import timegrid from '@fullcalendar/timegrid'
   import list from '@fullcalendar/list'
 
+  import type { PropType } from 'vue'
   import type { DatesSetArg, ViewApi, CalendarOptions } from '@fullcalendar/core'
-
+  
   import dayjs from 'dayjs'
+
+  export interface EventData {
+    id: any;
+    title: any;
+    start: string;
+    end: string | undefined;
+  }
 
   const props = defineProps({
     dataSet: {
-      type: Array,
+      type: Array as PropType<EventData[]>,
       required: true,
       validator: (value: unknown): boolean => {
         if (!Array.isArray(value)) {
@@ -80,10 +88,10 @@
   //   emit('dateChanged', range)
   // }, {immediate: true})
 
-  const events = ref([])
+  const events = ref<EventData[]>([])
   watch(() => props.dataSet, (dataSet) => {
     events.value.splice(0)
-    dataSet.forEach(event => events.value.push({...event}))
+    dataSet.forEach((event: EventData) => events.value.push({...event}))
   }, { deep: true, immediate: true }
   )
   

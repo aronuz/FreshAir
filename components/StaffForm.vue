@@ -44,13 +44,13 @@
         <!-- Submit Button -->
         <div class="md:grid grid-cols-3 gap-4 py-2 flex justify-center" >
             <!-- Submit Button -->
-            <MyButton class="w-36 justify-self-end bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="!formHasData" type="submit" color="primary" variant="solid" label="Save Profile" :loading="pending" icon="i-heroicons-arrow-up-on-square" />
+            <MyButton class="w-36 justify-self-end bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="!formHasData" type="submit" label="Save Profile" :loading="pending" icon="i-heroicons-arrow-up-on-square" />
 
             <!-- Clear Button -->
-            <MyButton class="w-36 text-blue rounded-md hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="pending" color="primary" variant="outline" label="Clear Form" icon="i-heroicons-backspace" @click="clearForm"/>
+            <MyButton class="w-36 text-blue rounded-md hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="pending" btnType="infoOutline" label="Clear Form" icon="i-heroicons-backspace" @click="clearForm"/>
 
             <!-- Cancel Button -->
-            <MyButton class="w-36 text-blue rounded-md hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="pending" color="primary" variant="outline" label="Cancel" icon="i-heroicons-x-circle" @click="cancelEdit"/>
+            <MyButton class="w-36 text-blue rounded-md hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="pending" btnType="infoOutline" label="Cancel" icon="i-heroicons-x-circle" @click="cancelEdit"/>
         </div>
 
         <!-- Error Messages -->
@@ -64,7 +64,7 @@
 <script lang="ts" setup>
     import type { FormErrorEvent, FormSubmitEvent } from '@nuxt/ui'
     import { z } from 'zod'
-
+    
     const emit = defineEmits(['saved', 'formCleared', 'hideForm'])
 
     interface staff {
@@ -111,9 +111,9 @@
         }
     })
 
-    const staffId = computed(() => props.staffSelected ? props.staffSelected.id : null)
+    const staffId = computed(() => props.staffSelected?.id)
 
-    const { saveStaffProfile } = useFetchQueries()
+    const { saveStaffProfile } = useFetchStaffProfiles()
 
     const pending = ref(false)
 
@@ -235,27 +235,27 @@
             let fileName: string | null = null, 
                 filePath: string | null = null
 
-            if (selectedFile.value) {
+            if (selectedFile.value && staffId.value) {
                 // Set image file metadata
                 const fileExt = selectedFile.value.name.split('.').pop()
                 fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`
                 filePath = `staff/${fileName}`
-            }
-
-            const { error, status } = await saveStaffProfile(filePath, selectedFile.value, {
-                    bio: formdata.bio,
-                    name: formdata.name
-                }, staffId.value
-            )
             
-            if(error) {
-                const errorMessage = error instanceof Error ? error.message : String(error)
-                showError(`There was an issue with submitting the form. Please try again later.\n${error}`, status || '500')
-            } else {
-                emit('saved')
-                const action = staffId.value ? 'updated' : 'added'
-                toastBar('success', `Profile for ${formdata.name} ${action} successfully!`)
-            }           
+                const { error, status } = await saveStaffProfile(filePath, selectedFile.value, {
+                        bio: formdata.bio as string,
+                        name: formdata.name as string
+                    }, staffId.value
+                )
+                
+                if(error) { 
+                    const errorMessage = error instanceof Error ? error.message : String(error)
+                    showError(`There was an issue with submitting the form. Please try again later.\n${error}`, status || '500')
+                } else {
+                    emit('saved')
+                    const action = staffId.value ? 'updated' : 'added'
+                    toastBar('success', `Profile for ${formdata.name} ${action} successfully!`)
+                }   
+            }        
         } catch (e) {
             const error = e instanceof Error ? e.message : String(e)
             showError(`There was an issue with submitting the form. Please try again later.\n${error}`, '500')

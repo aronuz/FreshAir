@@ -15,8 +15,8 @@
             :ui="{ root: 'items-center', label: 'md:lg:text-xl lg:text-2xl align-top' }"
           />
           <div v-if="!loadingList">
-            <MyButton class="flex flex-wrap flex-row justify-between text-4xl md:text-lg p-3" block :icon="`i-heroicons${addIcon}`" size="xl" color="secondary" variant="solid" :label="addLabel" :ui="{leadingIcon: 'size-10'}" @click="setValues"/>
-            <MyButton v-if="selectedAppointment" class="flex flex-row justify-between text-4xl md:text-lg mt-4 p-3 pr-11" block icon="i-heroicons-x-circle" size="xl" color="error" variant="solid" label="Remove" :ui="{leadingIcon: 'size-10'}" @click="handleRemove"/>
+            <MyButton class="flex flex-wrap flex-row justify-between text-4xl md:text-lg p-3" block :icon="`i-heroicons${addIcon}`" size="xl" btnType="secondary" :label="addLabel" :ui="{leadingIcon: 'size-10'}" @click="setValues"/>
+            <MyButton v-if="selectedAppointment" class="flex flex-row justify-between text-4xl md:text-lg mt-4 p-3 pr-11" block icon="i-heroicons-x-circle" size="xl" btnType="error" label="Remove" :ui="{leadingIcon: 'size-10'}" @click="handleRemove"/>
           </div>
         </ClientOnly>
         <USkeleton v-if="user && loadingList" class="mx-auto mt-8 h-8 w-[5vw] bg-gray-600" as="div"/>
@@ -151,7 +151,7 @@ const isCalendar = computed({
 })
 
 const loadingList = computed(() => {
-  return (!isCalendar.value && !grouppedEvents) || (isCalendar && !isReady)
+  return pending.value ||(!isCalendar.value && !grouppedEvents) || (isCalendar && !isReady)
 })
 
 watch(() => isOpen.value, (value) => {
@@ -167,10 +167,10 @@ const reload = async () => {
   if(guestUser.value) return
   try {
     pending.value = true
-    const {data, timesData, error, status, isPending} = await eventsStore.fetchEvents({ pending: pending.value, startDate, endDate })
+    const {data, timesData, error, status} = await eventsStore.fetchEvents({fetchParams: { startDate, endDate }})
     // await fetchAppointments(pending)
 
-    pending.value = isPending.value
+    pending.value = false
     if(error){
       onError(status, error)
       return
@@ -214,7 +214,7 @@ const eventsParsed = computed(() => {
 
     const startTime = `${item.start_date}T${item.start_time}`
     
-    let endTime = null
+    let endTime = undefined
     if(item.end_date) {
       const timeString = item.end_time ? `T${item.end_time}` : ''
       endTime = `${item.end_date}${timeString}`
@@ -317,9 +317,9 @@ const setValues = () => {
 const handleRemove = async () => {
   pending.value = true
   const id = selectedAppointment.value.id
-  const { error, status, isPending } = await eventsStore.deleteEvent(id, pending)
+  const { error, status } = await eventsStore.deleteEvent(id)
   //await deleteAppointment(id, pending)
-  pending.value = isPending.value
+  pending.value = false
   if (error) {
     onError(status, error)
     return

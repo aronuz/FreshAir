@@ -15,6 +15,7 @@ export const useUsersStore = defineStore('users', {
         users: [] as userType[],
         loading: false,
         error: null as string | null,
+        status: null as number | string | null,
         lastFetched: null as Date | null,
         cacheExpiry: 5 * 60 * 1000, // 5 minutes
     }),
@@ -37,56 +38,65 @@ export const useUsersStore = defineStore('users', {
 
     actions: {
         // Fetch events from database
-        async fetchUsers(pending: boolean, userId: number | null = null, forceReload = false) {
+        async fetchUsers({userId = undefined, forceReload = false}: {userId?: string, forceReload?: boolean} = {}) {
             if (this.isCacheValid && !forceReload) {
-                return { data: this.users, error: null, status: 200, isPending: ref(false) }
+                return { data: this.users, error: null, status: 200 }
             }
             this.error = null
+            this.status = null
 
             try {
-                const { fetchUsers } = useFetchQueries()
-                const { data, error, status, isPending } = await fetchUsers(pending, userId)
+                const { fetchUsers } = useFetchUsers()
+                const { data, error, status } = await fetchUsers(userId)
                 this.users = data || []
-                this.lastFetched = new Date()
-                return { data, error, status, isPending }
+                if (!error) this.lastFetched = new Date()
+                this.error = error
+                this.status = status 
             } catch (error) {                        
                 this.error = error instanceof Error ? error.message : 'Failed to fetch events'
-                return { error: this.error, status: 500, isPending: ref(false) }
+                this.status = 500                
+            } finally {
+                return { data: this.users, error: this.error, status: this.status }
             }
         },
         // Update user data in store
         async updateUser(user: userType) {
             this.error = null
-            let status = null
+            this.status = null
             
             try {                               
                 const index = this.users.findIndex((user: userType) => user.user_id === user.user_id)
                 if (index !== -1) this.users[index] = user
             } catch (error) {
                 this.error = error instanceof Error ? error.message : `Failed to update user`
-                status = 500
+                this.status = 500
             } finally {
-                return { error: this.error, status }
+                return { error: this.error, status: this.status }
             }
         },
         // Delete user
-        async deleteUser(pending: boolean, user_ids: Array<number | string>) {
+        async deleteUser(user_ids: Array<number | string>) {
             try {
-                const { deleteUsers } = useFetchQueries()
-                const { error, status, isPending } = await deleteUsers(pending, user_ids)
+                const { deleteUsers } = useFetchUsers()
+                const { error, status } = await deleteUsers(user_ids)
                 if (!error) {
                     this.users = this.users.filter((user: userType) => !user_ids.includes(user.user_id))  
-                } 
-                return { error, status, isPending }
+                } else {
+                    this.error = error
+                    this.status = status
+                }
+                return { error, status }
             } catch (error) {
                 this.error = error instanceof Error ? error.message : 'Failed to delete event'
-                return { error: this.error, isPending: ref(false), status: 500 }
+                return { error: this.error, status: 500 }
+            } finally {
+                return { error: this.error, status: null }
             }
         },
 
         // Clear cache and force refresh
         async refreshUsers() {
-            return this.fetchUsers(true, null, true)
+            return this.fetchUsers({forceReload: true})
         },
 
         // Clear all data in current store

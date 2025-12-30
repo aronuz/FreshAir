@@ -7,7 +7,6 @@
                     <MyButton
                         v-if="!isBookingDown && service.type !== 'plans'"
                         class="mt-2"
-                        variant="primary"
                         label="Request Service"
                         @click="$router.push({path: '/booking', query: {service: service.name}})"/>
                 </div>

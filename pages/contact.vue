@@ -15,19 +15,23 @@
           
           <!-- Address -->
           <div class="flex flex-col">
-            <div class="flex items-center gap-2 mb-1">
+            <div class="flex items-start md:items-center gap-2 mb-1">
               <UIcon name="i-heroicons-map-pin" class="text-primary-500 shrink-0" />
-              <span class="text-gray-700 font-semibold">Address:</span>
-              <span class="text-gray-600 font-bold grow text-right">123 Main Street, Anytown, NY 10001</span>
+                <div class="flex flex-col md:flex-row items-start md:items-center gap-1 w-full">
+                <span class="text-gray-700 font-semibold">Address:</span>
+                <span class="text-gray-600 font-bold grow text-left">123 Main Street, Anytown, NY 10001</span>
+              </div>
             </div>
           </div>
           
           <!-- Phone -->
           <div class="flex flex-col">
-            <div class="flex items-center gap-2 mb-1">
+            <div class="flex items-start md:items-center gap-2 mb-1">
               <UIcon name="i-heroicons-phone" class="text-primary-500 shrink-0" />
-              <span class="text-gray-700 font-semibold">Phone:</span>
-              <span class="text-gray-600 font-bold grow text-right">{{ phoneNumber }}</span>
+              <div class="flex flex-col md:flex-row items-start md:items-center gap-1 w-full">
+                <span class="text-gray-700 font-semibold">Phone:</span>
+                <span class="text-gray-600 font-bold grow text-center md:text-right">{{ phoneNumber }}</span>
+              </div>
             </div>
             <div>              
               <PhoneActions 
@@ -40,12 +44,14 @@
           
           <!-- Email -->
           <div class="flex flex-col">
-            <div class="flex items-center gap-2 mb-1">
+            <div class="flex items-start md:items-center gap-2 mb-1">
               <UIcon name="i-heroicons-envelope" class="text-primary-500 shrink-0" />
-              <span class="text-gray-700 font-semibold">Email:</span>
-              <span class="text-gray-600 font-bold ml-6 grow text-right">{{ email }}</span>
+              <div class="flex flex-col md:flex-row items-start md:items-center gap-1 w-full">
+                <span class="text-gray-700 font-semibold">Email:</span>
+                <span class="text-gray-600 font-bold md:ml-6 grow md:text-right">{{ email }}</span>
+              </div>
             </div>
-            <div class="flex items-center gap-2 ml-6 text-right">
+            <div class="flex md:items-center gap-2 md:ml-6 text-center md:text-right">
               <EmailAction :default-message="defaultMessage" />
             </div>
           </div>

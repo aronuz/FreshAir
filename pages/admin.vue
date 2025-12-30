@@ -34,12 +34,12 @@
                           </template>
                         </template>
                       </UTable>                  
-                      <div class="flex justify-center border-t border-default pt-4">
+                      <div v-if="userTable?.tableApi" class="flex justify-center border-t border-default pt-4">
                         <UPagination
-                          :default-page="(userTable?.tableApi?.getState().pagination.pageIndex || 0) + 1"
-                          :items-per-page="userTable?.tableApi?.getState().pagination.pageSize"
-                          :total="userTable?.tableApi?.getFilteredRowModel().rows.length"
-                          @update:page="(p: number) => userTable?.tableApi?.setPageIndex(p - 1)"
+                          :default-page="(userTable.tableApi.getState().pagination.pageIndex || 0) + 1"
+                          :items-per-page="userTable.tableApi.getState().pagination.pageSize"
+                          :total="userTable.tableApi.getFilteredRowModel().rows.length"
+                          @update:page="(p: number) => userTable?.tableApi.setPageIndex(p - 1)"
                         />
                       </div>
                     </template>                               
@@ -103,8 +103,8 @@
                 </template>
                 
                 <template #footer v-if="item.label === 'User Management'">
-                  <MyButton icon="i-heroicons-plus-circle" color="primary" variant="solid" label="Add" @click="isOpenUser = true" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
-                  <MyButton v-if="selectedUsers.size" icon="i-heroicons-trash" color="error" variant="solid" label="Remove" @click="handleDeleteUsers(selectedUsers)" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
+                  <MyButton icon="i-heroicons-plus-circle" label="Add" @click="isOpenUser = true" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
+                  <MyButton v-if="selectedUsers.size" icon="i-heroicons-trash" btnType="primaryError" label="Remove" @click="handleDeleteUsers(selectedUsers)" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
                 </template>
               </UCard>
             </template>
@@ -303,10 +303,9 @@ pages.forEach((page: pages) => {
 //   'About Us': '/about'
 // })
 
-const { getPageAccess,
-        updatePageAccess,
-        fetchAppointments,
-        pending } = useFetchQueries()
+const { getPageAccess, updatePageAccess} = useFetchPages()
+
+const pending = ref(false)
 
 const usersStore = useUsersStore()
 const { fetchUsers, deleteUser, updateUser } = usersStore
@@ -344,8 +343,8 @@ const updateSelectedUsers = async (event: boolean, id: string | null = null) => 
 const handleLoadUsers = async () => {
   try {
     pending.value = true
-    const { data, error, isPending } = await fetchUsers(pending.value)
-    pending.value = isPending!.value
+    const { data, error } = await fetchUsers()
+    
     if (error) {
       onError(500, error)
       return
@@ -354,29 +353,33 @@ const handleLoadUsers = async () => {
   } catch (error) {
     //console.log(error)
     onError(500, error)
+  } finally {
     pending.value = false
   }
 }
 
 const handleDeleteUsers = async (ids: string | Set<string>) => {
   try {
+    pending.value = true
     const user_ids = !(ids instanceof Set) ? [ids] : Array.from(ids)
-    const { error, isPending } = await deleteUser(pending.value, user_ids)
-    pending.value = isPending.value
+    const { error } = await deleteUser(user_ids)
     if (error) {
       onError(500, error)
       return
     } else {
-      users.value = users.value.filter(user => !(user.user_id in user_ids))
+      users.value = users.value.filter(user => !user_ids.includes(user.user_id))
     }
   } catch (error) {
     onError(500, error)
-  } 
+  } finally {    
+    pending.value = false
+  }
 }
 
 const deleteStaff = async ({ id: staffId, image_url }: { id: number, image_url: string }) => {
-  try {
-    const { error } = await useFetchQueries().deleteStaffProfile(staffId, image_url)
+  try {    
+    pending.value = true
+    const { error } = await useFetchStaffProfiles().deleteStaffProfile(staffId, image_url)
     if (error) {
       onError(500, error)
       return
@@ -387,6 +390,8 @@ const deleteStaff = async ({ id: staffId, image_url }: { id: number, image_url: 
     showForm.value = false
   } catch (error) {
     onError(500, error)
+  } finally {
+    pending.value = false
   }
 }
 
@@ -408,13 +413,13 @@ onMounted(async () => {
     }
     if(data) {
       let pageItem: pages
-      pages.forEach((pages: pages) => {
-        const item: pages | undefined = data.find((page: pages) => page.name === pages.name)
+      pages.forEach((page: pages) => {
+        const item: pages | undefined = data.find((fetchedPage: pages) => page.name === fetchedPage.name)
         if (item){
           pageItem = item
           pathPicked[pageItem.name] = pageItem.to === 'index' ? '/' : pageItem.to
-          pages.oldPath = pageItem.oldPath || null
-          pages.allowed = pageItem ? pageItem.allowed : true
+          page.oldPath = pageItem.oldPath || null
+          page.allowed = pageItem ? pageItem.allowed : true
         }
       })
       //console.log('Page access loaded:', pages)
@@ -434,18 +439,25 @@ const handleUpdateUser = async (user: userType) => {
 }
 
 const loadUserEvents = async (user: userType) => {
-  const storeId = { range: null, type: 'month', user_id: user.user_id }
-  const eventsStore = getDynamicStore(storeId)
-  const { data, isPending, error, status } = await eventsStore.fetchEvents({ pending, limit: 0, user_id: user.user_id, list: true })
-  //await fetchAppointments(pending, 0, user.user_id, true)
-  pending.value = isPending.value
-  if(error){
-    onError(status, error)
-    return
+  try {
+    pending.value = true
+    const storeId = { range: null, type: 'month', user_id: user.user_id }
+    const eventsStore = getDynamicStore(storeId)
+    const { data, isPending, error, status } = await eventsStore.fetchEvents({fetchParams: { limit: 0, user_id: user.user_id, list: true }})
+    //await fetchAppointments(pending, 0, user.user_id, true)
+    
+    if(error){
+      onError(status, error)
+    } else {
+      selectedUser.value = user
+      appointments.value = data ?? []
+      isOpenEvents.value = true
+    }
+  } catch (error) {
+    onError(500, error)
+  } finally {
+    pending.value = false
   }
-  selectedUser.value = user
-  appointments.value = data ?? []
-  isOpenEvents.value = true
 }
 
 watch(isOpenUser, (val) => {
@@ -456,9 +468,10 @@ const getOldPath = (page: pages | string) => {
   return typeof page === 'string' ? page : page.oldPath ?? '/construction'
 }
 // {pageName: page.name, path: pathPicked[page.name], allowed: !!page.allowed, oldPath: page.to}
-const savePageInfo = async ({ name, to, allowed, oldPath }: pages) => {
+const savePageInfo = async ({ name, to, allowed, oldPath }: Omit<pages, 'oldPath'> & { oldPath?: pages | string | null }) => {
   try {
-    const savedPath = oldPath && pathPicked[name] === getOldPath(oldPath) ? null : to,
+    pending.value = true
+    const savedPath = !oldPath || pathPicked[name] === getOldPath(oldPath) ? null : to,
       newPath = pathPicked[name]
     const {error} = await updatePageAccess({ name, to: newPath, allowed, oldPath: savedPath })
     if (error) {
@@ -466,7 +479,8 @@ const savePageInfo = async ({ name, to, allowed, oldPath }: pages) => {
       return
     }
     toastBar('success', 'Page access updated successfully')
-  } catch (error) {
+  } catch (error) {    
+    pending.value = false
     onError(500, error)
   }
 }

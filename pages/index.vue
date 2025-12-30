@@ -8,8 +8,8 @@
                 Our experienced technicians are dedicated to ensuring your comfort all year round.
                 </p>
                 <div class="mt-8 space-x-4 font-bold">
-                <MyButton to="/contact" label="Request Service" variant="info" size="lg" />
-                <MyButton to="/gallery" label="Our Services" variant="infoOutline" size="lg" />
+                <MyButton to="/contact" label="Request Service" btnType="info" size="lg" />
+                <MyButton to="/gallery" label="Our Services" btnType="infoOutline" size="lg" />
                 </div>
             </UCard>
         </MyBlock>
@@ -57,7 +57,7 @@
                 </div>
                 <div v-else class="p-4 font-bold rounded-lg">
                     <p class="text-lg mb-6">Get your HVAC system checked by a professional. Book your appointment today.</p>
-                    <MyButton to="/booking" label="Book Appointment" variant="ghostPrimary" size="lg" />
+                    <MyButton to="/booking" label="Book Appointment" btnType="ghostPrimary" size="lg" />
                 </div>
             </UCard>
         </MyBlock>
@@ -111,8 +111,10 @@
     
     const loadAppointments = async () => {
         //console.log('loadAppointments called')
-        const { data, error, status, isPending } = await eventsStore.fetchEvents({ pending: pending, limit, index: true })
-        pending.value = isPending.value
+        
+        pending.value = true
+        const { data, error, status } = await eventsStore.fetchEvents({fetchParams: { limit, index: true }})
+        pending.value = false
         //console.log('Store returned:', { dataLength: data?.length, error, status })
         
         if(error) {

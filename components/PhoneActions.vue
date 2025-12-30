@@ -1,5 +1,5 @@
 <template>
-  <UContainer class="flex gap-2 px-0 sm:px-0 lg:px-0 justify-end">
+  <UContainer class="flex gap-2 px-0 sm:px-0 lg:px-0 justify-center-safe md:justify-end">
     <ConfirmationModal v-bind="$attrs" ref="confirmationModal" :title="message" confirm-text="Send" @close="onClose" >
       <template #content>
         <UTextarea v-model="customMessage" :rows="4" class="w-full"/>
@@ -7,33 +7,32 @@
     </ConfirmationModal>
    
     <!-- Call button -->
-    <MyButton 
-      @click="onClick()" 
-      variant="primary"
+    <MyButton
+      icon="i-heroicons-phone"
+      rightIcon
       :disabled="!phoneNumber"
-      trailing-icon="i-heroicons-phone"
-    >
-      Call
-    </MyButton>
+      :label="screenSize !== 'xs' ? 'Call' : ''"
+      @click="onClick()"
+    />
     
     <!-- SMS button -->
-    <MyButton 
-      @click="onClick('sms')" 
-      variant="primary"
+    <MyButton
+      icon="i-heroicons-chat-bubble-oval-left"
+      rightIcon
       :disabled="!phoneNumber"
-      trailing-icon="i-heroicons-chat-bubble-oval-left"
-    >
-      Text
-    </MyButton>
+      :label="screenSize !== 'xs' ? 'Text' : ''"
+      @click="onClick('sms')"
+    />
 
     <!-- SMS with Custom Message Modal -->
-    <MyButton 
-      @click="onClick('sms', true)" 
-      variant="primary"
-      :disabled="!phoneNumber"
-      trailing-icon="i-heroicons-chat-bubble-oval-left-ellipsis"
+    <MyButton
+      icon="i-heroicons-chat-bubble-oval-left-ellipsis"
+      rightIcon
+      :disabled="!phoneNumber"      
+      :label="screenSize !== 'xs' ? 'Custom SMS' : ''"
+      @click="onClick('sms', true)"
     >
-      Custom SMS
+      
     </MyButton>    
   </UContainer>
 </template>
@@ -51,6 +50,9 @@ const props = withDefaults(defineProps<Props>(), {
   defaultMessage: '',
 })
 
+const { $screenSize } = useNuxtApp()
+const screenSize = unref($screenSize)
+console.log('screenSize', screenSize)
 const confirmationModal = ref<InstanceType<typeof ConfirmationModal> | null>(null);
 const message = ref('')
 let actionRoute = ref('')

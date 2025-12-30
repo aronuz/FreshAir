@@ -21,7 +21,7 @@
     interface Props {
       modelValue: boolean,
       user?: string,
-      newReview: number
+      newReview?: number
     }
 
     const props = withDefaults(defineProps<Props>(), {

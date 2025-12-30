@@ -13,7 +13,7 @@
             <div class="flex justify-center mt-6 gap-2">
                 <MyButton
                     size="lg"
-                    variant="success"
+                    btnType="success"
                     icon="i-heroicons-arrow-right"
                     @click="loadReviews('all')"
                 >
@@ -21,7 +21,7 @@
                 </MyButton>
                 <MyButton
                     size="lg"
-                    variant="successOutline"
+                    btnType="successOutline"
                     class="bg-white hover:bg-white/60"
                     icon="i-heroicons-plus"
                     @click="addReview"
@@ -43,7 +43,7 @@
         verified?: boolean,
     }
 
-    const { fetchReviews } = useFetchQueries()
+    const { fetchReviews } = useFetchReviews()
 
     const { toastBar } = useToastBar()
     

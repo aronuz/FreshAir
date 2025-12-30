@@ -29,10 +29,10 @@
 
     const emit = defineEmits(['staffSelected', 'update:profileUpdated', 'deleteStaff', 'showForm'])
 
-    const { fetchStaffProfiles } = useFetchQueries()
+    const { fetchStaffProfiles } = useFetchStaffProfiles()
     const { toastBar } = useToastBar()
 
-    interface staff {
+    export interface staff {
         id: number;
         name: string;
         bio: string;
@@ -44,9 +44,9 @@
     const team = ref<Array<staff>>([])
     
     const loadTeamMembers = async () => {
-        const { data, error, status } = await fetchStaffProfiles()
-        if(error){
-            toastBar('error', status, `Failed to load team members. ${error.trim()}`)
+        const { data, error, status }: { data: Array<staff> | null; error: 'string' | null | unknown; status: number | string | null } = await fetchStaffProfiles()
+        if(error) {
+            toastBar('error', status, `Failed to load team members. ${typeof error === 'string' ? error.trim() : error }`)
         } else {
             team.value = data || []
             // count.value = team.value.length + 2

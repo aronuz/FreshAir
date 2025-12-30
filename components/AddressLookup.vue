@@ -2,9 +2,11 @@
     <!-- <UFormField required label="Address" name="address"> -->
         <UInputMenu
             id="address"
-            v-model="addressInput" 
-            :items="suggestions"
+            v-model="addressInputObject"
             placeholder="Address"
+            :items="suggestions"
+            :disabled="pending"
+            :loading="pending"
             @change="selectSuggestion($event)"
             @blur="validateAddress" 
             @focus="addressSubmitted = false"
@@ -14,10 +16,35 @@
 </template>
 
 <script setup lang="ts">
+export interface GeocodioLocation {
+  lat: number;
+  lng: number;
+}
+export interface AddressComponents {
+  number?: string;
+  street?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  country?: string;
+}
+export interface GeocodioResult {
+  formatted_address: string; // Full human-readable address
+  location: GeocodioLocation; // Latitude and longitude
+  address_components: AddressComponents; // Optional detailed components
+  accuracy: string; // Accuracy level like "rooftop", "street", etc.
+  source?: string; // Optional source information
+}
+export interface Suggestions extends GeocodioResult {
+  value: string;
+  label: string;
+}
+
+const addressInputObject = ref<Suggestions | undefined>(undefined);
 const addressInput = ref('');
 const zipCode = ref('');
-const suggestions = ref<InputMenuItem[] | []>([]);
-const suggestionObjects = ref<InputMenuItem[]>([]);
+const suggestions = ref<Suggestions[] | [] | undefined>([]);
+const suggestionObjects = ref<GeocodioResult[]>([]);
 const pending = ref(false);
 const isValid = ref(false);
 const lookupError = ref('');
@@ -34,71 +61,12 @@ const props = defineProps({
     default: ''
   }   
 });
-// Initialize with saved values if provided
-if (props.savedAddress && props.savedZip) {
-  addressInput.value = `${props.savedAddress} ${props.savedZip}`;
-  validateAddress()
-}
 
-// Debounced input handler for suggestions
-const handleInput = (event) => {
-  if (addressSubmitted.value) return
-
-  isValid.value = false;
-  lookupError.value = '';
-  
-  clearTimeout(debounceTimer.value);
-  
-  if (!event || event.trim().length < 3) {
-    suggestionObjects.value = []
-    suggestions.value = []
-    if (!event || event.trim().length === 0) {
-        addressInput.value = '';
-    }
-    return;
+watchEffect(() => {
+  if (addressInputObject.value) {
+    addressInput.value = addressInputObject.value.formatted_address;
   }
-
-  debounceTimer.value = setTimeout(() => {
-    addressInput.value = event;  
-    fetchSuggestions(event);
-  }, 300);
-};
-
-// Fetch address suggestions
-const fetchSuggestions = async (address) => {
-  try {
-    const data = await addressLookup({address, limit: 5});
-    if (data.error) {
-        lookupError.value = `${data.error} Address entry: ${address}`;
-    } 
-    
-    if (!data.results || data.results.length === 0) {        
-        suggestionObjects.value = [];
-        suggestions.value = [];
-    } else {
-        suggestionObjects.value = data.results;
-        suggestions.value = (suggestionObjects.value).map(item => ({
-            label: item.formatted_address,
-            value: item.formatted_address,
-            ...item
-        }));
-    }
-  } catch (error) {
-    lookupError.value = `Error fetching suggestions: ${error}`;
-    suggestions.value = [];
-  }
-};
-
-// Handle selection of a suggestion
-const selectSuggestion = (event) => {
-    const selectedAddress = suggestionObjects.value.find(item => item.formatted_address === event.formatted_address);
-    if (selectedAddress) {
-        addressInput.value = selectedAddress.formatted_address;
-        zipCode.value = selectedAddress.address_components.zip;
-        isValid.value = true;
-        lookupError.value = '';     
-    }
-};
+});
 
 // Validate address on blur
 const validateAddress = async () => {
@@ -139,8 +107,81 @@ const validateAddress = async () => {
    }
 };
 
-const addressLookup = async (opts: { address, limit?: number } = {}) => {
-  const { address, limit } = opts
+// Initialize with saved values if provided
+if (props.savedAddress && props.savedZip) {
+  addressInput.value = `${props.savedAddress} ${props.savedZip}`;
+  validateAddress()
+}
+
+// Debounced input handler for suggestions
+const handleInput = (event: string) => {
+  if (addressSubmitted.value) return
+
+  isValid.value = false;
+  lookupError.value = '';
+  
+  if (debounceTimer.value) clearTimeout(debounceTimer.value);
+  
+  if (!event || event.trim().length < 3) {
+    suggestionObjects.value = []
+    suggestions.value = []
+    if (!event || event.trim().length === 0) {
+        addressInput.value = '';
+    }
+    return;
+  }
+
+  debounceTimer.value = setTimeout(() => {
+    addressInput.value = event;  
+    fetchSuggestions(event);
+  }, 300);
+};
+
+// Fetch address suggestions
+const fetchSuggestions = async (address: string) => {
+  try {
+    const data = await addressLookup({address, limit: 5});
+    if (data.error) {
+        lookupError.value = `${data.error} Address entry: ${address}`;
+    } 
+    
+    if (!data.results || data.results.length === 0) {        
+        suggestionObjects.value = [];
+        suggestions.value = [];
+    } else {
+        suggestionObjects.value = data.results;
+        suggestions.value = (suggestionObjects.value).map((item: GeocodioResult) => ({
+            label: item.formatted_address,
+            value: item.formatted_address,
+            ...item
+        }));
+    }
+  } catch (error) {
+    lookupError.value = `Error fetching suggestions: ${error}`;
+    suggestions.value = [];
+  }
+};
+
+// Handle selection of a suggestion
+const selectSuggestion = (event: Event) => {
+    const selection = (event.target as HTMLInputElement)?.value;
+    const selectedAddress = suggestionObjects.value.find((item: GeocodioResult) => item.formatted_address === selection);
+    if (selectedAddress) {
+        addressInput.value = selectedAddress.formatted_address;
+        zipCode.value = selectedAddress.address_components.zip ?? '';
+        isValid.value = true;
+        addressInputObject.value = {...selectedAddress, value: selectedAddress.formatted_address, label: selectedAddress.formatted_address};
+        lookupError.value = '';     
+    }
+};
+
+const addressLookup = async (opts: {} | { address: string, limit?: number } = {}) => {
+    let address, 
+        limit = -1
+    if ('address' in opts) {
+      address = opts.address
+      if ('limit' in opts) opts.limit
+    }
     try {
         const response = await fetch("/api/address-lookup", {
             method: 'POST',
@@ -170,7 +211,7 @@ const addressLookup = async (opts: { address, limit?: number } = {}) => {
 
         return data
     } catch (error) {
-        return { error: error.message || 'Uknown error occurred.' };
+        return { error: error instanceof Error ? error?.message : 'Uknown error occurred.' };
     }
 };
 

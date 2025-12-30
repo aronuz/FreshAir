@@ -26,8 +26,8 @@
           <div v-show="hasErrors" class="col-span-2">          
             <UFormField name="errors"/>
           </div>      
-          <MyButton class="px-8" type="submit" variant="solid" :label="submitLabel" :loading="pending"/>
-          <MyButton :to="fromPage" variant="successOutline" label="Cancel" :disabled="pending"/>
+          <MyButton class="px-8" type="submit" :label="submitLabel" :loading="pending"/>
+          <MyButton :to="fromPage" btnType="successOutline" label="Cancel" :disabled="pending"/>
         </div>
       </UForm>
     </template>

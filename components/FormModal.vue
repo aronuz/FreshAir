@@ -22,7 +22,7 @@
               <UInput placeholder="Email" v-model="formdata.email"/>
             </UFormField>
           </div>
-          <div class="grid" :class="'grid-cols-1', [props.selectedUser ? 'sm:grid-cols-2': 'sm:grid-cols-[7rem_auto_8rem]'], 'gap-2'">
+          <div class="grid" :class="['grid-cols-1', props.selectedUser ? 'sm:grid-cols-2': 'sm:grid-cols-[7rem_auto_8rem]', 'gap-2']">
             <div class="w-[7rem]">
               <UFormField required label="Phone" name="phone">
                 <UInput placeholder="Phone" v-model="formdata.phone"/>
@@ -78,7 +78,7 @@
           </template>
           <div class="grid grid-cols-3 gap-2 content-around" :class="[hasErrors ? 'grid-rows-2' : 'grid-rows-1']"> 
             <div class="col-span-3 flex justify-center m-auto">      
-              <UButton class="px-8" type="submit" color="primary" variant="solid" :label="saveLabel" :loading="pending" />
+              <MyButton class="px-8" type="submit" :label="saveLabel" :disabled="pending" :loading="pending" />
             </div>
             <div v-if="hasErrors" class="col-span-3">          
               <UFormField name="errors"/>
@@ -94,7 +94,6 @@
   import { z } from 'zod'
   import dayjs from 'dayjs'
 
-  import { useFetchQueries } from '~/composables/useFetchQueries'
   import { storeToRefs } from 'pinia'
   import { getDynamicStore } from '~/stores/events'
   
@@ -102,6 +101,8 @@
 
   const addressLookup = ref<InstanceType<typeof import('./AddressLookup.vue').default> | null>(null);
   
+  import type { AppointmentData } from '../composables/FetchQueries/useFetchAppointments'
+
   interface userType {
     id?: number,
     title: string | undefined,
@@ -126,9 +127,6 @@
   }
   
   interface formDataType extends stateType, roleType{}
-
-  const usersStore = useUsersStore()
-  const { fetchUsers } = usersStore
 
   const { toastBar } = useToastBar()
   
@@ -169,6 +167,7 @@
     }
   }
 
+  const pending = ref(false)
   const initState = createInitState()
   // const blankState: Ref<stateType> = useState('selectedAppointment', () => initState)
   const selectedAppointment = useState('selectedAppointment')
@@ -180,12 +179,8 @@
   //   (formdata as roleType).role = rolePicked.value as string
   // }
 
-  const {
-        updateUser,
-        submitAppointment,
-        updatedAppointment,
-        pending
-      } = useFetchQueries()
+  const { updateUser } = useFetchUsers()
+  const updatedAppointment = useState<AppointmentData | null>('updatedAppointment')
 
   const baseSchema = z.object({
     title: z.string().min(3).regex(/^[a-zA-Z]+(?:[-'\s][a-zA-Z]+)*$/, "Name provided has invalid characters"),
@@ -342,17 +337,22 @@
     formattedEndDate.value = newDateString // Keep the formatted string in sync
   }
 
-  const submitForm = (event: FormSubmitEvent<stateType | roleType>) => {
+  const submitForm = async (event: FormSubmitEvent<stateType | roleType>) => {
     const data: Record<string, any> = {}
     Object.keys(event.data).forEach((key) => {
       if (key in initState) {
         data[key] = (event.data as any)[key]
       }
     })
-    props.selectedUser ? saveUser(data) : saveAppointment(data)
+    const { error, errorMessage, errorStatus } = await (props.selectedUser ? saveUser(data) : saveAppointment(data))
+    if (error) {
+      showError(errorStatus as string, errorMessage as string)
+    }
   }
   
   const saveUser = async (user: Record<string, any>) => {
+    let errorMessage: string = ''
+    let errorStatus: string | null = null
     const { title, phone, email, user_id } = user//?.data
     const userInfo = { title, phone, email, user_id }
     const userData = Object.fromEntries(
@@ -360,7 +360,8 @@
     );
     const { data, error, status } = await updateUser(userData)
     if(error){
-      showError(status as string, `Unable to update user record.\n${JSON.stringify(error)}`)
+      errorMessage = (error && typeof error === 'object' && 'message' in error ? (error as any).message : 'Unknown error')
+      errorStatus = status as string
     } else {
       let roleError
       const role = rolePicked.value as string
@@ -369,70 +370,79 @@
         if(!roleError) {
           rolePicked.value = role
           toastBar('success', 'User updated')
+        } else {
+          errorMessage = 'Failed to update user role.'
+          errorStatus = '500'
         }
       }
       isOpen.value = false
       emit('saved', userData)
     }
-    return { error } 
+    return { error: !!errorMessage, errorMessage, errorStatus } 
   }
 
   const saveAppointment = async (event: Record<string, any>) => {
-    const noChange = updatedAppointment.value && JSON.stringify(formdata) === JSON.stringify(updatedAppointment.value)
-    if(noChange) return
-    //console.log('Form Data:', event)
-    if (appform.value.errors.length) {
-      let errors = ''
-      for (const error in appform.value.errors) {
-        errors += `${error} `
-      }
-      showError(errors, '500')
-    } else {
-      pending.value = true
-      //console.log(appointmentData, event)
-      const {title, phone, email, ...sanitizedAppointment} = Object.fromEntries(
-        Object.entries(event).map(([key, value]) => [key, value === undefined ? null : value])
-      )
+    let errorMessage: string = ''
+    let errorStatus: string | null = null
+    const dataChange = !updatedAppointment.value || JSON.stringify(formdata) !== JSON.stringify(updatedAppointment.value)
+    if(dataChange) {
+      //console.log('Form Data:', event)
+      if (appform.value.errors.length) {
+        for (const error in appform.value.errors) {
+          errorMessage += `${error} `
+        }
+        errorStatus = '400'
+      } else {
+        pending.value = true
+        //console.log(appointmentData, event)
+        const {title, phone, email, ...sanitizedAppointment} = Object.fromEntries(
+          Object.entries(event).map(([key, value]) => [key, value === undefined ? null : value])
+        )
 
-      const user_id = useState('user_id').value
+        const user_id = useState('user_id').value
 
-      const user = {title, phone, email, 'user_id': user_id}
-      
-      const { error } = await saveUser(user)
+        const user = {title, phone, email, 'user_id': user_id}
+        
+        const { error, errorMessage: userErrorMessage, errorStatus: userErrorStatus } = await saveUser(user)
 
-      if(!error) {
-        sanitizedAppointment.user_id = user_id
-        sanitizedAppointment.start_date = sanitizedAppointment.start_date
-        ? sanitizedAppointment.start_date.toISOString().split('T')[0]
-        : null
-        sanitizedAppointment.end_date = sanitizedAppointment.end_date
-        ? sanitizedAppointment.end_date.toISOString().split('T')[0]
-        : null
-        const isUpdate = !!selectedAppointment.value
-        const action = isUpdate ? 'update' : 'create'
-        try {
-          const range = dayjs(sanitizedAppointment.start_date).format('MMMM')
-          const type = 'month'
-          const storeId = { range, type, user_id: null }
-          const eventsStore = getDynamicStore(storeId)
-          const { events, eventsByDate, loading, error: storeError } = storeToRefs(eventsStore)
-          const { error, status, isPending } = await eventsStore.saveEvent(sanitizedAppointment, isUpdate, pending)
-          //await submitAppointment(sanitizedAppointment)
-          pending.value = isPending.value
-          if(error){          
-            showError(status as string, `Unable to ${action} appointment record.\n${JSON.stringify(error)}`)
-          } else {
-            toastBar('success', `Service ${action}d successfully.`)
-            isOpen.value = false
-            emit('saved')
+        if(!error) {
+          sanitizedAppointment.user_id = user_id
+          sanitizedAppointment.start_date = sanitizedAppointment.start_date
+          ? sanitizedAppointment.start_date.toISOString().split('T')[0]
+          : null
+          sanitizedAppointment.end_date = sanitizedAppointment.end_date
+          ? sanitizedAppointment.end_date.toISOString().split('T')[0]
+          : null
+          const isUpdate = !!selectedAppointment.value
+          const action = isUpdate ? 'update' : 'create'
+          try {
+            const range = dayjs(sanitizedAppointment.start_date).format('MMMM')
+            const type = 'month'
+            const storeId = { range, type, user_id: null }
+            const eventsStore = getDynamicStore(storeId)
+            //const { events, eventsByDate, loading, error: storeError } = storeToRefs(eventsStore)
+            const { error, status } = await eventsStore.saveEvent(sanitizedAppointment, isUpdate)
+            //await submitAppointment(sanitizedAppointment)
+            if(error){          
+              showError(status as string, `Unable to ${action} appointment record.\n${JSON.stringify(error)}`)
+            } else {
+              toastBar('success', `Service ${action}d successfully.`)
+              isOpen.value = false
+              emit('saved')
+            }
+          } catch (error) {
+            errorMessage = `Unable to ${action} appointment record. ${error instanceof Error ? JSON.stringify(error) : error}`
+            errorStatus = '500'
+          } finally {
+            pending.value = false
           }
-        } catch (error) {
-          const errorMessage = error instanceof Error ? JSON.stringify(error) : error
-          pending.value = false
-          showError('500', `Unable to ${action} appointment record.\n${errorMessage}`)
+        } else {
+          errorMessage = userErrorMessage
+          errorStatus = userErrorStatus
         }
       }
     }
+    return { error: !!errorMessage, errorMessage, errorStatus }
   }
 
   const onError = async (event: FormErrorEvent) => {
@@ -564,7 +574,7 @@
   }
 
   const addressValid = computed(() => !!(addressLookup.value?.addressValid)) //?.value
-  const addressError = ref(null)
+  const addressError = ref<string | null>(null)
   watchEffect(() => {
       if (addressValid.value) {
         formdata.address = addressLookup.value?.addressInput ?? undefined //?.value

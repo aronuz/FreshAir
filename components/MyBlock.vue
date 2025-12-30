@@ -7,7 +7,7 @@
 <script lang="ts" setup>
   const props = withDefaults(defineProps<{
   padSize?: 'small' | 'medium' | 'large';
-  spacing?: 'compact' | 'relaxed';
+  spacing?: 'compact' | 'relaxed' | 'none';
 }>(), {
   padSize: 'small', // Default maps to 'p-2'
   spacing: 'relaxed'    // Default maps to 'my-8'
