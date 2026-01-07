@@ -40,7 +40,7 @@
         </MyBlock>
 
         <MyBlock padSize="large">
-            <UCard class="text-center text-white bg-secondary-500 shadow-md">
+            <UCard class="text-center text-white bg-secondary-700 shadow-md">
                 <template #header>
                     <div class="text-3xl text-shadow-lg text-shadow-cyan-500 mb-4">
                         <div v-if="isBookingDown" class="flex flex-col">
@@ -57,7 +57,7 @@
                 </div>
                 <div v-else class="p-4 font-bold rounded-lg">
                     <p class="text-lg mb-6">Get your HVAC system checked by a professional. Book your appointment today.</p>
-                    <MyButton to="/booking" label="Book Appointment" btnType="ghostPrimary" size="lg" />
+                    <MyButton to="/booking" label="Book Appointment" btnType="primary" size="lg" />
                 </div>
             </UCard>
         </MyBlock>

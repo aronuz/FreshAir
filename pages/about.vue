@@ -27,8 +27,8 @@
 
     <MyBlock class="flex flex-col justify-center items-center" padSize="large">
       <div class="w-fit h-fit px-2 mx-auto bg-white rounded-lg">
-        <div class="w-fit">
-          <h2 class="text-2xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-6">Meet Our Team</h2>
+        <div class="flex md:justify-center w-fit mx-auto">
+          <h2 class="text-2xl font-bold text-gray-800 text-shadow-lg text-shadow-cyan-500 mb-6">Our Values</h2>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div class="text-center">

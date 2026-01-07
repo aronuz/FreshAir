@@ -1,13 +1,17 @@
 <template>
   <UContainer>
     <section class="pt-6 mb-8">
-      <h2 class="text-3xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-8">Our Services</h2>
+      <h2 class="text-3xl font-bold text-gray-800 text-center text-shadow-lg text-shadow-cyan-500 mb-8">
+        Our Services
+      </h2>
       <div class="relative grid grid-cols-1 md:grid-cols-2 grid-rows-3 gap-3 w-full h-full mx-auto">
-      <ClientOnly>
-        <ServiceBlock class="flex-container bg-white rounded-lg shadow-sm w-fit min-h-48 p-4" :services="services.slice(0, 3)" :col="1"/>
-        <ServiceBlock class="flex-container bg-white rounded-lg shadow-sm w-fit min-h-48 p-4" :services="services.slice(3, 6)" :col="2"/>
-      </ClientOnly>  
-          </div>
+        <ClientOnly>
+          <ServiceBlock v-for="i in 2" :key="i" 
+            class="flex-container bg-white rounded-lg shadow-sm w-fit min-h-48 md:p-4"
+            :services="services.slice((i - 1) * 3, i * 3)" 
+            :col="i"/>
+        </ClientOnly>  
+      </div>
     </section>
   </UContainer>
 </template>

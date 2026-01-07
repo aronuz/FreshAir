@@ -32,6 +32,7 @@
     size?: Size
     to?: string | object | undefined
     trackingId?: string | undefined
+    ariaLabel?: string | undefined
   }
 
   const props = withDefaults(defineProps<Omit<Props, 'variant' | 'color'>>(), {
@@ -42,7 +43,8 @@
     rightIcon: false,
     size: 'md',
     to: undefined,
-    trackingId: undefined
+    trackingId: undefined,
+    ariaLabel: undefined
   })
 
   defineOptions({
@@ -79,7 +81,8 @@
     icon: props.icon,
     leading: !props.rightIcon,
     trailing: props.rightIcon,
-    to: props.to
+    to: props.to,
+    'aria-label': props.ariaLabel
   }))
 
   const onClick = async (event: MouseEvent) => {

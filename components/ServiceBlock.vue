@@ -5,9 +5,10 @@
                     <h3 class="font-semibold text-2xl md:text-lg text-gray-700 mb-2">{{ service.name }}</h3>
                     <p class="text-gray-600 text-2xl md:text-sm h-fit">{{ service.description }}</p>
                     <MyButton
-                        v-if="!isBookingDown && service.type !== 'plans'"
+                        v-if="!isBookingDown"
                         class="mt-2"
-                        label="Request Service"
+                        :label="service.type !== 'plans' ? 'Request Service' : 'Set Up a Plan'"
+                        :aria-label="service.type !== 'plans' ? `Request Service for ${service.name}` : 'Set Up a Plan'"
                         @click="$router.push({path: '/booking', query: {service: service.name}})"/>
                 </div>
                 <div class="flex-items h-full">

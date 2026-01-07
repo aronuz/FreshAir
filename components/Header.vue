@@ -2,7 +2,7 @@
   <UContainer class="py-4">
     <div class="flex flex-row nowrap justify-between">
       <div class="nav-top-left">
-        <MyButton btnType="secondary" class="w-fit hover:cursor-pointer p-1 bg-[url('/images/ac_unit.png')] bg-cover" @click.native="navigateTo('/')">
+        <MyButton btnType="secondary" class="w-fit hover:cursor-pointer p-1 bg-[url('/images/ac_unit.png')] bg-cover" @click.native="navigateTo('/')" ariaLabel="Home">
           <UCard class="w-fit font-bold opacity-80 btn-card">
             <h1 class="text-2xl font-bold text-secondary-500">Fresh Air HVAC</h1>
             <p class="text-sm text-bold text-gray-500">Your Comfort, Our Priority</p>
@@ -20,12 +20,15 @@
           </div>
       </div>
       <MyButton
-        icon="i-heroicons-bars-3-bottom-left"
+        :icon="!isMobileMenuOpen 
+          ? 'i-heroicons-bars-3-bottom-left'
+          : 'i-heroicons-x-mark'"
         size="xl"
-        btnType="secondary"
+        btnType="info"
         class="md:hidden w-20 h-20 m-auto p-5"
         @click="toggleMobileMenu"
         :ui="{leadingIcon: 'size-10'}"
+        ariaLabel="Toggle Mobile Menu"
       />
     </div>
   
@@ -33,7 +36,7 @@
         <!-- md:text-lg lg:text-xl xl:text-2xl -->
         <nav class="flex shrink justify-between p-3 font-bold text-white rounded-sm">
           <template v-for="link in siteLinks" :key="link.to">
-            <NuxtLink v-if="link.to !== '/admin' || userRole === 'admin'" :to="link.to === '/index' ? '/' : link.to" :id="link.name" class="w-fit h-10 bg-gray-400 px-5 py-[5px] lg:py-[2px] xl:py-0 rounded-lg text-[clamp(.82rem,1vw+.34rem,1.5rem)] text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">{{link.name}}</NuxtLink>
+            <NuxtLink v-if="link.to !== '/admin' || userRole === 'admin'" :to="link.to === '/index' ? '/' : link.to" :id="link.name" class="w-fit h-10 bg-gray-400 px-5 py-[5px] lg:py-[2px] xl:py-0 rounded-lg text-[clamp(.82rem,1vw+.34rem,1.5rem)] text-shadow-lg text-shadow-amber-700 hover:text-shadow-blue-900">{{link.name}}</NuxtLink>
           </template>        
           
           <!-- <NuxtLink to="/" id="index" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">Home</NuxtLink>

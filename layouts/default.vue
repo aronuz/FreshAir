@@ -29,6 +29,9 @@
   })
 
   useHead({
+    htmlAttrs: {
+      lang: 'en',
+    },
     link: [{
       rel: 'preconnect',
       href: 'https://fonts.googleapis.com'
@@ -43,7 +46,7 @@
 
 <style>
 nav .router-link-active {
-  background-color: #3ec271;
+  background-color: #26874B;
   color: #fff;
   box-shadow: 0px 5px #5879d4;
 }

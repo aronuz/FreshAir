@@ -130,7 +130,7 @@
     const defaultMessage = ref("Hi, I'm interested in your services!")
 
     const isMobile = computed(() => {
-      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      return navigator && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
         navigator.userAgent
       )
     })

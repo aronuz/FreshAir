@@ -10,6 +10,7 @@
             checked-icon="i-lucide-check"
             v-model="isCalendar"
             :label="showCalendar ? 'Calendar' : 'List'"
+            :aria-label="showCalendar ? 'Switch to List View' : 'Switch to Calendar View'"
             :disabled="!isMD"
             class="flex justify-end mb-4" 
             :ui="{ root: 'items-center', label: 'md:lg:text-xl lg:text-2xl align-top' }"
@@ -139,7 +140,7 @@ const { $screenSize } = useNuxtApp()
 const isMD = computed(() => ['md', 'lg'].includes((unref($screenSize))))
 const isXS = computed(() => (unref($screenSize)) === 'xs')
 
-const showCalendar = ref(isMD.value)
+const showCalendar = computed(() => isMD.value)
 
 const isCalendar = computed({
   get: () => {

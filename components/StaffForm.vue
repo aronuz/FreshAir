@@ -20,16 +20,17 @@
                 <div class="flex items-center gap-3">
                     <input 
                         ref="fileInput"
+                        class="hidden"
                         type="file" 
                         accept="image/*" 
                         @change="handleFileChange"
-                        class="hidden"
+                        aria-hidden="true"
                     />
                     <MyButton 
-                        @click="openFileDialog"
                         icon="i-heroicons-photo"
                         variant="infoOutline"
-                        label="Select Image"
+                        :label="isMD ? 'Select Image' : ''"
+                        @click="openFileDialog"
                     />
                 </div>
             </UFormField>
@@ -44,13 +45,32 @@
         <!-- Submit Button -->
         <div class="md:grid grid-cols-3 gap-4 py-2 flex justify-center" >
             <!-- Submit Button -->
-            <MyButton class="w-36 justify-self-end bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="!formHasData" type="submit" label="Save Profile" :loading="pending" icon="i-heroicons-arrow-up-on-square" />
-
+            <MyButton 
+                class="w-fit md:w-36 justify-self-end bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed" 
+                :disabled="!formHasData"
+                icon="i-heroicons-arrow-up-on-square" 
+                :label="isMD ? 'Save Profile' : ''" 
+                :loading="pending" 
+                type="submit"
+            />
             <!-- Clear Button -->
-            <MyButton class="w-36 text-blue rounded-md hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="pending" btnType="infoOutline" label="Clear Form" icon="i-heroicons-backspace" @click="clearForm"/>
-
+            <MyButton 
+                class="w-fit md:w-36 text-blue rounded-md hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" 
+                :disabled="pending" 
+                btnType="infoOutline" 
+                :label="isMD ? 'Clear Form' : ''" 
+                icon="i-heroicons-backspace" 
+                @click="clearForm"
+            />
             <!-- Cancel Button -->
-            <MyButton class="w-36 text-blue rounded-md hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="pending" btnType="infoOutline" label="Cancel" icon="i-heroicons-x-circle" @click="cancelEdit"/>
+            <MyButton 
+                class="w-fit md:w-36 text-blue rounded-md hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" 
+                :disabled="pending"
+                btnType="infoOutline" 
+                :label="isMD ? 'Cancel' : ''" 
+                icon="i-heroicons-x-circle" 
+                @click="cancelEdit"
+            />
         </div>
 
         <!-- Error Messages -->
@@ -64,7 +84,10 @@
 <script lang="ts" setup>
     import type { FormErrorEvent, FormSubmitEvent } from '@nuxt/ui'
     import { z } from 'zod'
-    
+
+    const { $screenSize } = useNuxtApp()
+    const isMD = computed(() => ['md', 'lg'].includes((unref($screenSize) as string)))
+
     const emit = defineEmits(['saved', 'formCleared', 'hideForm'])
 
     interface staff {

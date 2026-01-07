@@ -30,6 +30,7 @@
             size="md"
             icon="i-lucide-trash-2"
             @click.stop="handleDeleteStaff({ id: staff.id, name: staff.name, image_url: staff.image_url })"
+            :ariaLabel="`Remove staff profile for ${staff.name}`"
         />
     </UBadge>
 </template>
