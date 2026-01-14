@@ -24,10 +24,10 @@
           ? 'i-heroicons-bars-3-bottom-left'
           : 'i-heroicons-x-mark'"
         size="xl"
-        btnType="info"
-        class="md:hidden w-20 h-20 m-auto p-5"
+        btnType="primary"
+        class="md:hidden flex justify-center w-20 h-20 m-auto"
         @click="toggleMobileMenu"
-        :ui="{leadingIcon: 'size-10'}"
+        :ui="{leadingIcon: 'size-15'}"
         ariaLabel="Toggle Mobile Menu"
       />
     </div>
@@ -57,10 +57,10 @@
           <NuxtLink to="/contact" @click="isMobileMenuOpen = false">Contact Us</NuxtLink>
           <NuxtLink to="/about" @click="isMobileMenuOpen = false">About Us</NuxtLink>
           <NuxtLink v-if="isAdmin" to="/admin" label="Admin" @click="isMobileMenuOpen = false" /> -->
-          <MyButton v-if="user" class="text-4xl/15 m-auto" btnType="secondarySolid" @click="isMobileMenuOpen = false; handleLogout()" label="Log Out" />
-          <UButtonGroup v-else class="m-auto">
-            <MyButton v-if="notOnLogin" class="text-4xl/15 pb-4" btnType="secondarySolid" @click="handleLogin; isMobileMenuOpen = false" label="Log In" />
-            <MyButton v-if="notOnLogin" class="text-4xl/15 pb-4" btnType="secondarySolid" @click="handleRegister; isMobileMenuOpen = false" label="Register" />
+          <MyButton v-if="user" class="flex justify-center text-4xl/15 m-auto" btnType="secondarySolid" @click="isMobileMenuOpen = false; handleLogout()" label="Log Out" />
+          <UButtonGroup v-else class="flex flex-row justify-center m-auto gap-2">
+            <MyButton v-if="notOnLogin" class="h-fit w-fit text-4xl/15 pb-4" btnType="secondarySolid" @click="handleLogin()" label="Log In" />
+            <MyButton v-if="notOnLogin" class="h-fit w-fit text-4xl/15 pb-4" btnType="secondarySolid" @click="handleLogin('/registration')" label="Register" />
           </UButtonGroup>
         </nav>
             
@@ -182,11 +182,9 @@
     }
   }
 
-  const handleLogin = () => {
-    navigateTo('/loginLink', )
-  }
-  const handleRegister = () => {
-    navigateTo('/registraition', )
+  const handleLogin = (path = '/loginLink') => {
+    isMobileMenuOpen.value = false
+    navigateTo(path)
   }
 </script>
 
