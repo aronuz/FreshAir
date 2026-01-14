@@ -1,10 +1,10 @@
 <template>
-    <UForm class="grid grid-rows-[80px_1fr_50px] bg-gradient-to-b from-white to-blue-300 -m-4 sm:-m-6 p-4 pt-6" :state="formdata" :schema="schema" ref="reviewform" @submit.prevent="submitForm" @error="onError">
+    <UForm class="grid grid-rows-[80px_1fr_50px] bg-gradient-to-b from-white to-blue-300 text-gray-600 -m-4 sm:-m-6 p-4 pt-6" :state="formdata" :schema="schema" ref="reviewform" @submit.prevent="submitForm" @error="onError">
         <div class="grid grid-cols-2">
-            <UFormField required label="Name" name="name">
+            <UFormField required label="Name" name="name" :ui="{ label:'text-gray-600 dark:text-gray-500' }">
                 <UInput placeholder="Name" v-model="formdata.name"/>
             </UFormField>
-            <UFormField label="Rate Us" name="rating" required>
+            <UFormField label="Rate Us" name="rating" required  :ui="{ label:'text-gray-600 dark:text-gray-500' }">
                 <div class="flex items-center gap-2">
                     <MyButton
                         v-for="star in [1, 2, 3, 4, 5]"
@@ -26,7 +26,7 @@
                 </div>
             </UFormField>
         </div>
-        <UFormField label="Your Review" name="review" class="w-full" >
+        <UFormField label="Your Review" name="review" class="w-full"  :ui="{ label:'text-gray-600 dark:text-gray-500' }">
             <UTextarea
                 v-model="formdata.content"
                 placeholder="Share your experience..."

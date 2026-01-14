@@ -12,6 +12,7 @@
       rightIcon
       :disabled="!phoneNumber"
       :label="screenSize !== 'xs' ? 'Call' : ''"
+      :aria-label="`Call ${phoneNumber}`"
       @click="onClick()"
     />
     
@@ -21,6 +22,7 @@
       rightIcon
       :disabled="!phoneNumber"
       :label="screenSize !== 'xs' ? 'Text' : ''"
+      :aria-label="`Send SMS to ${phoneNumber}`"
       @click="onClick('sms')"
     />
 
@@ -30,6 +32,7 @@
       rightIcon
       :disabled="!phoneNumber"      
       :label="screenSize !== 'xs' ? 'Custom SMS' : ''"
+      :aria-label="`Send Custom SMS to ${phoneNumber}`"
       @click="onClick('sms', true)"
     >
       

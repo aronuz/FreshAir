@@ -26,20 +26,23 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     }
   }
 
+  let userId: string | null = useState('user_id').value
   let infoMsg: string
 
-  if (!userRole.value) {
-    try {
-      const supabase = useSupabaseClient()
-      const { data: { session } } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }))
+  if (!userRole.value && userId) {
+    userRole.value = await useCheckRole(userId)
+    // try {
+    //   const supabase = useSupabaseClient()
+    //   const { data: { session } } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }))
 
-      if(session) {
-        const userId = session.user?.id
-        userRole.value = await useCheckRole(userId)
-      }
-    } catch (error) {
-      showWarning('error', 'Error fetching user session.', error instanceof Error ? error.message : 'Unknown error')
-    }
+    //   if(session) {
+    //     const userId = session.user?.id
+    //     userRole.value = await useCheckRole(userId)
+    //   }
+      
+    // } catch (error) {
+    //   showWarning('error', 'Error fetching user session.', error instanceof Error ? error.message : 'Unknown error')
+    // }
   }
   
   if (pathTo === '/admin' && userRole.value !== 'admin') {

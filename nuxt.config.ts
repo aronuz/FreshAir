@@ -1,8 +1,24 @@
+import compression from 'vite-plugin-compression2';
+
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
   ssr: true,
   
+  vite: {
+    plugins: [
+      compression({
+        algorithms: ['brotliCompress'],
+        // Optional: specify algorithms (gzip by default)
+        // algorithms: ['gzip', 'brotliCompress'], 
+        // Optional: only compress files larger than a certain threshold (in bytes)
+        // threshold: 1024, 
+        // Optional: exclude specific file types
+        // exclude: [/\\.map$/, /stats\\.html$/],
+      }),
+    ],
+  },
+
   nitro: { 
     prerender: {
       crawlLinks: true,
@@ -31,7 +47,8 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxt/image',
     '@pinia/nuxt',
-    '@nuxt/devtools'
+    '@nuxt/devtools',
+    '@nuxtjs/robots'
   ],
   
   css: [
@@ -67,5 +84,9 @@ export default defineNuxtConfig({
         file: '~/layouts/error.vue'
       })
     }
+  },
+  
+  robots: {
+    disallow: ['/admin', '/admin/**', '/booking', '/booking/**', '/construction']
   }
 })

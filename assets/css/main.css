@@ -1,9 +1,25 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+:root {
+  --ui-primary: var(--ui-color-primary-800);
+  --ui-info: var(--ui-color-blue-600);
+  --ui-secondary: var(--color-gray-600);
+  --color-my-light: 241 227 192;
+  --ui-text: rgba(var(--color-my-light));
+}
+
+.dark {
+  --ui-primary: var(--ui-color-primary-600);
+  --ui-info: var(--ui-color-blue-500);
+  --ui-secondary: var(--color-gray-500);
+  --color-my-dark: 91 54 5;
+  --ui-text: rgba(var(--color-my-dark));
+}
+
 .dialog-container {
   text-align: center;
-  background: rgba(255, 255, 255, 0.1);
+  background: --alpha(var(--color-blue-900) / 25%);
   backdrop-filter: blur(5px) contrast(10%);
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(153, 24, 24, 0.1);

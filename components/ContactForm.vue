@@ -3,19 +3,19 @@
     <ConfirmationModal v-bind="$attrs" ref="confirmationModal" title="Email Us" confirm-text="Send Message" confirm-icon="i-heroicons-envelope" :loading="loading" @close="onClose">
       <template #content>
         <UForm :state="emailState" :schema="schema" ref="emailform" class="flex flex-col" @submit.prevent="sendEmail" @error="onError">
-          <UFormField label="Name" name="name">
+          <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" label="Name" name="name">
             <UInput class="flex" v-model="emailState.name" placeholder="Your Name" />
           </UFormField>
-          <UFormField label="Email" name="email">
+          <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" label="Email" name="email">
             <UInput class="flex" v-model="emailState.email" type="email" placeholder="Your Email" />
           </UFormField>
-          <UFormField label="Phone (Optional)" name="phone" optional>
+          <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" label="Phone (Optional)" name="phone" optional>
             <UInput class="flex" v-model="emailState.phone" placeholder="Your Phone" />
           </UFormField>
-          <UFormField label="Subject" name="subject">
+          <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" label="Subject" name="subject">
             <UInput class="flex" v-model="emailState.subject" placeholder="Subject" />
           </UFormField>
-          <UFormField label="Message" name="message">
+          <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" label="Message" name="message">
             <UTextarea class="flex" v-model="emailState.message" autoresize placeholder="Your Message" />
           </UFormField>
           <button type="submit" class="hidden">Send Message</button> 

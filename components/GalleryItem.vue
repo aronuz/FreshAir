@@ -1,6 +1,6 @@
 <template>
   <div class="gallery-item">
-    <NuxtImg :src="imagePath" :alt="altText" 
+    <NuxtImg :src="imagePath" :alt="altText" format="webp"
       class="w-48 md:w-36 lg:w-24 rounded-sm md:rounded-xl shadow-lg"
     />
   </div>

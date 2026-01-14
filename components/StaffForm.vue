@@ -4,19 +4,19 @@
     
     <UForm class="space-y-4" :state="formdata" ref="staffform" :schema="schema" :loading="pending" @submit="handleSubmit" @error="onError">
         <!-- Name Input -->
-        <UFormField label="Name" name="name" required>
+        <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" label="Name" name="name" required>
             <UInput placeholder="Staff Name" v-model="formdata.name"/>
         </UFormField>
 
         <!-- Bio Text Area -->
-        <UFormField label="Bio" name="bio" required>
+        <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" label="Bio" name="bio" required>
             <UTextarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" :rows="2" :maxrows="4" resize="none" :autoresize="true" variant="outline" v-model="formdata.bio" placeholder="Staff bio" />
         </UFormField>
 
         <!-- Image Upload -->
         <div :class="['grid gap-4', imagePreview ? 'md:grid-cols-2' : 'grid-cols-1']">
                         
-            <UFormField name="profileImage" label="Photo" description="Allowed file types: JPG or PNG. 2MB Max.">
+            <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" name="profileImage" label="Photo" description="Allowed file types: JPG or PNG. 2MB Max.">
                 <div class="flex items-center gap-3">
                     <input 
                         ref="fileInput"
@@ -29,7 +29,8 @@
                     <MyButton 
                         icon="i-heroicons-photo"
                         variant="infoOutline"
-                        :label="isMD ? 'Select Image' : ''"
+                        :label="isMD ? 'Select Profile Image' : ''"
+                        aria-label="Select Profile Image"
                         @click="openFileDialog"
                     />
                 </div>
@@ -37,7 +38,7 @@
             
             <!-- Image Preview -->
             <div v-if="imagePreview && fileName" class="flex flex-col items-center justify-center border border-gray-300 rounded-md overflow-hidden p-4">
-                <img :src="imagePreview as string" :alt="fileName" class="w-40 h-40 object-cover rounded mb-2" />
+                <NuxtImg :src="imagePreview as string" :alt="fileName" format="webp" class="w-40 h-40 object-cover rounded mb-2" />
                 <span class="text-xs text-gray-600 text-center truncate">{{ fileName }}</span>
             </div>
         </div>
@@ -50,6 +51,7 @@
                 :disabled="!formHasData"
                 icon="i-heroicons-arrow-up-on-square" 
                 :label="isMD ? 'Save Profile' : ''" 
+                aria-label="Save Profile"
                 :loading="pending" 
                 type="submit"
             />
@@ -59,6 +61,7 @@
                 :disabled="pending" 
                 btnType="infoOutline" 
                 :label="isMD ? 'Clear Form' : ''" 
+                aria-label="Clear Form"
                 icon="i-heroicons-backspace" 
                 @click="clearForm"
             />
@@ -67,7 +70,8 @@
                 class="w-fit md:w-36 text-blue rounded-md hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" 
                 :disabled="pending"
                 btnType="infoOutline" 
-                :label="isMD ? 'Cancel' : ''" 
+                :label="isMD ? 'Cancel' : ''"
+                aria-label="Cancel"
                 icon="i-heroicons-x-circle" 
                 @click="cancelEdit"
             />
@@ -75,7 +79,7 @@
 
         <!-- Error Messages -->
         <div v-show="hasErrors" class="col-span-3">          
-            <UFormField name="errors"/>
+            <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" name="errors"/>
         </div>
     </UForm>
   </div>

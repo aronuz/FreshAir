@@ -15,60 +15,60 @@
     <template #body>
         <UForm class="grid bg-gradient-to-b from-white to-blue-300 -m-4 sm:-m-6 px-4 pt-3 gap-1" style="grid-template-rows: repeat(auto-fit, minmax(min-content, auto));" :state="formdata" :schema="schema" ref="appform" @submit.prevent="submitForm" @error="onError">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <UFormField required label="Name" name="title">
+            <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" required label="Name" name="title">
               <UInput placeholder="Name" v-model="formdata.title"/>
             </UFormField>
-            <UFormField label="Email" name="email">
+            <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" label="Email" name="email">
               <UInput placeholder="Email" v-model="formdata.email"/>
             </UFormField>
           </div>
           <div class="grid" :class="['grid-cols-1', props.selectedUser ? 'sm:grid-cols-2': 'sm:grid-cols-[7rem_auto_8rem]', 'gap-2']">
             <div class="w-[7rem]">
-              <UFormField required label="Phone" name="phone">
+              <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" required label="Phone" name="phone">
                 <UInput placeholder="Phone" v-model="formdata.phone"/>
               </UFormField>
             </div>
             <template v-if="!props.selectedUser">
               <div class="w-full">
-                <UFormField required label="Address" name="address" help="Location where service is needed">
+                <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" required label="Address" name="address" help="Location where service is needed">
                   <AddressLookup ref="addressLookup" :saved-address="formdata.address" :saved-zip="formdata.zip"/>
                 </UFormField>
               </div>
               <div class="w-full">
-                <UFormField required label="Zip" name="zip" help="Used to determine availability.">
+                <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" required label="Zip" name="zip" help="Used to determine availability.">
                   <UInput v-model="formdata.zip" placeholder="Zip Code" />
                 </UFormField>
               </div>
             </template>
-            <UFormField v-else label="User Role" name="user_role">
+            <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" v-else label="User Role" name="user_role">
               <USelect class="w-full sm:w-9/12" v-model="rolePicked" :items="roles" placeholder="User Role" arrow />
             </UFormField>
           </div>
           <template v-if="!props.selectedUser">
             <div class="grid gap-2">
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <UFormField required label="Start Date" name="start_date">
+                <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" required label="Start Date" name="start_date">
                   <UInput type="date" v-model="formattedStartDate" @update:modelValue="updateStartDate"/>
                 </UFormField>
-                <UFormField required label="Start Time" name="start_time">
+                <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" required label="Start Time" name="start_time">
                   <UInput type="time" v-model="appointmentData.start_time" />
                 </UFormField>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4 md:gap-2">
-                <UFormField label="End Date" name="end_date">
+                <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" label="End Date" name="end_date">
                   <UInput type="date" v-model="formattedEndDate" @update:modelValue="updateEndDate"/>
                 </UFormField>
-                <UFormField label="End Time" name="end_time" :required="!!appointmentData.end_date">
+                <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" label="End Time" name="end_time" :required="!!appointmentData.end_date">
                   <UInput type="time" v-model="appointmentData.end_time" />
                 </UFormField>
               </div>
               <div class="grid grid-cols-1">
                 <div class="flex justify-start flex-wrap gap-1 sm:gap-4 md:gap-2">
-                  <UFormField label="Service" name="service" help="Select the service reason">
+                  <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" label="Service" name="service" help="Select the service reason">
                     <USelect v-model="servicePicked" :items="services" value-key="id" class="w-full" placeholder="Service reason" arrow @update:modelValue="updateService"/>
                   </UFormField>
                   <div class="flex-1">
-                    <UFormField label="Notes" name="notes">
+                    <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" label="Notes" name="notes">
                       <UTextarea class="min-w-[10rem] w-full" :rows="2" :maxrows="2" resize="none" :autoresize="false" variant="outline" v-model="appointmentData.notes" placeholder="Request details" />
                     </UFormField>
                   </div>
@@ -81,7 +81,7 @@
               <MyButton class="px-8" type="submit" :label="saveLabel" :disabled="pending" :loading="pending" />
             </div>
             <div v-if="hasErrors" class="col-span-3">          
-              <UFormField name="errors"/>
+              <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" name="errors"/>
             </div>
           </div>
         </UForm>
@@ -97,11 +97,11 @@
   import { storeToRefs } from 'pinia'
   import { getDynamicStore } from '~/stores/events'
   
-  import { services as serviceList } from '~/data/constants.json'
+  import { services as serviceList, zipCodes } from '~/data/constants.json'
 
   const addressLookup = ref<InstanceType<typeof import('./AddressLookup.vue').default> | null>(null);
   
-  import type { AppointmentData } from '../composables/FetchQueries/useFetchAppointments'
+  import type { AppointmentData } from '~/composables/useFetchAppointments'
 
   interface userType {
     id?: number,
@@ -533,7 +533,6 @@
     }
   })
 
-  const zipCodes = [11201, 11203, 11204, 11205, 11206, 11207, 11208, 11209, 11210, 11211, 11212, 11213, 11214, 11215, 11216, 11217, 11218, 11219, 11220, 11221, 11222, 11223, 11224, 11225, 11226, 11228, 11229, 11230, 11231, 11232, 11233, 11234, 11235, 11236, 11237, 11238, 11239, 11241, 11243, 11249]
   const isCoveredZip = (zip: string) => {
     const simpleZip = zip.split('-')[0]
     return zipCodes.includes(parseInt(simpleZip))

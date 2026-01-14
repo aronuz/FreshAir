@@ -1,13 +1,13 @@
 <template>
     <div class="flex flex-col max-sm:justify-center md:items-stretch items-center sm:justify-center max-sm:mx-4 p-4 gap-4 bg-gray-50 rounded-lg col-span-12">
         <div class="flex flex-row w-full">
-            <UFormField label="User Data">
+            <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" label="User Data">
                 <UInput v-model="searchTerm" icon="i-lucide-search" size="md" variant="outline" placeholder="Search..." @update:modelValue="onChange"/>
             </UFormField>
         </div>
         <div class="flex flex-row max-sm:flex-wrap gap-4 items-end w-full">
             <div class="flex-1 w-[1/3]">
-                <UFormField label="Start Date" class="block text-sm font-medium text-gray-700 mb-1">
+                <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" label="Start Date" class="block text-sm font-medium text-gray-700 mb-1">
                     <UInput 
                         v-model="startDate"
                         type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -17,7 +17,7 @@
             </div>
 
             <div class="flex-1 w-[1/3]">
-                <UFormField label="End Date" class="block text-sm font-medium text-gray-700 mb-1">
+                <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" label="End Date" class="block text-sm font-medium text-gray-700 mb-1">
                     <UInput
                         v-model="endDate"
                         type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

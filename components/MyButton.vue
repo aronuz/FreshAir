@@ -17,7 +17,7 @@
 <script lang="ts" setup>
   type Variant = 'ghost' | 'solid' | 'soft' | 'outline' | 'subtle' | 'link'
   type Color = 'error' | 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'neutral'
-  type ButtonVariant = Color | 'primaryError' | 'error' | 'nutural' | 'danger' | 'primary' | 'success' |'successOutline' | 'infoOutline' | 'ghost' | 'ghostError' | 'ghostPrimary'
+  type ButtonVariant = Color | 'primaryError' | 'primaryOutline' | 'error' | 'nutural' | 'danger' | 'primary' | 'success' |'successOutline' | 'infoOutline' | 'secondaryOutline' | 'secondarySolid' | 'ghost' | 'ghostError' | 'ghostPrimary'
   type Size = 'sm' | 'md' | 'lg' | 'xl'
   type ButtonType = "button" | "submit" | "reset" | undefined
 
@@ -62,12 +62,15 @@
   const buttonTypeMap: Partial<Record<ButtonVariant, {color: Color, variant: Variant}>> = {
     primary: { color: 'primary', variant: 'solid' },
     primaryError: { color: 'error', variant: 'solid' },
+    primaryOutline: { color: 'primary', variant: 'outline' },
     success: { color: 'success', variant: 'solid' },
     successOutline: { color: 'success', variant: 'outline' },
     info: { color: 'info', variant: 'solid' },
     infoOutline: { color: 'info', variant: 'outline' },
     warning: { color: 'warning', variant: 'solid' },
     secondary: { color: 'secondary', variant: 'soft' },
+    secondaryOutline: { color: 'secondary', variant: 'outline' },
+    secondarySolid: { color: 'secondary', variant: 'solid' },
     danger: { color: 'error', variant: 'solid' },
     ghost: { color: 'neutral', variant: 'ghost' },
     ghostError: { color: 'error', variant: 'ghost' },

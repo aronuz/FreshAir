@@ -1,14 +1,31 @@
 <template>
     <UContainer class="my-8">
-      <FormModal v-model="isOpenUser" :selected-user="selectedUser" @saved="updateSelectedUser"/>
-      <ListModal v-if="selectedUser && isOpenEvents" v-model="isOpenEvents" :groupped-events="appointments" :user="selectedUser.title"/>
-        
+      <FormModal 
+        v-model="isOpenUser" 
+        :selected-user="selectedUser" 
+        @saved="updateSelectedUser"
+      />
+      <ListModal 
+        v-if="selectedUser && isOpenEvents" 
+        v-model="isOpenEvents" 
+        :groupped-events="appointments" 
+        :user="selectedUser.title"
+      />        
       <ClientOnly>
         <UCard>
           <template #header class="text-xl font-semibold">Admin Panel</template>
 
           <div v-if="isXS" class="text-xl">Device not Supported</div>
-          <UTabs v-else :unmount-on-hide="false" :items="tabItems" :orientation="isMD ? 'horizontal' : 'vertical'" class="w-full" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }">
+          <UTabs v-else 
+            class="w-full" 
+            :unmount-on-hide="false" 
+            :items="tabItems" 
+            :orientation="isMD ? 'horizontal' : 'vertical'" 
+            :ui="{ 
+              label: 'hidden md:inline-block', 
+              leadingIcon: 'size-14 md:size-10' 
+            }"
+          >
             <template #content="{ item }">
               <UCard>
                 <template #header class="text-xl font-semibold">{{ item.label }}</template>
@@ -19,18 +36,38 @@
                   </template>
                   <div v-else>
                     <template v-if="isMD">
-                      <UTable ref="userTable" v-model:column-visibility="visibility" v-model:pagination="pagination" :data="users" :columns="columns" :ui="{
-                        wrapper: 'overflow-x-auto',
-                        thead: 'hidden md:table-header-group',
-                        tbody: 'block md:table-row-group'
-                      }">
+                      <UTable ref="userTable" 
+                        v-model:column-visibility="visibility" 
+                        v-model:pagination="pagination" 
+                        :data="users" 
+                        :columns="columns" 
+                        :ui="{
+                          wrapper: 'overflow-x-auto',
+                          thead: 'hidden md:table-header-group',
+                          tbody: 'block md:table-row-group'
+                        }"
+                      >
                         <template #appointments-cell="{ row }">
-                          <MyButton @click="loadUserEvents(row.original as userType)" label="See Appointments" icon="i-heroicons-document-magnifying-glass" />
+                          <MyButton 
+                            label="See Appointments" 
+                            icon="i-heroicons-document-magnifying-glass"
+                            @click="loadUserEvents(row.original as userType)"
+                          />
                         </template>
                         <template #actions-cell="{ row }">
                           <template v-if="selectedUsers.has((row.original as userType).user_id)">
-                            <MyButton class="bg-blue-500 text-white px-2 py-1 rounded" icon="i-heroicons-pencil-square" @click="handleUpdateUser(row.original as userType)" label="Edit" />
-                            <MyButton class="bg-red-500 text-white px-2 py-1 rounded" icon="i-heroicons-trash" @click="handleDeleteUsers((row.original as userType).user_id)" label="Remove" />
+                            <MyButton 
+                              class="bg-blue-500 text-white px-2 py-1 rounded" 
+                              icon="i-heroicons-pencil-square" 
+                              label="Edit"
+                              @click="handleUpdateUser(row.original as userType)"
+                            />
+                            <MyButton
+                              class="bg-red-500 text-white px-2 py-1 rounded"
+                              icon="i-heroicons-trash"
+                              label="Remove"
+                              @click="handleDeleteUsers((row.original as userType).user_id)"
+                            />
                           </template>
                         </template>
                       </UTable>                  
@@ -44,20 +81,62 @@
                       </div>
                     </template>                               
                     <template v-else>
-                      <UCheckbox :default-value="allSelected" v-model="allSelected" @update:modelValue="updateSelectedUsers($event)" class="m-3" :label="selectAction"/>
-                      <div v-for="user in pageUsers" :key="user.user_id" class="flex justify-between p-3 bg-gray-100 rounded">
+                      <UCheckbox 
+                        v-model="allSelected"
+                        class="m-3"
+                        :default-value="allSelected"
+                        :label="selectAction"
+                        @update:modelValue="updateSelectedUsers($event)"
+                      />
+                      <div 
+                        v-for="user in pageUsers" 
+                        :key="user.user_id" 
+                        class="flex justify-between p-3 bg-gray-100 rounded"
+                      >
                         <div class="grid xs:grid-cols-[10px_minmax(0, 1fr)_minmax(0, 1fr)] sm:grid-cols-12 grid-flow-row-dense grid-rows-[repeat(5,auto)] sm:grid-rows-2 auto-rows-min sm:gap-0">
                           <div class="sm:col-span-1">
-                            <UCheckbox :model-value="selectedUsers.has(user.user_id)" :aria-label="`Select ${user.title}`" @update:modelValue="updateSelectedUsers($event, user.user_id)"/>
+                            <UCheckbox 
+                              :model-value="selectedUsers.has(user.user_id)" 
+                              :aria-label="`Select ${user.title}`" 
+                              @update:modelValue="updateSelectedUsers($event, user.user_id)"
+                            />
                           </div>
                           <div class="col-span-2 sm:col-span-5 h-fit" >{{ user.title }} - {{ user.phone }}<span v-if="user.email">/{{ user.email }}</span></div>
                           <div class="col-span-3 sm:col-span-6 h-fit flex justify-end sm:justify-start" >Joined On: {{ dayjs(user.created_at).format('DD/MM/YY') }}</div>
                           <div class="col-span-1 sm:col-span-3 h-fit" >
-                            <MyButton class="sm:ml-4 px-1 h-fit w-fit sm:my-auto" @click="loadUserEvents(user)" label="See Appointments" icon="i-heroicons-document-magnifying-glass" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }"/>
+                            <MyButton 
+                              class="sm:ml-4 px-1 h-fit w-fit sm:my-auto" 
+                              label="See Appointments" 
+                              icon="i-heroicons-document-magnifying-glass" 
+                              :ui="{ 
+                                label: 'hidden md:inline-block', 
+                                leadingIcon: 'size-14 md:size-10' 
+                              }"
+                              @click="loadUserEvents(user)"
+                            />
                           </div>
-                          <div v-if="selectedUsers.has(user.user_id)" class="space-x-2 col-span-2 sm:col-span-6 sm:col-start-9 flex justify-end ml-2">
-                            <MyButton class="bg-blue-500 text-white px-1 py-1 rounded h-fit w-fit my-auto" icon="i-heroicons-pencil-square" @click="handleUpdateUser(user)" label="Edit" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
-                            <MyButton class="bg-red-500 text-white px-1 py-1 rounded h-fit w-fit my-auto" icon="i-heroicons-trash" @click="handleDeleteUsers(user.user_id)" label="Remove" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
+                          <div 
+                            v-if="selectedUsers.has(user.user_id)" 
+                            class="space-x-2 col-span-2 sm:col-span-6 sm:col-start-9 flex justify-end ml-2"
+                          >
+                            <MyButton 
+                              class="bg-blue-500 text-white px-1 py-1 rounded h-fit w-fit my-auto" 
+                              icon="i-heroicons-pencil-square"
+                              label="Edit" 
+                              :ui="{ 
+                                label: 'hidden md:inline-block', 
+                                leadingIcon: 'size-14 md:size-10' 
+                              }"
+                              @click="handleUpdateUser(user)" 
+                            />
+                            <MyButton 
+                              class="bg-red-500 text-white px-1 py-1 rounded h-fit w-fit my-auto" 
+                              icon="i-heroicons-trash" @click="handleDeleteUsers(user.user_id)" 
+                              label="Remove" 
+                              :ui="{ 
+                                label: 'hidden md:inline-block', 
+                                leadingIcon: 'size-14 md:size-10' }" 
+                              />
                           </div>
                         </div>
                       </div>
@@ -81,30 +160,81 @@
                   <div v-for="page in pages" :key="page.to" class="grid grid-cols-2 md:grid-cols-4 grid-rows-3 border-b p-3 bg-gray-100 hover:bg-gray-50 transition rounded">
                     <template v-if="isMD">
                       <div class="col-span-2 md:col-span-1">{{ page.name }}</div>
-                      <UCheckbox class="flex-none my-auto" :class="{'col-span-2': !page.allowed}" v-model="page.allowed" :label="page.allowed ? 'Shown' : 'Hidden'"/>
-                      <UFormField v-if="page.allowed" class="flex-auto">
-                        <USelect v-model="pathPicked[page.name]" :items="[page.to, getOldPath(page)]" value-key="id" class="w-full" label="Path" arrow />
+                      <UCheckbox
+                        v-model="page.allowed"
+                        :class="['flex-none my-auto', {'col-span-2': !page.allowed}]" 
+                        :label="page.allowed ? 'Shown' : 'Hidden'"
+                        :aria-label="page.allowed ? `Show ${page.name} page` : `Hide ${page.name} page`"
+                      />
+                      <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" v-if="page.allowed" class="flex-auto">
+                        <USelect 
+                          v-model="pathPicked[page.name]" 
+                          :items="[page.to, getOldPath(page)]" 
+                          value-key="id" 
+                          class="w-full" 
+                          label="Path"
+                          arrow />
                       </UFormField>
                     </template>
                     <div v-else class="flex justify-start align-bottom">
-                      <UCheckbox class="flex-none my-auto" v-model="page.allowed"/>
-                      <UFormField v-if="page.allowed" class="flex-auto">
-                        <USelect v-model="pathPicked[page.name]" :items="[page.to, getOldPath(page)]" value-key="id" class="w-full" label="Path" arrow />
+                      <UCheckbox v-model="page.allowed" class="flex-none my-auto" />
+                      <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" v-if="page.allowed" class="flex-auto">
+                        <USelect 
+                          v-model="pathPicked[page.name]" 
+                          :items="[page.to, getOldPath(page)]" 
+                          value-key="id"
+                          class="w-full" label="Path" arrow />
                       </UFormField> 
                     </div>
-                    <MyButton class="col-span-2 md:col-span-1 justify-self-end flex items-center justify-center w-1/4 md:w-1/2 bg-blue-500 text-white rounded" @click="savePageInfo(page)" label="Save" />
+                    <MyButton 
+                      class="col-span-2 md:col-span-1 justify-self-end flex items-center justify-center w-1/4 md:w-1/2 bg-blue-500 text-white rounded" 
+                      @click="savePageInfo(page)" 
+                      label="Save" 
+                    />
                   </div> 
                 </template>
                 <template v-else>
                   <KeepAlive>
-                    <Team v-if="showForm === false" admin :profile-updated="profileUpdated" @staff-selected="staff = $event; showForm = true" @delete-staff="deleteStaff" @update:profileUpdated="profileUpdated = false" @show-form="showForm = true"/>
+                    <Team 
+                      v-if="showForm === false" 
+                      admin 
+                      :profile-updated="profileUpdated" 
+                      @staff-selected="staff = $event; showForm = true" 
+                      @delete-staff="deleteStaff" 
+                      @update:profileUpdated="profileUpdated = false" 
+                      @show-form="showForm = true"
+                    />
                   </KeepAlive> 
-                  <StaffForm v-show="showForm" :staff-selected="staff" @saved="profileUpdated = true" @form-cleared="staff = null" @hide-form="showForm = false"/>
+                  <StaffForm 
+                    v-show="showForm" 
+                    :staff-selected="staff" 
+                    @saved="profileUpdated = true" 
+                    @form-cleared="staff = null" 
+                    @hide-form="showForm = false"
+                  />
                 </template>
                 
                 <template #footer v-if="item.label === 'User Management'">
-                  <MyButton icon="i-heroicons-plus-circle" label="Add" @click="isOpenUser = true" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
-                  <MyButton v-if="selectedUsers.size" icon="i-heroicons-trash" btnType="primaryError" label="Remove" @click="handleDeleteUsers(selectedUsers)" :ui="{ label: 'hidden md:inline-block', leadingIcon: 'size-14 md:size-10' }" />
+                  <MyButton 
+                    icon="i-heroicons-plus-circle" 
+                    label="Add" 
+                    @click="isOpenUser = true" 
+                    :ui="{ 
+                      label: 'hidden md:inline-block', 
+                      leadingIcon: 'size-14 md:size-10' 
+                    }" 
+                  />
+                  <MyButton
+                    v-if="selectedUsers.size" 
+                    icon="i-heroicons-trash" 
+                    btnType="primaryError" 
+                    label="Remove" 
+                    @click="handleDeleteUsers(selectedUsers)" 
+                    :ui="{ 
+                      label: 'hidden md:inline-block', 
+                      leadingIcon: 'size-14 md:size-10' 
+                    }"
+                  />
                 </template>
               </UCard>
             </template>

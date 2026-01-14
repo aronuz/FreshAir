@@ -1,26 +1,26 @@
 <template>
     <UContainer class="h-screen flex items-start justify-center font-sans">
-        <ConfirmationCard v-if="success" :type="type" :email="email" :from-page="fromPage"/>
+        <ConfirmationCard v-if="success" :type="type" :email="email" :from-page="fromPage" :reset="reset"/>
         <UCard v-else :ui="{header: 'p-2 sm:p4', body: 'p-2 sm:p4', footer: 'p-2 sm:p4'}" class="dialog-container max-w-xl px-2 rounded-lg sm:mx-4 sm:px-6 w-fit mx-auto"> 
             <template #header>
                 <div class="grid grid-rows-auto text-lg/6">
                     <p class="text-3xl text-white font-bold">
                         <span v-if="isConfirmation">Thank you!</span>
-                        <span v-else >Welcome!</span>
+                        <span v-else>Welcome{{ !!resetEmail ? `, ${resetEmail}` : '' }}!</span>
                     </p>
                     <h2 class="font-semibold">
                         <slot name="prompt"><!-- Prompt content --></slot>
                     </h2>
-                    <h2 v-if="!isConfirmation" class="font-semibold">or enter as guest to schedule a new appointment!</h2>
+                    <h2 v-if="!isConfirmation && !reset" class="font-semibold">or enter as guest to schedule a new appointment!</h2>
                 </div>
             </template>
 
             <slot :onError="onError" :fromPage="fromPage"><!-- Default slot content --></slot>
 
             <template #footer>
-                <div class="dialog-details grid grid-rows-2 gap-2 text-sm leading-4 md:text-lg md:leading-6">
+                <div :class="['dialog-details grid', reset ? 'grid-rows-2 gap-2' : 'grid-rows-1' , 'text-sm leading-4 md:text-lg md:leading-6']">
                     <p class="sm:whitespace-nowrap"><slot name="switch"></slot></p>
-                    <p v-if="!isConfirmation" class="sm:whitespace-nowrap">Click <MyButton btnType="successOutline" @click="setGuestUser">here</MyButton> to continue as guest to add an appointment.</p>
+                    <p v-if="!isConfirmation && !reset" class="sm:whitespace-nowrap">Click <MyButton btnType="primaryOutline" ariaLabel="Continue as guest" class="hover:cursor-pointer" @click="setGuestUser">here</MyButton> to continue as guest to add an appointment.</p>
                 </div>
             </template>
         </UCard>
@@ -44,6 +44,14 @@
         email: {
             type: String,
             default: ''
+        },
+        reset: {
+            type: Boolean,
+            default: false
+        },
+        resetEmail: {
+            type: [String, null],
+            default: null
         },
         success: {
             type: Boolean,

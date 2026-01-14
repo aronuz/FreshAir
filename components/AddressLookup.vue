@@ -1,5 +1,5 @@
 <template>
-    <!-- <UFormField required label="Address" name="address"> -->
+    <!-- <UFormField :ui="{ label:'text-gray-600 dark:text-gray-500' }" required label="Address" name="address"> -->
         <UInputMenu
             id="address"
             v-model="addressInputObject"

@@ -15,8 +15,8 @@
           <MyButton v-if="user" class="h-fit" @click="handleLogout" label="Log Out" />
           <div v-else class="flex h-fit flex-row gap-2">
             <UBadge v-if="guestUser" color="success" size="xl">Guest</UBadge>
-            <MyButton v-if="notOnLogin" btnType="secondary" to="/loginLink" label="Log In" />
-            <MyButton v-if="notOnLogin" btnType="secondary" to="/registration" label="Register" />
+            <MyButton v-if="notOnLogin" btnType="secondarySolid" to="/loginLink" label="Log In" />
+            <MyButton v-if="notOnLogin" btnType="secondarySolid" to="/registration" label="Register" />
           </div>
       </div>
       <MyButton
@@ -57,10 +57,10 @@
           <NuxtLink to="/contact" @click="isMobileMenuOpen = false">Contact Us</NuxtLink>
           <NuxtLink to="/about" @click="isMobileMenuOpen = false">About Us</NuxtLink>
           <NuxtLink v-if="isAdmin" to="/admin" label="Admin" @click="isMobileMenuOpen = false" /> -->
-          <MyButton v-if="user" class="text-4xl/15 m-auto" btnType="infoOutline" @click="isMobileMenuOpen = false; handleLogout()" label="Log Out" />
+          <MyButton v-if="user" class="text-4xl/15 m-auto" btnType="secondarySolid" @click="isMobileMenuOpen = false; handleLogout()" label="Log Out" />
           <UButtonGroup v-else class="m-auto">
-            <MyButton v-if="notOnLogin" class="text-4xl/15 pb-4" btnType="infoOutline" @click="handleLogin; isMobileMenuOpen = false" label="Log In" />
-            <MyButton v-if="notOnLogin" class="text-4xl/15 pb-4" btnType="infoOutline" @click="handleRegister; isMobileMenuOpen = false" label="Register" />
+            <MyButton v-if="notOnLogin" class="text-4xl/15 pb-4" btnType="secondarySolid" @click="handleLogin; isMobileMenuOpen = false" label="Log In" />
+            <MyButton v-if="notOnLogin" class="text-4xl/15 pb-4" btnType="secondarySolid" @click="handleRegister; isMobileMenuOpen = false" label="Register" />
           </UButtonGroup>
         </nav>
             
@@ -133,6 +133,7 @@
   })
 
   watch (user, async (user) => {
+    if (import.meta.server) return
     const { data: { session } } = await supabase.auth.getSession()
     if (user && session?.user.id) {
       const usersStore = useUsersStore()
@@ -192,6 +193,6 @@
 <style>
 .btn-card div {
   padding: 40px !important;
-  padding-top: 50px !important;
+  padding-top: 45px !important;
 }
 </style>

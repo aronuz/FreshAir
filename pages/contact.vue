@@ -107,19 +107,19 @@
     //   console.error('Error captured in contact page:', err)
     //   return false // prevents error propagation
     // })
-
-    try {
-      onMounted(async () => {      
-        //console.log('Contact page mounted')
-        //console.log('Current route:', useRoute().path)
-        const unlink = useState('unlink')
-        if(unlink.value && document.querySelector(`#${unlink.value}`)) {
-          document.querySelector(`#${unlink.value}`)?.classList.remove('router-link-active')
-        }
-      })
-    } catch (error) {
-      console.error('Caught error in onMounted setup:', error)
-    }
+    onMounted(async () => {
+      if(import.meta.server) return
+      try {            
+          //console.log('Contact page mounted')
+          //console.log('Current route:', useRoute().path)
+          const unlink = useState('unlink')
+          if(unlink.value && document.querySelector(`#${unlink.value}`)) {
+            document.querySelector(`#${unlink.value}`)?.classList.remove('router-link-active')
+          }
+      } catch (error) {
+        console.error('Caught error in onMounted setup:', error)
+      }
+    })
     
     onBeforeUnmount(() => {
       //console.log('Contact page before unmount')
@@ -130,7 +130,7 @@
     const defaultMessage = ref("Hi, I'm interested in your services!")
 
     const isMobile = computed(() => {
-      return navigator && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      return import.meta.client && navigator && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
         navigator.userAgent
       )
     })

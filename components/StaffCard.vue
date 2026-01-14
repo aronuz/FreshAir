@@ -1,6 +1,6 @@
 <template>
     <UTooltip :disabled="admin" :content="{ sideOffset: -15 }" :text="staff?.bio">
-        <UCard class="flex flex-col gap-2 w-36 bg-white-50 text-center" variant="soft">
+        <UCard class="flex flex-col gap-2 w-36 bg-white-50 text-center text-gray-600" variant="soft">
             <UAvatar
                 :src="staff?.id ? staff.image_url : ''" 
                 :alt="staff?.name || 'Add Staff Member'"
@@ -12,7 +12,7 @@
             <template #footer>
                 <div v-if="staff != null">
                     <h3 class="font-semibold text-lg">{{ staff.name }}</h3>
-                    <p v-if="admin" class="text-gray-600 text-sm">{{ staff.bio }}</p>
+                    <p v-if="admin" class="text-sm">{{ staff.bio }}</p>
                 </div>
                 <p v-else-if="admin" class="font-semibold text-lg">Add Staff Member</p>   
             </template>
