@@ -4,9 +4,9 @@
     :ui="{ body: 'px-6 sm:px-6 py-3 sm:py-3' }"
   >
     <template #header>
-        <div class="flex justify-between gap-4">
-            <div clqass="flex flex-col sm:gap-4">
-                <h3 class="font-semibold text-gray-900 dark:text-white">
+        <div class="flex md:justify-between gap-1 flex-wrap items-start">
+            <div class="flex flex-col sm:gap-4">
+                <h3 :class="['font-semibold text-gray-900 dark:text-white max-w-[100%]', all && isSM? 'w-[40vw]' : 'w-20']">
                 {{ review.name }}
                 </h3>
                 <UBadge v-if="review.verified"
@@ -20,15 +20,13 @@
                     />
                 </UBadge>
             </div>
-            <div :class="{'grid grid-cols-5': all || !isSM}">
+            <div :class="[isLG ? 'w-20' : !all && isSM ? 'w-fit' : 'w-15', {'grid grid-cols-5': all || !isSM}]">
                 <div v-if="!all && isSM" class="flex justify-end gap-1 font-semibold text-gray-900 dark:text-white">
                     <div class="whitespace-nowrap">{{ review.rating }} / 5</div>
-                    <div> 
-                        <UIcon
-                            name="i-heroicons-star-solid"
-                            class="w-5 h-5 text-yellow-400"
-                        />
-                    </div>
+                    <UIcon
+                        name="i-heroicons-star-solid"
+                        class="w-fit h-5 text-yellow-400"
+                    />
                 </div>
                 <template v-else>
                     <div
@@ -77,8 +75,9 @@
     dayjs.extend(LocalizedFormat);
 
     const { $screenSize } = useNuxtApp()    
-    const isSM = unref($screenSize) === 'sm'
-    
+    const isSM = computed(() => ['xs', 'sm'].includes((unref($screenSize) as string)))
+    const isLG = computed(() => (unref($screenSize) as string) === 'lg')
+
     interface reviewType {
       id?: number
       name: string,
