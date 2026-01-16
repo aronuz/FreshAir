@@ -6,7 +6,7 @@
     <template #header>
         <div class="flex md:justify-between gap-1 flex-wrap items-start">
             <div class="flex flex-col sm:gap-4">
-                <h3 :class="['font-semibold text-gray-900 dark:text-white max-w-[100%]', all && isSM? 'w-[40vw]' : 'w-20']">
+                <h3 :class="['font-semibold text-gray-900 dark:text-white max-w-[100%] truncate', all && isSM? 'w-[40vw]' : 'w-20']">
                 {{ review.name }}
                 </h3>
                 <UBadge v-if="review.verified"
@@ -25,7 +25,7 @@
                     <div class="whitespace-nowrap">{{ review.rating }} / 5</div>
                     <UIcon
                         name="i-heroicons-star-solid"
-                        class="w-fit h-5 text-yellow-400"
+                        class="h-5 text-yellow-400"
                     />
                 </div>
                 <template v-else>
@@ -57,7 +57,7 @@
     </template>
 
     <div class="grid grid-rows-2 gap-2">
-        <div class="text-gray-700 dark:text-gray-300 leading-relaxed">
+        <div class="text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-3">
             {{ review.content }}
         </div>
         <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">

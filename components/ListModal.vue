@@ -1,6 +1,7 @@
 <template>
   <UModal
     v-model:open="isOpen"
+    :description="newReview === 1 ? 'Be truthful and amplify' : newReview === -1 ? 'View and manage your appointments' : 'Just the cold facts and hot takes'"
     :title="title"
     :close="{
       color: 'info',  
