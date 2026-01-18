@@ -2,7 +2,7 @@ const userRole = useState<string | null>('userRole', () => null)
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
     //console.log('to', to, 'from', from)
-    const supabase = useSupabaseClient()
+    const supabase = useSupabaseCustom()
     const guestUser = useGuestUser()
 
     // Wait for the session to be retrieved from Supabase

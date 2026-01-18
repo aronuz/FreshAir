@@ -115,7 +115,7 @@
   const childRef = ref<childRefType | null>(null)
 
   const { toastBar } = useToastBar()
-  const supabase = useSupabaseClient();
+  const supabase = useSupabaseCustom();
   const success = ref(false)
   const pending = ref(false);
   const regform = ref()

@@ -19,7 +19,7 @@ const guestUser = useGuestUser()
 const roleSet = ref(false)
 //console.log('in booking')
 onMounted(async () => {
-  const supabase = useSupabaseClient()
+  const supabase = useSupabaseCustom()
   const { data: { session } } = await supabase.auth.getSession()
   if (!guestUser.value && (!session || !session.user)) {
     const route = useRoute(), router = useRouter()

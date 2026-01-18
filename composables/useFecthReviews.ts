@@ -8,7 +8,7 @@ interface reviewType {
 }
 
 export const useFetchReviews = () => {
-  const supabase = useSupabaseClient()
+  const supabase = useSupabaseCustom()
   const { error, isPending, setError, setLoading, reset } = useAsyncError()
 
   const fetchReviews = async (all: boolean) => {

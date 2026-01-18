@@ -36,7 +36,7 @@
   const emit = defineEmits(['verify-code'])
 
   const { toastBar } = useToastBar()
-  const supabase = useSupabaseClient();
+  const supabase = useSupabaseCustom();
 
   const otpCode = ref(null)
 

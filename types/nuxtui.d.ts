@@ -8,4 +8,5 @@ declare module 'nuxt/ui' {
   
   export default {}
 }
+
 export {}

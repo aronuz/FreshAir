@@ -52,7 +52,7 @@
     const childRef = ref<childRefType | null>(null)
 
     const { toastBar } = useToastBar()
-    const supabase = useSupabaseClient()
+    const supabase = useSupabaseCustom()
     const success = ref(false)
     const sendLabel = ref('Send Link')
     const loginState = reactive({...initState})

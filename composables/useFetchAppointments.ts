@@ -37,7 +37,7 @@ const groupByDate = (data: AppointmentData[]) => {
 }
 
 export const useFetchAppointments = () => {
-  const supabase = useSupabaseClient()
+  const supabase = useSupabaseCustom()
   const { error, isPending, setError, setLoading, reset } = useAsyncError()
 
   const fetchAppointments = async ({limit = 0, id = null, list = false, index = false, startDate = null, endDate = null}: Partial<FetchOptions>) => {
@@ -129,7 +129,7 @@ export const useFetchAppointments = () => {
     } else {
       setLoading(true)
       try {                
-        const supabase = useSupabaseClient()
+        const supabase = useSupabaseCustom()
         const { title, email, phone, ...rest } = appointment
         const appoinmentData = { ...rest }
         const userData = { title, email, phone }

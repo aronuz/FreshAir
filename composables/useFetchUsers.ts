@@ -13,7 +13,7 @@ export interface UserData {
 }
 
 export const useFetchUsers = () => {
-  const supabase = useSupabaseClient()
+  const supabase = useSupabaseCustom()
   const { error, isPending, setError, setLoading, reset } = useAsyncError()
 
   const fetchUsers = async (userId: string | undefined = undefined) => {

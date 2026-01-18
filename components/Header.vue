@@ -86,7 +86,7 @@
   const { getPageAccess } = useFetchPages(),
     guestUser = useGuestUser(),
     user = useSupabaseUser(),
-    supabase = useSupabaseClient(),
+    supabase = useSupabaseCustom(),
     route = useRoute(),
     router = useRouter(),
     currentPath = ref(route.path)

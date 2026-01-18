@@ -1,7 +1,7 @@
 export default defineNuxtPlugin((nuxtApp) => {
   
   const addRoleRecord = async (userId, role) => {
-    const supabase = useSupabaseClient()
+    const supabase = useSupabaseCustom()
     const id = typeof userId === 'string' ? 'user_id' : 'id'
     // Upsert the user role record
     // This will insert a new record or update the existing one

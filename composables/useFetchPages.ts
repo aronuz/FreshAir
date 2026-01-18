@@ -1,5 +1,5 @@
 export const useFetchPages = () => {
-  const supabase = useSupabaseClient()
+  const supabase = useSupabaseCustom()
   const { error, isPending, setError, setLoading, reset } = useAsyncError()
 
   const getPageAccess = async () => {

@@ -1,7 +1,7 @@
 import type { staff } from '~/components/Team.vue'
 
 export const useFetchStaffProfiles = () => {
-  const supabase = useSupabaseClient()
+  const supabase = useSupabaseCustom()
   const { error, isPending, setError, setLoading, reset } = useAsyncError()
 
 const fetchStaffProfiles = async () => {

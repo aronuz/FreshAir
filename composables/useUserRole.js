@@ -16,7 +16,7 @@ export const useSetRole = async (userId, role = 'user') => {
 
 export const useCheckRole = async (id) => {
   const { toastBar } = useToastBar()
-  const supabase = useSupabaseClient()
+  const supabase = useSupabaseCustom()
 
   const { data, error } = await supabase
     .from('user_roles')
