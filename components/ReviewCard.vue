@@ -1,12 +1,12 @@
 <template>
   <UCard
-    :class="['flex', 'flex-col', 'w-full', { 'xl:w-full max-sm:w-fit': !all }]"
+    :class="['flex', 'flex-col', { 'w-full': all }, { 'max-sm:w-full': !all }]"
     :ui="{ body: 'px-6 sm:px-6 py-3 sm:py-3' }"
   >
     <template #header>
         <div class="flex md:justify-between gap-1 flex-wrap items-start">
             <div class="flex flex-col sm:gap-4">
-                <h3 :class="['font-semibold text-gray-900 dark:text-white max-w-[100%] truncate', all && isSM? 'w-[40vw]' : 'w-20']">
+                <h3 :class="['font-semibold text-gray-900 dark:text-white max-w-[100%] leading-12 truncate', all && isSM? 'w-[40vw]' : 'w-20']">
                 {{ review.name }}
                 </h3>
                 <UBadge v-if="review.verified"
