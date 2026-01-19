@@ -1,4 +1,6 @@
-export const useSupabaseCustom = (): unknown => {
+import type { SupabaseClient } from '@supabase/supabase-js'
+
+export const useSupabaseCustom = (): SupabaseClient => {
   const client = useSupabaseClient()
   
   if (!client) {
