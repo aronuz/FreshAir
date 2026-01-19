@@ -38,7 +38,7 @@
     },
     {
       rel: 'stylesheet',
-      href: 'href://fonts.googleapis.com/css2?family=Inter&display=swap',
+      href: 'https://fonts.googleapis.com/css2?family=Inter&display=swap',
       crossorigin: ''
     }]
   })

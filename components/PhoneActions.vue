@@ -54,8 +54,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const { $screenSize } = useNuxtApp()
-const screenSize = unref($screenSize)
-console.log('screenSize', screenSize)
+const screenSize = unref($screenSize) as string
 const confirmationModal = ref<InstanceType<typeof ConfirmationModal> | null>(null);
 const message = ref('')
 let actionRoute = ref('')
