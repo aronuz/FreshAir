@@ -2,10 +2,21 @@
   <UContainer class="py-4">
     <div class="flex flex-row nowrap justify-between">
       <div class="nav-top-left">
-        <MyButton btnType="secondary" class="w-fit hover:cursor-pointer p-1 bg-[url('/images/ac_unit.png')] bg-cover" @click.native="navigateTo('/')" ariaLabel="Home">
-          <UCard class="w-fit font-bold opacity-80 btn-card">
+        <MyButton btnType="secondary" class="max-sm:w-5/6 h-auto hover:cursor-pointer p-1 bg-[url('/images/ac_unit.png')] bg-center" @click.native="navigateTo('/')" ariaLabel="Home">
+          <UCard 
+            class="w-fit font-bold opacity-80 btn-card"
+            :ui="{header: 'p-0! sm:px-0!', body: 'p-0! sm:p0!'}"
+          >
+            <template #header>
+              <img
+                src="/images/FreshAirLogo.png"
+                alt="Fresh Air HVAC Logo"
+                format="webp"
+                class="relative top-2 m-auto w-10 h-10"
+              />
+            </template>
             <h1 class="text-2xl font-bold text-secondary-500">Fresh Air HVAC</h1>
-            <p class="text-sm text-bold text-gray-500">Your Comfort, Our Priority</p>
+            <p class="text-sm text-bold text-gray-900">Your Comfort, Our Priority</p>
           </UCard>
         </MyButton>
       </div>
@@ -25,7 +36,7 @@
           : 'i-heroicons-x-mark'"
         size="xl"
         btnType="primary"
-        class="md:hidden flex justify-center w-20 h-20 m-auto"
+        class="md:hidden flex justify-center w-20 h-20 m-auto hover:cursor-pointer"
         @click="toggleMobileMenu"
         :ui="{leadingIcon: 'size-15'}"
         ariaLabel="Toggle Mobile Menu"
@@ -46,7 +57,7 @@
           <NuxtLink to="/about" id="about" class="w-fit h-10 bg-gray-400 px-5 rounded-lg text-shadow-lg text-shadow-yellow-900 hover:text-shadow-blue-900">About Us</NuxtLink> -->
         </nav>
       </div>
-      <UCard v-if="isMobileMenuOpen" class="md:hidden absolute z-100 right-10" variant="outline" :ui="{root: 'bg-default text-default'}">
+      <UCard v-if="isMobileMenuOpen" class="md:hidden absolute z-100 right-10 " variant="outline" :ui="{root: 'bg-gray-400 text-default'}">
         <nav class="flex flex-col gap-4 text-4xl">
           <template v-for="link in siteLinks" :key="link.to">
             <NuxtLink v-if="link.to !== '/admin' || userRole === 'admin'" :to="link.to === '/index' ? '/' : link.to" @click="isMobileMenuOpen = false">{{link.name}}</NuxtLink>

@@ -35,7 +35,7 @@ export default defineNuxtConfig({
         { name: 'description', content: 'Expert HVAC Services for residential and commercial clients.' }
       ],
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+        { rel: 'icon', type: 'image/x-icon', href: '/FreshAirLogo.ico' }
       ],
     },
     pageTransition: { name: 'page', mode: 'default' }
