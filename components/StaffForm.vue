@@ -39,7 +39,7 @@
             <!-- Image Preview -->
             <div v-if="imagePreview && fileName" class="flex flex-col items-center justify-center border border-gray-300 rounded-md overflow-hidden p-4">
                 <NuxtImg :src="imagePreview as string" :alt="fileName" format="webp" class="w-40 h-40 object-cover rounded mb-2" />
-                <span class="text-xs text-gray-600 text-center truncate">{{ fileName }}</span>
+                <span class="text-sm text-gray-600 text-center truncate">{{ fileName }}</span>
             </div>
         </div>
 
