@@ -12,7 +12,7 @@
                         <label for="email" class="text-base font-semibold whitespace-nowrap mr-2">Email</label>
                         <UInput id="email" v-model="loginState.email" type="email" placeholder="Email" class="flex-1"/>
                     </div>
-                    <div class="text-xs text-gray-900 mt-1">A {{ reset ? 'password reset' : 'confirmation' }} link will be sent to your email.</div>
+                    <div class="text-sm text-gray-900 mt-1">A {{ reset ? 'password reset' : 'confirmation' }} link will be sent to your email.</div>
                 </UFormField>
 
                 <MyButton type="submit" class="mb-2" btnType="primary" :label="sendLabel" :loading="pending" :disabled="pending"/>
@@ -29,7 +29,7 @@
 
 <script lang="ts" setup>
     import { z } from 'zod'
-
+    
     interface childRefType {
         guestUser: any
     }
@@ -38,12 +38,19 @@
         email: string | undefined,
     }
 
-    const path = window.location.origin
-    const resetEmail = history.state.email ?? undefined
-    const reset = history.state.reset ?? false
-    const initState: loginType = {
-        email: resetEmail,
-    }
+    let path: string | null = null
+    let resetEmail = null
+    let reset = false
+    let initState: loginType = { email: undefined }
+
+    onMounted(() => {
+        path = window.location.origin
+        resetEmail = history.state.email ?? undefined
+        reset = history.state.reset ?? false
+        initState = {
+            email: resetEmail,
+        }
+    })
 
     const schema = z.object({
         email: z.string().email("Invalid email address"),
@@ -52,15 +59,15 @@
     const childRef = ref<childRefType | null>(null)
 
     const { toastBar } = useToastBar()
-    const supabase = useSupabaseCustom()
     const success = ref(false)
     const sendLabel = ref('Send Link')
-    const loginState = reactive({...initState})
+    const loginState = reactive({...initState ?? {}})
     const pending = ref(false)
 
     watch(() => pending.value, (value) => sendLabel.value = value ? 'Sending link...' : 'Send Link')
 
     const handleOTPLogin = async () => {
+        const supabase = useSupabaseCustom()
         pending.value = true  
         let otpError: unknown = null
         try {
